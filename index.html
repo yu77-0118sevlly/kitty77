@@ -526,9 +526,12 @@
             function safeSet(key, val) { try { localStorage.setItem(key, val); return true; } catch(e) { return false; } }
             function safeParse(key, def) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch(e) { return def; } }
 
-            function loadConfig() {
-                const saved = safeParse('app_layout_config', null);
-                if (saved) { page1Apps = saved.page1Apps || page1Apps; page2Apps = saved.page2Apps || page2Apps; page3Apps = saved.page3Apps || page3Apps; dockApps = saved.dockApps || dockApps; }
+         function loadConfig() {
+                // 强制恢复默认应用列表，不读取保存的配置
+                page1Apps = ['world', 'settings', 'doing', 'memory', 'truth-dare', 'birthday', 'tomato', 'forum', 'listen'];
+                page2Apps = ['meituan', 'couple', 'calendar', 'shopping', 'travel', 'phone', 'stock', 'diary', 'browser', 'game'];
+                page3Apps = ['map', 'express', 'weibo', 'twitter', 'xiaohongshu', 'douyin', 'live'];
+                dockApps = ['chat', 'message', 'phone', 'beauty'];
                 customIcons = safeParse('custom_icons', {});
                 wallpaperUrl = safeGet('wallpaper', '');
                 userAvatar = safeGet('userAvatar', '');
@@ -554,7 +557,6 @@
                 diaryEntries = safeParse('diaryEntries', []);
                 stockItems = safeParse('stockItems', []);
                 expressData = safeParse('expressData', []);
-                // 新增持久化字段
                 showAIAvatar = safeParse('showAIAvatar', true);
                 showUserAvatar = safeParse('showUserAvatar', true);
                 bubbleCSS = safeGet('bubbleCSS', '');
@@ -589,7 +591,6 @@
                 updateBirthdayCountdown();
                 updateTomatoDisplay();
             }
-
             function saveConfig() {
                 removeDockAppsFromPages();
                 safeSet('app_layout_config', JSON.stringify({page1Apps, page2Apps, page3Apps, dockApps}));
