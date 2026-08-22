@@ -1935,7 +1935,34 @@
             renderLiveList();
             updateBirthdayCountdown();
             updateTomatoDisplay();
-      document.querySelectorAll('.back-button').forEach(btn => btn.remove());  })();
+      document.querySelectorAll('.back-button').forEach(btn => btn.remove()); // 右滑返回（全局）
+let touchStartX = 0;
+let touchStartY = 0;
+
+document.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+document.addEventListener('touchend', function(e) {
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const deltaX = endX - touchStartX;
+    const deltaY = endY - touchStartY;
+
+    // 判断右滑：水平距离 > 50px，且垂直偏移不大（避免误触）
+    if (deltaX > 50 && Math.abs(deltaY) < Math.abs(deltaX) * 0.5) {
+        // 找到当前可见的应用覆盖层
+        const visibleOverlay = document.querySelector('.app-overlay:not(.overlay-hidden)');
+        if (visibleOverlay) {
+            // 从 id 中提取应用名（如 overlay-chat → chat）
+            const appId = visibleOverlay.id.replace('overlay-', '');
+            if (typeof closeApp === 'function') {
+                closeApp(appId);
+            }
+        }
+    }
+}, { passive: true }); })();
     </script>
     <script>
 if ('serviceWorker' in navigator) {
