@@ -1935,7 +1935,7 @@
             renderLiveList();
             updateBirthdayCountdown();
             updateTomatoDisplay();
-        })();
+      document.querySelectorAll('.back-button').forEach(btn => btn.remove());  })();
     </script>
     <script>
 if ('serviceWorker' in navigator) {
