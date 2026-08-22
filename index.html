@@ -234,7 +234,7 @@
                 <div class="conversation-input-area"><input type="text" class="conversation-input" id="conversationInput" placeholder="输入消息..."><button class="conversation-send-btn" onclick="sendUserMessage()">发送</button><button class="conversation-ai-btn" onclick="sendAIReply()">AI回复</button></div>
             </div>
             <div class="settings-page" id="conversationSettingsPage">
-                <div class="overlay-header"><button class="back-button" onclick="backToConversation()">返回</button><span class="overlay-title">对话设置</span></div>
+                <div class="overlay-header"><button class="settings-back-btn" onclick="backFromSettings()">返回</button><span class="overlay-title">对话设置</span></div>
                 <div class="overlay-content">
                     <div class="card"><div class="card-title">备注设置</div><input type="text" class="setting-input" id="remarkInput" value="测试AI"><button class="save-button" onclick="saveRemark()">保存备注</button></div>
                     <div class="card"><div class="card-title">显示AI头像</div><div class="toggle-switch on" id="toggleShowAIAvatar" onclick="toggleSwitch(this)"></div></div>
@@ -1940,7 +1940,13 @@
             renderLiveList();
             updateBirthdayCountdown();
             updateTomatoDisplay();
-      document.querySelectorAll('.back-button').forEach(btn => btn.remove()); // 右滑返回（全局）
+     document.querySelectorAll('.back-button:not(.settings-back-btn)').forEach(btn => btn.remove());window.backFromSettings = function() {
+    document.getElementById('conversationSettingsPage').classList.remove('active');
+    document.getElementById('conversationPage').classList.add('active');
+    document.getElementById('chatNav').style.display = 'flex';
+    document.querySelector('#overlay-chat .overlay-header').style.display = 'flex';
+    document.getElementById('overlay-chat').classList.remove('overlay-hidden');
+};  // 右滑返回（全局）
 let touchStartX = 0;
 let touchStartY = 0;
 
