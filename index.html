@@ -6,6 +6,8 @@
        <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="无忧机"> 
+    <meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="/manifest.json">
     <title>无忧机</title>
     <style>
@@ -1935,5 +1937,10 @@
             updateTomatoDisplay();
         })();
     </script>
+    <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
 </body>
 </html>
