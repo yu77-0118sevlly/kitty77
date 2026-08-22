@@ -1711,13 +1711,16 @@
             };
 
             window.closeConversation = function() {
-                document.getElementById('conversationPage').classList.remove('active');
-                document.getElementById('conversationSettingsPage').classList.remove('active');
-                document.getElementById('chatPage-chat').classList.add('active');
-                document.getElementById('chatNav').style.display = 'flex';
-                document.querySelector('#overlay-chat .overlay-header').style.display = 'flex';
-                renderChatLists();
-            };
+    document.getElementById('conversationPage').classList.remove('active');
+    document.getElementById('conversationSettingsPage').classList.remove('active');
+    document.getElementById('chatPage-chat').classList.add('active');
+
+    // 移除内联样式，让 CSS 的 display: flex 生效
+    document.getElementById('chatNav').style.display = '';
+    document.querySelector('#overlay-chat .overlay-header').style.display = '';
+
+    renderChatLists();
+};
 
             window.showConversationSettings = function() {
                 document.getElementById('conversationPage').classList.remove('active');
