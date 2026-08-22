@@ -1764,7 +1764,7 @@ function applyChatStyles() {
                 document.getElementById('toggleShowAIAvatar').classList.toggle('on', showAIAvatar);
                 document.getElementById('toggleShowUserAvatar').classList.toggle('on', showUserAvatar);
                 document.getElementById('remarkInput').value = remarkName;
-                document.getElementById('bubbleCSSInput').value = bubbleCSS;
+                document.getElementById('bubbleCSSInput').value = bubbleCSS;applyChatStyles(); 
             };
 
             window.closeConversation = function() {
@@ -1780,28 +1780,29 @@ function applyChatStyles() {
 };
 
             window.showConversationSettings = function() {
-                document.getElementById('conversationPage').classList.remove('active');
-                document.getElementById('conversationSettingsPage').classList.add('active');
-                document.getElementById('overlay-chat').classList.remove('overlay-hidden');
-                document.getElementById('remarkInput').value = remarkName;
-                document.getElementById('bubbleCSSInput').value = bubbleCSS;applyChatStyles();
-                document.getElementById('toggleShowAIAvatar').classList.toggle('on', showAIAvatar);
-                document.getElementById('toggleShowUserAvatar').classList.toggle('on', showUserAvatar);
-           document.getElementById('avatarSizeSlider').value = chatAvatarSize;
-document.getElementById('avatarSizeLabel').textContent = chatAvatarSize;
-document.getElementById('bubbleSizeSlider').value = chatBubbleSize;
-document.getElementById('bubbleSizeLabel').textContent = chatBubbleSize;
-             };
+    document.getElementById('conversationPage').classList.remove('active');
+    document.getElementById('conversationSettingsPage').classList.add('active');
+    document.getElementById('overlay-chat').classList.remove('overlay-hidden');
+    document.getElementById('remarkInput').value = remarkName;
+    document.getElementById('bubbleCSSInput').value = bubbleCSS;
+    document.getElementById('toggleShowAIAvatar').classList.toggle('on', showAIAvatar);
+    document.getElementById('toggleShowUserAvatar').classList.toggle('on', showUserAvatar);
+    document.getElementById('avatarSizeSlider').value = chatAvatarSize;
+    document.getElementById('avatarSizeLabel').textContent = chatAvatarSize;
+    document.getElementById('bubbleSizeSlider').value = chatBubbleSize;
+    document.getElementById('bubbleSizeLabel').textContent = chatBubbleSize;
+};
 
             window.backFromSettings = function() {
-                document.getElementById('conversationSettingsPage').classList.remove('active');
-                document.getElementById('conversationPage').classList.add('active');
-                document.getElementById('chatNav').style.display = 'none';
-                document.querySelector('#overlay-chat .overlay-header').style.display = 'none';
-                document.getElementById('overlay-chat').classList.remove('overlay-if (document.getElementById('conversationPage').classList.contains('active')) {
-    applyChatStyles();
-}
-            };
+    document.getElementById('conversationSettingsPage').classList.remove('active');
+    document.getElementById('conversationPage').classList.add('active');
+    document.getElementById('chatNav').style.display = 'none';
+    document.querySelector('#overlay-chat .overlay-header').style.display = 'none';
+    document.getElementById('overlay-chat').classList.remove('overlay-hidden');
+    if (document.getElementById('conversationPage').classList.contains('active')) {
+        applyChatStyles();
+    }
+};
 
             window.saveRemark = function() {
                 const val = document.getElementById('remarkInput').value.trim();
