@@ -1732,8 +1732,8 @@
            window.backToConversation = function() {
     document.getElementById('conversationSettingsPage').classList.remove('active');
     document.getElementById('conversationPage').classList.add('active');
-    document.getElementById('chatNav').style.display = 'flex';
-    document.querySelector('#overlay-chat .overlay-header').style.display = 'flex';
+    document.getElementById('chatNav').style.display = 'none';
+    document.querySelector('#overlay-chat .overlay-header').style.display = 'none';
     document.getElementById('overlay-chat').classList.remove('overlay-hidden');
 };
 
