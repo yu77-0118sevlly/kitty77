@@ -561,76 +561,78 @@ let chatBubbleSize = 14;
             function safeSet(key, val) { try { localStorage.setItem(key, val); return true; } catch(e) { return false; } }
             function safeParse(key, def) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch(e) { return def; } }
 
-            function loadConfig() {
-                // 强制使用默认应用列表
-                page1Apps = ['world', 'settings', 'doing', 'memory', 'truth-dare', 'birthday', 'tomato', 'forum', 'listen'];
-                page2Apps = ['meituan', 'couple', 'calendar', 'shopping', 'travel', 'phone', 'stock', 'diary', 'browser', 'game'];
-                page3Apps = ['map', 'express', 'weibo', 'twitter', 'xiaohongshu', 'douyin', 'live'];
-                dockApps = ['chat', 'message', 'phone', 'beauty'];
-                
-                // 其他数据正常读取（不读取 app_layout_config）
-                customIcons = safeParse('custom_icons', {});
-                wallpaperUrl = safeGet('wallpaper', '');
-                userAvatar = safeGet('userAvatar', '');
-                userName = safeGet('userName', '我的昵称');
-                userSignature = safeGet('userSignature', '个性签名');
-                walletBalance = parseFloat(safeGet('walletBalance', '0'));
-                bankCards = safeParse('bankCards', []);
-                relativeCards = safeParse('relativeCards', []);
-                masks = safeParse('masks', []);
-                customAIs = safeParse('customAIs', []);
-                globalApiConfig = safeParse('globalApiConfig', { url: '', key: '', model: '', temperature: 0.7 });
-                coupleLeftAvatar = safeGet('coupleLeftAvatar', '');
-                coupleRightAvatar = safeGet('coupleRightAvatar', '');
-                coupleLeftName = safeGet('coupleLeftName', '用户');
-                coupleRightName = safeGet('coupleRightName', '用户');
-                glassImageUrl = safeGet('glassImageUrl', '');
-                glassText = safeGet('glassText', '记录此刻');
-                worldbooks = safeParse('worldbooks', []);
-                smsMessages = safeParse('smsMessages', []);
-                memories = safeParse('memories', []);
-                forumPosts = safeParse('forumPosts', []);
-                listenSongs = safeParse('listenSongs', []);
-                diaryEntries = safeParse('diaryEntries', []);
-                stockItems = safeParse('stockItems', []);
-                expressData = safeParse('expressData', []);
-                showAIAvatar = safeParse('showAIAvatar', true);
-                showUserAvatar = safeParse('showUserAvatar', true);
-                bubbleCSS = safeGet('bubbleCSS', '');
-                remarkName = safeGet('remarkName', '测试AI');
-                currentAIAvatar = safeGet('currentAIAvatar', '');
-                conversations = safeParse('conversations', {});
-                chatAvatarSize = parseInt(safeGet('chatAvatarSize', '40')) || 40;
-chatBubbleSize = parseInt(safeGet('chatBubbleSize', '14')) || 14;
-                
-                removeDockAppsFromPages();
-                applyWallpaper();
-                updateUserDisplay();
-                updateCoupleDisplay();
-                updateGlassDisplay();
-                renderChatLists();
-                renderWorldbooks();
-                updateWalletDisplay();
-                renderSMSList();
-                initMeituanItems();
-                initShoppingItems();
-                renderCalendar();
-                renderDoingList();
-                renderMemoryList();
-                renderForumList();
-                renderListenList();
-                renderPhoneInfo();
-                renderStockList();
-                renderDiaryList();
-                renderGameGrid();
-                renderWeiboList();
-                renderTwitterList();
-                renderXiaohongshuList();
-                renderDouyinList();
-                renderLiveList();
-                updateBirthdayCountdown();
-                updateTomatoDisplay();
-            }
+         function loadConfig() {
+    // 强制重置应用列表
+    page1Apps = ['world', 'settings', 'doing', 'memory', 'truth-dare', 'birthday', 'tomato', 'forum', 'listen'];
+    page2Apps = ['meituan', 'couple', 'calendar', 'shopping', 'travel', 'phone', 'stock', 'diary', 'browser', 'game'];
+    page3Apps = ['map', 'express', 'weibo', 'twitter', 'xiaohongshu', 'douyin', 'live'];
+    dockApps = ['chat', 'message', 'phone', 'beauty'];
+    // 删除旧配置
+    localStorage.removeItem('app_layout_config');
+    
+    // 其他数据正常读取
+    customIcons = safeParse('custom_icons', {});
+    wallpaperUrl = safeGet('wallpaper', '');
+    userAvatar = safeGet('userAvatar', '');
+    userName = safeGet('userName', '我的昵称');
+    userSignature = safeGet('userSignature', '个性签名');
+    walletBalance = parseFloat(safeGet('walletBalance', '0'));
+    bankCards = safeParse('bankCards', []);
+    relativeCards = safeParse('relativeCards', []);
+    masks = safeParse('masks', []);
+    customAIs = safeParse('customAIs', []);
+    globalApiConfig = safeParse('globalApiConfig', { url: '', key: '', model: '', temperature: 0.7 });
+    coupleLeftAvatar = safeGet('coupleLeftAvatar', '');
+    coupleRightAvatar = safeGet('coupleRightAvatar', '');
+    coupleLeftName = safeGet('coupleLeftName', '用户');
+    coupleRightName = safeGet('coupleRightName', '用户');
+    glassImageUrl = safeGet('glassImageUrl', '');
+    glassText = safeGet('glassText', '记录此刻');
+    worldbooks = safeParse('worldbooks', []);
+    smsMessages = safeParse('smsMessages', []);
+    memories = safeParse('memories', []);
+    forumPosts = safeParse('forumPosts', []);
+    listenSongs = safeParse('listenSongs', []);
+    diaryEntries = safeParse('diaryEntries', []);
+    stockItems = safeParse('stockItems', []);
+    expressData = safeParse('expressData', []);
+    showAIAvatar = safeParse('showAIAvatar', true);
+    showUserAvatar = safeParse('showUserAvatar', true);
+    bubbleCSS = safeGet('bubbleCSS', '');
+    remarkName = safeGet('remarkName', '测试AI');
+    currentAIAvatar = safeGet('currentAIAvatar', '');
+    conversations = safeParse('conversations', {});
+    chatAvatarSize = parseInt(safeGet('chatAvatarSize', '40')) || 40;
+    chatBubbleSize = parseInt(safeGet('chatBubbleSize', '14')) || 14;
+    
+    removeDockAppsFromPages();
+    applyWallpaper();
+    updateUserDisplay();
+    updateCoupleDisplay();
+    updateGlassDisplay();
+    renderChatLists();
+    renderWorldbooks();
+    updateWalletDisplay();
+    renderSMSList();
+    initMeituanItems();
+    initShoppingItems();
+    renderCalendar();
+    renderDoingList();
+    renderMemoryList();
+    renderForumList();
+    renderListenList();
+    renderPhoneInfo();
+    renderStockList();
+    renderDiaryList();
+    renderGameGrid();
+    renderWeiboList();
+    renderTwitterList();
+    renderXiaohongshuList();
+    renderDouyinList();
+    renderLiveList();
+    updateBirthdayCountdown();
+    updateTomatoDisplay();
+}
 
             function saveConfig() {
                 removeDockAppsFromPages();
