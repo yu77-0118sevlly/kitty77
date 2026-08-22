@@ -1719,19 +1719,23 @@
                 renderChatLists();
             };
 
-            window.showConversationSettings = function() {
-                document.getElementById('conversationPage').classList.remove('active');
-                document.getElementById('conversationSettingsPage').classList.add('active');
-                document.getElementById('remarkInput').value = remarkName;
-                document.getElementById('bubbleCSSInput').value = bubbleCSS;
-                document.getElementById('toggleShowAIAvatar').classList.toggle('on', showAIAvatar);
-                document.getElementById('toggleShowUserAvatar').classList.toggle('on', showUserAvatar);
-            };
+          window.showConversationSettings = function() {
+    document.getElementById('conversationPage').classList.remove('active');
+    document.getElementById('conversationSettingsPage').classList.add('active');
+    document.getElementById('overlay-chat').classList.remove('overlay-hidden');
+    document.getElementById('remarkInput').value = remarkName;
+    document.getElementById('bubbleCSSInput').value = bubbleCSS;
+    document.getElementById('toggleShowAIAvatar').classList.toggle('on', showAIAvatar);
+    document.getElementById('toggleShowUserAvatar').classList.toggle('on', showUserAvatar);
+};
 
-            window.backToConversation = function() {
-                document.getElementById('conversationSettingsPage').classList.remove('active');
-                document.getElementById('conversationPage').classList.add('active');
-            };
+           window.backToConversation = function() {
+    document.getElementById('conversationSettingsPage').classList.remove('active');
+    document.getElementById('conversationPage').classList.add('active');
+    document.getElementById('chatNav').style.display = 'flex';
+    document.querySelector('#overlay-chat .overlay-header').style.display = 'flex';
+    document.getElementById('overlay-chat').classList.remove('overlay-hidden');
+};
 
             window.saveRemark = function() {
                 const val = document.getElementById('remarkInput').value.trim();
