@@ -1992,7 +1992,15 @@ document.addEventListener('touchend', function(e) {
             }
         }
     }
-}, { passive: true });
+}, { passive: true // 强制重置应用列表（覆盖之前所有操作）
+page1Apps = ['world', 'settings', 'doing', 'memory', 'truth-dare', 'birthday', 'tomato', 'forum', 'listen'];
+page2Apps = ['meituan', 'couple', 'calendar', 'shopping', 'travel', 'phone', 'stock', 'diary', 'browser', 'game'];
+page3Apps = ['map', 'express', 'weibo', 'twitter', 'xiaohongshu', 'douyin', 'live'];
+dockApps = ['chat', 'message', 'phone', 'beauty'];
+// 强制重新渲染应用
+renderApps();
+// 删除本地存储中保存的应用布局配置（防止下次加载又读回来）
+localStorage.removeItem('app_layout_config');});
     </script>
     <script>
 if ('serviceWorker' in navigator) {
