@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>简约白 AI 主页</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg-color: #ffffff; --card-bg: #fafafa; --icon-bg: #f7f7f7; --text-primary: #1a1a1a; --text-secondary: #777; --text-muted: #999; --border-color: #f0f0f0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #e8e8e8; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 0; color: var(--text-primary); overflow: hidden; }
+        .phone-screen { width: 100%; max-width: 100vw; height: 100vh; height: 100dvh; background: var(--bg-color); border-radius: 0; box-shadow: none; display: flex; flex-direction: column; position: relative; overflow: hidden; background-size: cover; background-position: center; }
+        @media (min-width: 768px) { .phone-screen { max-width: 430px; height: 90vh; height: 90dvh; border-radius: 20px; box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 20px 40px -10px rgba(0,0,0,0.15); } }
+        .main-scroll-container { flex: 1; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; background: transparent; scrollbar-width: none; -ms-overflow-style: none; }
+        .main-scroll-container::-webkit-scrollbar { display: none; }
+        .page { flex: 0 0 100%; width: 100%; overflow-y: auto; scroll-snap-align: start; display: flex; flex-direction: column; background: transparent; padding-bottom: 8px; position: relative; }
+        .top-spacer { height: 14px; flex-shrink: 0; }
+        .profile-card { display: flex; align-items: center; gap: 12px; padding: 14px; margin: 4px 10px 6px; background: var(--card-bg); border-radius: 16px; cursor: pointer; }
+        .profile-avatar-wrapper { width: 50px; height: 50px; cursor: pointer; flex-shrink: 0; }
+        .profile-avatar { width: 50px; height: 50px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #777; cursor: pointer; border: 2px solid #fff; background-size: cover; background-position: center; }
+        .profile-info { flex: 1; }
+        .profile-name { font-weight: 600; font-size: 16px; cursor: pointer; }
+        .profile-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; cursor: pointer; }
+        .edit-badge { background: #f0f0f0; padding: 4px 10px; font-size: 11px; color: #666; cursor: pointer; border: none; border-radius: 20px; }
+        .couple-card { display: flex; align-items: center; justify-content: space-around; gap: 16px; padding: 16px; margin: 8px 10px 4px; background: var(--card-bg); border-radius: 16px; cursor: pointer; }
+        .couple-person { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .couple-avatar { width: 56px; height: 56px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #777; border: 2px solid #fff; background-size: cover; background-position: center; }
+        .couple-name { font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+        .couple-heart svg { width: 32px; height: 32px; stroke: #ccc; stroke-width: 1.5; fill: none; }
+        .glass-component { margin: 8px 10px 4px; background: rgba(255,255,255,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 16px; padding: 12px; border: 1px solid rgba(255,255,255,0.5); }
+        .glass-text { font-size: 13px; color: #444; cursor: pointer; background: rgba(255,255,255,0.6); padding: 5px 10px; border-radius: 20px; display: inline-block; }
+        .glass-image-area { width: 100%; height: 120px; background: #ececec; border-radius: 12px; margin-top: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #999; background-size: cover; background-position: center; font-size: 14px; }
+        .apps-grid { display: flex; flex-direction: column; gap: 16px; padding: 10px 8px 4px; }
+        .app-row { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; padding: 0 4px; min-height: 60px; }
+        .app-item { display: flex; flex-direction: column; align-items: center; width: 62px; cursor: pointer; background: transparent; border: none; }
+        .app-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: var(--icon-bg); margin-bottom: 4px; overflow: hidden; }
+        .app-icon svg { width: 26px; height: 26px; stroke: #999; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .app-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .app-label { font-size: 10px; color: var(--text-secondary); }
+        .bottom-dock { display: flex; justify-content: space-around; align-items: center; padding: 8px 12px 12px; background: var(--bg-color); border-top: 1px solid var(--border-color); min-height: 70px; }
+        .dock-item { display: flex; flex-direction: column; align-items: center; width: 54px; cursor: pointer; background: transparent; border: none; }
+        .dock-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--icon-bg); margin-bottom: 2px; }
+        .dock-icon svg { width: 22px; height: 22px; stroke: #999; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .dock-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .dock-label { font-size: 9px; color: var(--text-secondary); }
+        .app-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 100; display: flex; flex-direction: column; transition: transform 0.25s; }
+        .overlay-hidden { transform: translateX(100%); pointer-events: none; }
+        .overlay-header { display: flex; align-items: center; padding: 12px 10px 10px; border-bottom: 1px solid var(--border-color); background: var(--bg-color); flex-shrink: 0; }
+        .back-button { font-size: 20px; background: transparent; border: none; cursor: pointer; color: #aaa; padding: 4px 10px; line-height: 1; }
+        .overlay-title { font-size: 17px; font-weight: 600; color: #333; }
+        .overlay-content { flex: 1; padding: 16px 14px 24px; overflow-y: auto; background: var(--bg-color); display: flex; flex-direction: column; gap: 14px; }
+        .card { background: var(--card-bg); border-radius: 16px; padding: 16px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .card-title { font-weight: 600; font-size: 15px; margin-bottom: 12px; color: #333; }
+        .setting-input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; background: #fff; outline: none; color: #333; margin-bottom: 8px; }
+        .setting-textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 13px; background: #fff; outline: none; color: #333; margin-bottom: 8px; min-height: 100px; resize: vertical; font-family: inherit; line-height: 1.5; }
+        .save-button { background: #333; color: #fff; border: none; border-radius: 10px; padding: 12px 18px; font-weight: 600; font-size: 14px; cursor: pointer; width: 100%; margin-top: 6px; }
+        .save-button:active { background: #555; }
+        .save-button.secondary { background: #f0f0f0; color: #333; }
+        .tab-bar { display: flex; gap: 4px; margin-bottom: 12px; }
+        .tab-btn { flex: 1; padding: 8px 4px; border-radius: 8px; border: 1px solid #ddd; background: #f5f5f5; cursor: pointer; font-size: 11px; text-align: center; transition: all 0.2s; color: #555; }
+        .tab-btn.active { background: #333; color: #fff; border-color: #333; }
+        .worldbook-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; border-radius: 8px; }
+        .worldbook-item:active { background: #f5f5f5; }
+        .worldbook-tag { font-size: 10px; padding: 2px 6px; border-radius: 8px; flex-shrink: 0; }
+        .worldbook-tag.global { background: #eee; color: #555; }
+        .worldbook-tag.single { background: #eee; color: #555; }
+        .worldbook-tag.required { background: #ddd; color: #333; }
+        .empty-state { text-align: center; color: #999; padding: 24px 16px; font-size: 13px; }
+        .modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 300; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: #fff; border-radius: 14px; padding: 18px; width: 90%; max-width: 360px; max-height: 80%; overflow-y: auto; position: relative; }
+        .modal-title { font-weight: 600; font-size: 15px; margin-bottom: 14px; color: #333; }
+        .modal-close-btn { position: absolute; top: 8px; right: 12px; background: none; border: none; font-size: 20px; cursor: pointer; color: #999; line-height: 1; }
+        .modal-input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; margin-bottom: 8px; outline: none; }
+        .modal-textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; margin-bottom: 8px; outline: none; min-height: 80px; resize: vertical; font-family: inherit; }
+        .modal-btn { background: #333; color: #fff; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; margin: 3px 0; width: 100%; }
+        .modal-btn.secondary { background: #f0f0f0; color: #333; }
+        .chat-nav { display: flex; justify-content: space-around; align-items: center; padding: 6px 0 8px; background: #fff; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
+        .chat-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; background: none; border: none; padding: 0 6px; }
+        .chat-nav-icon { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; }
+        .chat-nav-icon svg { width: 20px; height: 20px; stroke: #999; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .chat-nav-label { font-size: 9px; color: #888; }
+        .chat-nav-item.active .chat-nav-icon svg { stroke: #333; }
+        .chat-nav-item.active .chat-nav-label { color: #333; font-weight: 600; }
+        .chat-page { display: none; flex: 1; padding: 12px 14px; overflow-y: auto; }
+        .chat-page.active { display: block; }
+        .chat-list-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .chat-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+        .chat-avatar svg { width: 22px; height: 22px; stroke: #999; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .chat-list-info { flex: 1; }
+        .chat-list-name { font-weight: 600; font-size: 13px; color: #333; }
+        .chat-list-preview { font-size: 11px; color: #999; margin-top: 2px; }
+        .conversation-page { display: none; flex: 1; flex-direction: column; background: #fff; }
+        .conversation-page.active { display: flex; }
+        .conversation-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #f0f0f0; }
+        .conversation-header-left { display: flex; align-items: center; }
+        .conversation-messages { flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; }
+        .message-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+        .message-row.user { flex-direction: row-reverse; }
+        .message-avatar { width: 26px; height: 26px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #ddd; display: flex; align-items: center; justify-content: center; }
+        .message-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .message-avatar svg { width: 16px; height: 16px; stroke: #999; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .message-bubble { max-width: 80%; padding: 9px 12px; border-radius: 14px; font-size: 13px; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
+        .message-ai { background: #f0f0f0; color: #333; }
+        .message-user { background: #333; color: #fff; }
+        .conversation-input-area { display: flex; gap: 6px; padding: 8px 10px; border-top: 1px solid #f0f0f0; }
+        .conversation-input { flex: 1; padding: 9px 12px; border: 1px solid #ddd; border-radius: 18px; font-size: 13px; outline: none; }
+        .conversation-send-btn { padding: 9px 14px; background: #333; color: #fff; border: none; border-radius: 18px; cursor: pointer; font-size: 12px; }
+        .conversation-ai-btn { padding: 9px 14px; background: #888; color: #fff; border: none; border-radius: 18px; cursor: pointer; font-size: 12px; }
+        .three-dots-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: #333; padding: 4px 6px; }
+        .settings-page { display: none; flex: 1; padding: 12px 14px; overflow-y: auto; }
+        .settings-page.active { display: block; }
+        .toggle-switch { width: 36px; height: 20px; background: #ddd; border-radius: 10px; cursor: pointer; position: relative; transition: 0.2s; flex-shrink: 0; margin-top: 8px; }
+        .toggle-switch.on { background: #333; }
+        .toggle-switch::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: 0.2s; }
+        .toggle-switch.on::after { left: 18px; }
+        .wallet-page { display: none; flex: 1; padding: 12px 14px; overflow-y: auto; background: #fff; }
+        .wallet-page.active { display: block; }
+        .wallet-balance-card { background: #fafafa; border-radius: 14px; padding: 20px; text-align: center; margin-bottom: 14px; }
+        .wallet-balance-label { font-size: 12px; color: #999; margin-bottom: 6px; }
+        .wallet-balance-amount { font-size: 32px; font-weight: 700; color: #1a1a1a; }
+        .wallet-menu-item { display: flex; align-items: center; gap: 10px; padding: 14px 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .wallet-menu-icon { width: 32px; height: 32px; border-radius: 8px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; }
+        .wallet-menu-icon svg { width: 18px; height: 18px; stroke: #999; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .wallet-menu-label { font-size: 14px; color: #333; font-weight: 500; }
+        .wallet-menu-desc { font-size: 11px; color: #999; margin-top: 2px; }
+        .meituan-page, .shopping-page, .travel-page, .calendar-page, .sms-page, .couple-space-page { display: none; flex: 1; padding: 12px 14px; overflow-y: auto; background: #fff; }
+        .meituan-page.active, .shopping-page.active, .travel-page.active, .calendar-page.active, .sms-page.active, .couple-space-page.active { display: block; }
+        .meituan-item, .shopping-item, .travel-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; border-radius: 8px; }
+        .meituan-item:active, .shopping-item:active, .travel-item:active { background: #f5f5f5; }
+        .meituan-item-icon, .shopping-item-icon, .travel-item-icon { width: 48px; height: 48px; border-radius: 10px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; color: #999; }
+        .meituan-item-info, .shopping-item-info, .travel-item-info { flex: 1; }
+        .meituan-item-name, .shopping-item-name, .travel-item-name { font-weight: 600; font-size: 14px; color: #333; }
+        .meituan-item-desc, .shopping-item-desc, .travel-item-desc { font-size: 12px; color: #999; margin-top: 2px; }
+        .meituan-item-price, .shopping-item-price, .travel-item-price { font-weight: 700; font-size: 15px; color: #333; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px; }
+        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 6px; cursor: pointer; }
+        .calendar-day:hover { background: #f0f0f0; }
+        .calendar-day.today { background: #333; color: #fff; }
+        .calendar-day.other-month { color: #ccc; }
+        .calendar-weekday { text-align: center; font-size: 11px; color: #999; padding: 4px 0; }
+        .sms-item { display: flex; align-items: center; gap: 10px; padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .sms-item:active { background: #f5f5f5; }
+        .sms-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; color: #999; }
+        .sms-info { flex: 1; }
+        .sms-name { font-weight: 600; font-size: 13px; color: #333; }
+        .sms-preview { font-size: 11px; color: #999; margin-top: 2px; }
+        .sms-time { font-size: 10px; color: #ccc; }
+        .couple-space-header { text-align: center; padding: 20px 0; }
+        .couple-space-avatars { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 12px; }
+        .couple-space-avatar { width: 64px; height: 64px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #999; border: 2px solid #fff; background-size: cover; background-position: center; }
+        .couple-space-heart { font-size: 24px; color: #ccc; }
+        .couple-space-days { font-size: 13px; color: #999; }
+        .couple-space-feature { display: flex; align-items: center; gap: 10px; padding: 14px 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .couple-space-feature-icon { width: 32px; height: 32px; border-radius: 8px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; }
+        .couple-space-feature-icon svg { width: 18px; height: 18px; stroke: #999; stroke-width: 1.5; fill: none; }
+        .couple-space-feature-name { font-size: 14px; color: #333; font-weight: 500; }
+        .couple-space-feature-desc { font-size: 11px; color: #999; margin-top: 2px; }
+    </style>
+</head>
+<body>
+    <div class="phone-screen" id="phoneScreen">
+        <div class="main-scroll-container" id="mainScroll">
+            <div class="page" id="page1">
+                <div class="top-spacer"></div>
+                <div class="profile-card" id="profileCard">
+                    <div class="profile-avatar-wrapper" id="avatarWrapper"><div class="profile-avatar" id="profileAvatar">A</div><input type="file" id="avatarInput" accept="image/*" style="display:none;"></div>
+                    <div class="profile-info"><div class="profile-name" id="profileName">我的昵称</div><div class="profile-sub" id="profileSub">个性签名</div></div>
+                    <div class="edit-badge" id="editProfileBtn">编辑</div>
+                </div>
+                <div class="couple-card" id="coupleCard" onclick="openCoupleSpace()">
+                    <div class="couple-person" id="coupleLeft"><div class="couple-avatar" id="coupleAvatarLeft">L</div><div class="couple-name" id="coupleNameLeft">用户</div></div>
+                    <div class="couple-heart"><svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+                    <div class="couple-person" id="coupleRight"><div class="couple-avatar" id="coupleAvatarRight">R</div><div class="couple-name" id="coupleNameRight">用户</div></div>
+                </div>
+                <div class="glass-component" id="glassComponent">
+                    <div class="glass-text" id="glassText">记录此刻</div>
+                    <div class="glass-image-area" id="glassImageArea">点击更换照片</div>
+                    <input type="file" id="glassImageInput" accept="image/*" style="display:none;">
+                </div>
+                <div class="apps-grid" id="page1Apps"><div class="app-row" id="page1Row"></div></div>
+            </div>
+            <div class="page" id="page2"><div class="top-spacer"></div><div class="apps-grid" id="page2Apps"><div class="app-row" id="page2Row"></div></div></div>
+        </div>
+        <div class="bottom-dock" id="bottomDock"></div>
+
+        <!-- 聊天覆盖层 -->
+        <div id="overlay-chat" class="app-overlay overlay-hidden">
+            <div class="overlay-header"><button class="back-button" onclick="closeApp('chat')">返回</button><span class="overlay-title">聊天</span></div>
+            <div class="chat-page active" id="chatPage-chat"><div class="card"><div class="card-title">最近对话</div><div id="chatListContainer"></div></div></div>
+            <div class="chat-page" id="chatPage-contacts"><div class="card"><div class="card-title">联系人</div><div id="contactsListContainer"></div></div><button class="save-button secondary" onclick="showAddAIModal()" style="margin-top:10px;">新增AI角色</button></div>
+            <div class="chat-page" id="chatPage-moments"><div class="card"><div class="card-title">朋友圈</div><div class="chat-list-item"><div class="chat-avatar" id="momentsAvatar"></div><div class="chat-list-info"><div class="chat-list-name" id="momentsName">我的昵称</div><div class="chat-list-preview">分享生活...</div></div></div></div></div>
+            <div class="chat-page" id="chatPage-me">
+                <div class="card" style="margin-bottom:12px;">
+                    <div class="card-title">我</div>
+                    <div class="chat-list-item" onclick="showProfileModal()"><div class="chat-avatar" id="meAvatar"></div><div class="chat-list-info"><div class="chat-list-name" id="meName">我的昵称</div><div class="chat-list-preview" id="meSignature">个性签名</div></div></div>
+                </div>
+                <div class="card" style="margin-bottom:12px;">
+                    <div class="card-title">功能</div>
+                    <div class="chat-list-item" onclick="openWalletPage()"><div class="wallet-menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M16 14h2"/></svg></div><div class="chat-list-info"><div class="chat-list-name">钱包</div><div class="chat-list-preview">余额、银行卡、亲属卡</div></div></div>
+                    <div class="chat-list-item" onclick="showMaskModal()"><div class="chat-list-info"><div class="chat-list-name">面具设置</div><div class="chat-list-preview">自定义头像、昵称、人设</div></div></div>
+                </div>
+            </div>
+            <div class="conversation-page" id="conversationPage">
+                <div class="conversation-header"><div class="conversation-header-left"><button class="back-button" onclick="closeConversation()">返回</button><span class="overlay-title" id="conversationTitle">测试AI</span></div><button class="three-dots-btn" onclick="showConversationSettings()">...</button></div>
+                <div class="conversation-messages" id="conversationMessages"></div>
+                <div class="conversation-input-area"><input type="text" class="conversation-input" id="conversationInput" placeholder="输入消息..."><button class="conversation-send-btn" onclick="sendUserMessage()">发送</button><button class="conversation-ai-btn" onclick="sendAIReply()">AI回复</button></div>
+            </div>
+            <div class="settings-page" id="conversationSettingsPage">
+                <div class="overlay-header"><button class="back-button" onclick="backToConversation()">返回</button><span class="overlay-title">对话设置</span></div>
+                <div class="overlay-content">
+                    <div class="card"><div class="card-title">备注设置</div><input type="text" class="setting-input" id="remarkInput" value="测试AI"><button class="save-button" onclick="saveRemark()">保存备注</button></div>
+                    <div class="card"><div class="card-title">显示AI头像</div><div class="toggle-switch on" id="toggleShowAIAvatar" onclick="toggleSwitch(this)"></div></div>
+                    <div class="card"><div class="card-title">显示用户头像</div><div class="toggle-switch on" id="toggleShowUserAvatar" onclick="toggleSwitch(this)"></div></div>
+                    <div class="card"><div class="card-title">自定义气泡CSS</div><textarea class="setting-input" id="bubbleCSSInput" style="height:60px;"></textarea><button class="save-button" onclick="saveBubbleCSS()">保存CSS</button></div>
+                </div>
+            </div>
+            <div class="wallet-page" id="walletPage">
+                <div class="overlay-header"><button class="back-button" onclick="closeWalletPage()">返回</button><span class="overlay-title">钱包</span></div>
+                <div class="overlay-content">
+                    <div class="wallet-balance-card">
+                        <div class="wallet-balance-label">可用余额</div>
+                        <div class="wallet-balance-amount" id="walletBalanceDisplay">0.00</div>
+                    </div>
+                    <div class="card">
+                        <div class="wallet-menu-item" onclick="showBankCardPage()">
+                            <div class="wallet-menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg></div>
+                            <div class="chat-list-info"><div class="wallet-menu-label">银行卡</div><div class="wallet-menu-desc">管理银行卡</div></div>
+                        </div>
+                        <div class="wallet-menu-item" onclick="showRelativeCardPage()">
+                            <div class="wallet-menu-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                            <div class="chat-list-info"><div class="wallet-menu-label">亲属卡</div><div class="wallet-menu-desc">管理亲属卡</div></div>
+                        </div>
+                        <div class="wallet-menu-item" onclick="aiGenerateBalance()">
+                            <div class="wallet-menu-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg></div>
+                            <div class="chat-list-info"><div class="wallet-menu-label">生成余额</div><div class="wallet-menu-desc">AI随机生成余额</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-nav" id="chatNav">
+                <button class="chat-nav-item active" data-page="chatPage-chat"><span class="chat-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="chat-nav-label">聊天</span></button>
+                <button class="chat-nav-item" data-page="chatPage-contacts"><span class="chat-nav-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="chat-nav-label">联系人</span></button>
+                <button class="chat-nav-item" data-page="chatPage-moments"><span class="chat-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span><span class="chat-nav-label">动态</span></button>
+                <button class="chat-nav-item" data-page="chatPage-me"><span class="chat-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></span><span class="chat-nav-label">我的</span></button>
+            </div>
+        </div>
+
+        <!-- 世界书覆盖层 -->
+        <div id="overlay-world" class="app-overlay overlay-hidden">
+            <div class="overlay-header"><button class="back-button" onclick="closeApp('world')">返回</button><span class="overlay-title">世界书</span></div>
+            <div class="overlay-content">
+                <div class="tab-bar">
+                    <button class="tab-btn active" data-tab="all" onclick="switchWorldbookTab('all')">全部</button>
+                    <button class="tab-btn" data-tab="global" onclick="switchWorldbookTab('global')">全局</button>
+                    <button class="tab-btn" data-tab="single" onclick="switchWorldbookTab('single')">单人</button>
+                    <button class="tab-btn" data-tab="required" onclick="switchWorldbookTab('required')">必用</button>
+                </div>
+                <div id="worldbookList"></div>
+                <button class="save-button secondary" onclick="showNewWorldbookModal()" style="margin-top:10px;">新建世界书</button>
+                <button class="save-button secondary" onclick="importWorldbook()">导入文件</button>
+            </div>
+        </div>
+
+        <!-- 美团覆盖层 -->
+        <div id="overlay-meituan" class="app-overlay overlay-hidden">
+            <div class="overlay-header"><button class="back-button" onclick="closeApp('meituan')">返回</button><span class="overlay-title">美团</span><button class="back-button" onclick="refreshMeituan()" style="margin-left:auto;">刷新</button></div>
+            <div class="overlay-content" id="meituanContent">
+                <div class="card"><div class="card-title">推荐商家</div><div id="meituanList"></div></div>
+            </div>
+        </div>
+
+        <!-- 购物覆盖层 -->
+        <div id="overlay-shopping" class="app-overlay overlay-hidden">
+            <div class="overlay-header"><button class="back-button" onclick="closeApp('shopping')">返回</button><span class="overlay-title">购物</span></div>
+            <div class="overlay-content" id="shoppingContent">
+                <div class="card"><div class="card-title">商品列表</div><div id="shoppingList"></div></div>
+            </div>
+        </div>
+
+        <!-- 出行覆盖层 -->
+        <div id="overlay-travel" class="app-overlay overlay-hidden">
+            <div class="overlay-header"><button class="back-button" onclick="closeApp('travel')">返回</button><span class="overlay-title">出行</span></div>
+            <div class="overlay-content">
+                <div class="tab-bar">
+                    <button class="tab-btn active" data-travel="plane" onclick="switchTravelTab('plane')">飞机</button>
+                    <button class="tab-btn" data-travel="train" onclick="switchTravelTab('train')">高铁</button>
+                    <button class="tab-btn" data-travel="railway" onclick="switchTravelTab('railway')">火车</button>
+                </div>
+                <div id="travelList"></div>
+            </div>
+        </div>
+
+        <!-- 日历覆盖层 -->
+        <div id="overlay-calendar" class="app-overlay overlay-hidden">
+            <div class="overlay-header"><button class="back-button" onclick="closeApp('calendar')">返回</button><span class="overlay-title">日历</span><button class="back-button" id="calendarMonthDisplay" style="margin-left:auto;"></button></div>
+            <div class="overlay-content" id="calendarContent"></div>
+        </div>
+
+        <!-- 短信覆盖层 -->
+        <div id="overlay-sms" class="app-overlay overlay-hidden">
+            <div class="overlay-header"><button class="back-button" onclick="closeApp('sms')">返回</button><span class="overlay-title">短信</span><button class="back-button" onclick="sendNewSMS()" style="margin-left:auto;">新建</button></div>
+            <div class="overlay-content" id="smsContent">
+                <div id="smsList"></div>
+            </div>
+        </div>
+
+        <!-- 情侣空间覆盖层 -->
+        <div id="overlay-couple-space" class="app-overlay overlay-hidden">
+            <div class="overlay-header"><button class="back-button" onclick="closeApp('couple-space')">返回</button><span class="overlay-title">情侣空间</span></div>
+            <div class="overlay-content" id="coupleSpaceContent"></div>
+        </div>
+
+        <!-- 设置覆盖层 -->
+        <div id="overlay-settings" class="app-overlay overlay-hidden">
+            <div class="overlay-header"><button class="back-button" onclick="closeApp('settings')">返回</button><span class="overlay-title">设置</span></div>
+            <div class="overlay-content">
+                <div class="card">
+                    <div class="card-title">API 配置</div>
+                    <label style="font-size:12px;color:#555;">API地址</label>
+                    <input type="text" id="apiUrl" class="setting-input" placeholder="https://api.openai.com/v1">
+                    <label style="font-size:12px;color:#555;">API密钥</label>
+                    <input type="text" id="apiKey" class="setting-input" placeholder="sk-...">
+                    <button class="save-button" onclick="fetchModels('global')">选取模型</button>
+                    <div id="globalModelDisplay" style="font-size:12px;color:#555;margin:4px 0;padding:8px;background:#f5f5f5;border-radius:8px;">当前模型: 未选择</div>
+                    <button class="save-button secondary" onclick="testGlobalApi()">测试连接</button>
+                    <button class="save-button" onclick="saveApiSettings()">保存配置</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="overlay-beauty" class="app-overlay overlay-hidden">
+            <div class="overlay-header"><button class="back-button" onclick="closeApp('beauty')">返回</button><span class="overlay-title">美化</span></div>
+            <div class="overlay-content">
+                <div class="card"><div class="card-title">主页壁纸</div><button class="save-button secondary" onclick="document.getElementById('wallpaperInput').click()">选择壁纸</button><input type="file" id="wallpaperInput" accept="image/*" style="display:none;"></div>
+                <div class="card"><div class="card-title">软件图标</div><div id="iconEditorGrid" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div></div>
+                <button class="save-button" onclick="saveBeautySettings()">保存美化设置</button>
+            </div>
+        </div>
+        <div class="modal-overlay" id="modalOverlay"><div class="modal-content" id="modalContent"></div></div>
+    </div>
+
+    <script>
+        (function() {
+            const appData = {
+                'chat': { name: '聊天', svg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
+                'world': { name: '世界书', svg: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>' },
+                'settings': { name: '设置', svg: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>' },
+                'doing': { name: '在干嘛', svg: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>' },
+                'memory': { name: '记忆空间', svg: '<path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/><path d="M9 21h6"/>' },
+                'meituan': { name: '美团', svg: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>' },
+                'message': { name: '短信', svg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h8"/><path d="M8 14h5"/>' },
+                'couple': { name: '情侣空间', svg: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>' },
+                'listen': { name: '一起听', svg: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>' },
+                'calendar': { name: '日历', svg: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h8"/><path d="M8 18h5"/>' },
+                'beauty': { name: '美化', svg: '<path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>' },
+                'shopping': { name: '购物', svg: '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>' },
+                'forum': { name: '论坛', svg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
+                'travel': { name: '出行', svg: '<rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 10h16"/><path d="M8 3v4"/><path d="M16 3v4"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>' },
+                'phone': { name: '查手机', svg: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/><path d="M9 6h6"/><path d="M9 10h6"/>' }
+            };
+
+            let page1Apps = ['world', 'settings', 'doing', 'memory'];
+            let page2Apps = ['meituan', 'couple', 'listen', 'calendar', 'shopping', 'forum', 'travel', 'phone'];
+            let dockApps = ['chat', 'message', 'phone', 'beauty'];
+            let customIcons = {};
+            let wallpaperUrl = '';
+            let userAvatar = '';
+            let userName = '我的昵称';
+            let userSignature = '个性签名';
+            let remarkName = '测试AI';
+            let showAIAvatar = true;
+            let showUserAvatar = true;
+            let bubbleCSS = '';
+            let walletBalance = 0;
+            let bankCards = [];
+            let relativeCards = [];
+            let masks = [];
+            let customAIs = [];
+            let currentAIAvatar = '';
+            let globalApiConfig = { url: '', key: '', model: '', temperature: 0.7 };
+            let coupleLeftAvatar = '';
+            let coupleRightAvatar = '';
+            let coupleLeftName = '用户';
+            let coupleRightName = '用户';
+            let glassImageUrl = '';
+            let glassText = '记录此刻';
+            let worldbooks = [];
+            let currentWorldbookTab = 'all';
+            let smsMessages = [];
+            let travelTab = 'plane';
+            let calendarDate = new Date();
+            let meituanItems = [];
+            let shoppingItems = [];
+
+            function safeGet(key, def) { try { const v = localStorage.getItem(key); return v !== null ? v : def; } catch(e) { return def; } }
+            function safeSet(key, val) { try { localStorage.setItem(key, val); return true; } catch(e) { return false; } }
+            function safeParse(key, def) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch(e) { return def; } }
+
+            function loadConfig() {
+                const saved = safeParse('app_layout_config', null);
+                if (saved) { page1Apps = saved.page1Apps || page1Apps; page2Apps = saved.page2Apps || page2Apps; dockApps = saved.dockApps || dockApps; }
+                customIcons = safeParse('custom_icons', {});
+                wallpaperUrl = safeGet('wallpaper', '');
+                userAvatar = safeGet('userAvatar', '');
+                userName = safeGet('userName', '我的昵称');
+                userSignature = safeGet('userSignature', '个性签名');
+                walletBalance = parseFloat(safeGet('walletBalance', '0'));
+                bankCards = safeParse('bankCards', []);
+                relativeCards = safeParse('relativeCards', []);
+                masks = safeParse('masks', []);
+                customAIs = safeParse('customAIs', []);
+                globalApiConfig = safeParse('globalApiConfig', { url: '', key: '', model: '', temperature: 0.7 });
+                coupleLeftAvatar = safeGet('coupleLeftAvatar', '');
+                coupleRightAvatar = safeGet('coupleRightAvatar', '');
+                coupleLeftName = safeGet('coupleLeftName', '用户');
+                coupleRightName = safeGet('coupleRightName', '用户');
+                glassImageUrl = safeGet('glassImageUrl', '');
+                glassText = safeGet('glassText', '记录此刻');
+                worldbooks = safeParse('worldbooks', []);
+                smsMessages = safeParse('smsMessages', []);
+                removeDockAppsFromPages();
+                applyWallpaper();
+                updateUserDisplay();
+                updateCoupleDisplay();
+                updateGlassDisplay();
+                renderChatLists();
+                renderWorldbooks();
+                updateWalletDisplay();
+                renderSMSList();
+                initMeituanItems();
+                initShoppingItems();
+                renderCalendar();
+            }
+
+            function saveConfig() {
+                removeDockAppsFromPages();
+                safeSet('app_layout_config', JSON.stringify({page1Apps, page2Apps, dockApps}));
+                safeSet('custom_icons', JSON.stringify(customIcons));
+                safeSet('wallpaper', wallpaperUrl);
+                safeSet('userAvatar', userAvatar);
+                safeSet('userName', userName);
+                safeSet('userSignature', userSignature);
+                safeSet('walletBalance', walletBalance.toString());
+                safeSet('bankCards', JSON.stringify(bankCards));
+                safeSet('relativeCards', JSON.stringify(relativeCards));
+                safeSet('masks', JSON.stringify(masks));
+                safeSet('customAIs', JSON.stringify(customAIs));
+                safeSet('globalApiConfig', JSON.stringify(globalApiConfig));
+                safeSet('coupleLeftAvatar', coupleLeftAvatar);
+                safeSet('coupleRightAvatar', coupleRightAvatar);
+                safeSet('coupleLeftName', coupleLeftName);
+                safeSet('coupleRightName', coupleRightName);
+                safeSet('glassImageUrl', glassImageUrl);
+                safeSet('glassText', glassText);
+                safeSet('worldbooks', JSON.stringify(worldbooks));
+                safeSet('smsMessages', JSON.stringify(smsMessages));
+            }
+
+            function removeDockAppsFromPages() {
+                page1Apps = page1Apps.filter(id => !dockApps.includes(id));
+                page2Apps = page2Apps.filter(id => !dockApps.includes(id));
+            }
+
+            function applyWallpaper() {
+                const ps = document.getElementById('phoneScreen');
+                const ms = document.getElementById('mainScroll');
+                const pages = document.querySelectorAll('.page');
+                const bd = document.getElementById('bottomDock');
+                if (wallpaperUrl) {
+                    ps.style.backgroundImage = `url("${wallpaperUrl}")`;
+                    ps.style.backgroundSize = 'cover';
+                    ms.style.background = 'transparent';
+                    pages.forEach(p => p.style.background = 'transparent');
+                    bd.style.background = 'rgba(255,255,255,0.85)';
+                } else {
+                    ps.style.backgroundImage = '';
+                    ps.style.background = '#fff';
+                    ms.style.background = '#fff';
+                    pages.forEach(p => p.style.background = '#fff');
+                    bd.style.background = '#fff';
+                }
+            }
+
+            function updateUserDisplay() {
+                document.getElementById('profileName').textContent = userName;
+                document.getElementById('profileSub').textContent = userSignature;
+                const profileAvatar = document.getElementById('profileAvatar');
+                if (userAvatar) { profileAvatar.style.backgroundImage = `url("${userAvatar}")`; profileAvatar.textContent = ''; }
+                else { profileAvatar.style.backgroundImage = ''; profileAvatar.textContent = 'A'; }
+                document.getElementById('meName').textContent = userName;
+                document.getElementById('meSignature').textContent = userSignature;
+                const meAvatar = document.getElementById('meAvatar');
+                if (userAvatar) { meAvatar.innerHTML = `<img src="${userAvatar}">`; }
+                else { meAvatar.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'; }
+                const momentsAvatar = document.getElementById('momentsAvatar');
+                if (userAvatar) { momentsAvatar.innerHTML = `<img src="${userAvatar}">`; }
+                else { momentsAvatar.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'; }
+                document.getElementById('momentsName').textContent = userName;
+            }
+
+            function updateCoupleDisplay() {
+                const leftAvatar = document.getElementById('coupleAvatarLeft');
+                const rightAvatar = document.getElementById('coupleAvatarRight');
+                if (coupleLeftAvatar) { leftAvatar.style.backgroundImage = `url("${coupleLeftAvatar}")`; leftAvatar.textContent = ''; }
+                else { leftAvatar.style.backgroundImage = ''; leftAvatar.textContent = 'L'; }
+                if (coupleRightAvatar) { rightAvatar.style.backgroundImage = `url("${coupleRightAvatar}")`; rightAvatar.textContent = ''; }
+                else { rightAvatar.style.backgroundImage = ''; rightAvatar.textContent = 'R'; }
+                document.getElementById('coupleNameLeft').textContent = coupleLeftName;
+                document.getElementById('coupleNameRight').textContent = coupleRightName;
+            }
+
+            function updateGlassDisplay() {
+                document.getElementById('glassText').textContent = glassText;
+                const imageArea = document.getElementById('glassImageArea');
+                if (glassImageUrl) { imageArea.style.backgroundImage = `url("${glassImageUrl}")`; imageArea.textContent = ''; }
+                else { imageArea.style.backgroundImage = ''; imageArea.textContent = '点击更换照片'; }
+            }
+
+            function updateWalletDisplay() {
+                const el = document.getElementById('walletBalanceDisplay');
+                if (el) el.textContent = walletBalance.toFixed(2);
+            }
+
+            function getAvailableCharacters() {
+                return ['测试AI', ...customAIs.map(ai => ai.name)];
+            }
+
+            function getApplicableWorldbooks(characterName) {
+                return worldbooks.filter(wb => {
+                    if (wb.isRequired) return true;
+                    if (wb.injectionType === 'global') return true;
+                    if (wb.injectionType === 'single' && wb.targetCharacter === characterName) return true;
+                    return false;
+                });
+            }
+
+            function renderWorldbooks() {
+                const container = document.getElementById('worldbookList');
+                if (!container) return;
+                container.innerHTML = '';
+                const filtered = worldbooks.filter(wb => {
+                    if (currentWorldbookTab === 'all') return true;
+                    if (currentWorldbookTab === 'global') return wb.injectionType === 'global';
+                    if (currentWorldbookTab === 'single') return wb.injectionType === 'single';
+                    if (currentWorldbookTab === 'required') return wb.isRequired;
+                    return true;
+                });
+                if (filtered.length === 0) {
+                    container.innerHTML = '<div class="empty-state">暂无世界书</div>';
+                } else {
+                    filtered.forEach((wb, index) => {
+                        const realIndex = worldbooks.indexOf(wb);
+                        const item = document.createElement('div');
+                        item.className = 'worldbook-item';
+                        let tagHtml = '';
+                        if (wb.isRequired) tagHtml += '<span class="worldbook-tag required">必用</span> ';
+                        if (wb.injectionType === 'global') tagHtml += '<span class="worldbook-tag global">全局</span> ';
+                        else if (wb.injectionType === 'single') tagHtml += '<span class="worldbook-tag single">单人</span> ';
+                        item.innerHTML = `<div style="flex:1;"><div style="font-weight:600;font-size:13px;">${wb.title}</div><div style="font-size:11px;color:#999;margin-top:2px;">${wb.injectionType === 'single' ? '角色: ' + (wb.targetCharacter || '未指定') : '所有对话'}</div></div>${tagHtml}`;
+                        item.addEventListener('click', () => showWorldbookDetail(realIndex));
+                        container.appendChild(item);
+                    });
+                }
+            }
+
+            function switchWorldbookTab(tab) {
+                currentWorldbookTab = tab;
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === tab);
+                });
+                renderWorldbooks();
+            }
+
+            function showNewWorldbookModal() {
+                const characters = getAvailableCharacters();
+                showModal('新建世界书', `
+                    <label>书名</label>
+                    <input type="text" class="modal-input" id="wbTitleInput" placeholder="输入世界书名称">
+                    <label>注入类型</label>
+                    <select class="modal-input" id="wbInjectionType" onchange="toggleCharacterSelect()">
+                        <option value="global">全局注入</option>
+                        <option value="single">单人注入</option>
+                    </select>
+                    <div id="characterSelectContainer" style="display:none;">
+                        <label>选择角色</label>
+                        <select class="modal-input" id="wbTargetCharacter">
+                            ${characters.map(c => `<option value="${c}">${c}</option>`).join('')}
+                        </select>
+                    </div>
+                    <label>设为必用</label>
+                    <select class="modal-input" id="wbIsRequired">
+                        <option value="false">否</option>
+                        <option value="true">是</option>
+                    </select>
+                    <label>内容</label>
+                    <textarea class="modal-textarea" id="wbContentInput" placeholder="在此输入世界书内容..."></textarea>
+                    <button class="modal-btn" onclick="saveNewWorldbook()">保存</button>
+                `);
+            }
+
+            window.toggleCharacterSelect = function() {
+                const type = document.getElementById('wbInjectionType').value;
+                document.getElementById('characterSelectContainer').style.display = type === 'single' ? 'block' : 'none';
+            };
+
+            window.saveNewWorldbook = function() {
+                const title = document.getElementById('wbTitleInput').value.trim();
+                const injectionType = document.getElementById('wbInjectionType').value;
+                const targetCharacter = injectionType === 'single' ? document.getElementById('wbTargetCharacter').value : '';
+                const isRequired = document.getElementById('wbIsRequired').value === 'true';
+                const content = document.getElementById('wbContentInput').value.trim();
+                if (!title) { alert('请输入书名'); return; }
+                if (!content) { alert('请输入内容'); return; }
+                worldbooks.push({ title, injectionType, targetCharacter, isRequired, content });
+                saveConfig();
+                renderWorldbooks();
+                closeModal();
+            };
+
+            function showWorldbookDetail(index) {
+                const wb = worldbooks[index];
+                if (!wb) return;
+                showModal(wb.title, `
+                    <div style="font-size:11px;color:#999;margin-bottom:8px;">
+                        ${wb.isRequired ? '[必用] ' : ''}${wb.injectionType === 'global' ? '[全局]' : '[单人]'}${wb.injectionType === 'single' && wb.targetCharacter ? ' ' + wb.targetCharacter : ''}
+                    </div>
+                    <div style="font-size:12px;line-height:1.5;white-space:pre-wrap;margin-bottom:12px;max-height:250px;overflow-y:auto;">${wb.content}</div>
+                    <button class="modal-btn secondary" onclick="deleteWorldbook(${index})">删除</button>
+                `);
+            }
+
+            window.deleteWorldbook = function(index) {
+                if (confirm('确定删除这个世界书？')) {
+                    worldbooks.splice(index, 1);
+                    saveConfig();
+                    renderWorldbooks();
+                    closeModal();
+                }
+            };
+
+            function importWorldbook() {
+                const inp = document.createElement('input');
+                inp.type = 'file';
+                inp.accept = '.txt,.md,.json';
+                inp.onchange = e => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            const content = ev.target.result;
+                            const title = file.name.replace(/\.(txt|md|json)$/i, '');
+                            worldbooks.push({ title, injectionType: 'global', targetCharacter: '', isRequired: false, content });
+                            saveConfig();
+                            renderWorldbooks();
+                        };
+                        reader.readAsText(file);
+                    }
+                };
+                inp.click();
+            }
+
+            function renderChatLists() {
+                const chatContainer = document.getElementById('chatListContainer');
+                const contactsContainer = document.getElementById('contactsListContainer');
+                chatContainer.innerHTML = '';
+                contactsContainer.innerHTML = '';
+                const allAIs = [{name:'测试AI', avatar:currentAIAvatar, preview:'你好，我是测试AI'}, ...customAIs];
+                if (allAIs.length === 0) {
+                    chatContainer.innerHTML = '<div class="empty-state">暂无对话</div>';
+                    contactsContainer.innerHTML = '<div class="empty-state">暂无联系人</div>';
+                    return;
+                }
+                allAIs.forEach(ai => {
+                    const item = document.createElement('div');
+                    item.className = 'chat-list-item';
+                    item.onclick = () => openConversation(ai.name, ai.avatar);
+                    item.innerHTML = `<div class="chat-avatar">${ai.avatar ? `<img src="${ai.avatar}">` : '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'}</div><div class="chat-list-info"><div class="chat-list-name">${ai.name}</div><div class="chat-list-preview">${ai.preview || ai.persona || 'AI助手'}</div></div>`;
+                    chatContainer.appendChild(item);
+                    contactsContainer.appendChild(item.cloneNode(true));
+                });
+            }
+
+            function renderApps() {
+                removeDockAppsFromPages();
+                const p1 = document.getElementById('page1Row');
+                const p2 = document.getElementById('page2Row');
+                const dock = document.getElementById('bottomDock');
+                p1.innerHTML = '';
+                p2.innerHTML = '';
+                dock.innerHTML = '';
+                page1Apps.forEach(id => { if(dockApps.includes(id)) return; const a = appData[id]; if(!a) return; p1.appendChild(createAppItem(id, a.name, a.svg)); });
+                page2Apps.forEach(id => { if(dockApps.includes(id)) return; const a = appData[id]; if(!a) return; p2.appendChild(createAppItem(id, a.name, a.svg)); });
+                dockApps.forEach(id => {
+                    const a = appData[id];
+                    if(!a) return;
+                    const d = document.createElement('div');
+                    d.className = 'dock-item';
+                    d.dataset.appId = id;
+                    d.innerHTML = `<div class="dock-icon">${customIcons[id] ? `<img src="${customIcons[id]}">` : `<svg viewBox="0 0 24 24">${a.svg}</svg>`}</div><span class="dock-label">${a.name}</span>`;
+                    d.addEventListener('click', () => handleAppClick(id));
+                    dock.appendChild(d);
+                });
+                renderIconEditor();
+                saveConfig();
+            }
+
+            function createAppItem(id, name, svg) {
+                const el = document.createElement('div');
+                el.className = 'app-item';
+                el.dataset.appId = id;
+                el.innerHTML = `<div class="app-icon">${customIcons[id] ? `<img src="${customIcons[id]}">` : `<svg viewBox="0 0 24 24">${svg}</svg>`}</div><span class="app-label">${name}</span>`;
+                el.addEventListener('click', () => handleAppClick(id));
+                return el;
+            }
+
+            function handleAppClick(id) {
+                if(id === 'chat') openApp('chat');
+                else if(id === 'world') openApp('world');
+                else if(id === 'settings') openApp('settings');
+                else if(id === 'beauty') openApp('beauty');
+                else if(id === 'meituan') openApp('meituan');
+                else if(id === 'message') openApp('sms');
+                else if(id === 'couple') openCoupleSpace();
+                else if(id === 'shopping') openApp('shopping');
+                else if(id === 'travel') openApp('travel');
+                else if(id === 'calendar') openApp('calendar');
+                else alert('功能待开发');
+            }
+
+            function renderIconEditor() {
+                const grid = document.getElementById('iconEditorGrid');
+                if(!grid) return;
+                grid.innerHTML = '';
+                [...page1Apps, ...page2Apps, ...dockApps].forEach(id => {
+                    const a = appData[id];
+                    if(!a) return;
+                    const item = document.createElement('div');
+                    item.style.cssText = 'width:44px;height:44px;border-radius:10px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;';
+                    item.innerHTML = customIcons[id] ? `<img src="${customIcons[id]}" style="width:100%;height:100%;object-fit:cover;">` : `<svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#999;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;">${a.svg}</svg>`;
+                    item.addEventListener('click', () => changeIcon(id));
+                    grid.appendChild(item);
+                });
+            }
+
+            function changeIcon(id) {
+                const inp = document.createElement('input');
+                inp.type = 'file';
+                inp.accept = 'image/*';
+                inp.onchange = e => {
+                    const f = e.target.files[0];
+                    if(!f) return;
+                    const r = new FileReader();
+                    r.onload = ev => { customIcons[id] = ev.target.result; renderApps(); };
+                    r.readAsDataURL(f);
+                };
+                inp.click();
+            }
+
+            const overlays = {
+                chat: document.getElementById('overlay-chat'),
+                world: document.getElementById('overlay-world'),
+                settings: document.getElementById('overlay-settings'),
+                beauty: document.getElementById('overlay-beauty'),
+                meituan: document.getElementById('overlay-meituan'),
+                shopping: document.getElementById('overlay-shopping'),
+                travel: document.getElementById('overlay-travel'),
+                calendar: document.getElementById('overlay-calendar'),
+                sms: document.getElementById('overlay-sms'),
+                'couple-space': document.getElementById('overlay-couple-space')
+            };
+
+            window.openApp = function(name) {
+                Object.values(overlays).forEach(o => o.classList.add('overlay-hidden'));
+                overlays[name]?.classList.remove('overlay-hidden');
+                if(name === 'beauty') renderIconEditor();
+                if(name === 'chat') renderChatLists();
+                if(name === 'world') renderWorldbooks();
+                if(name === 'meituan') renderMeituanList();
+                if(name === 'shopping') renderShoppingList();
+                if(name === 'travel') renderTravelList();
+                if(name === 'calendar') renderCalendar();
+                if(name === 'sms') renderSMSList();
+            };
+
+            window.closeApp = function(name) {
+                overlays[name]?.classList.add('overlay-hidden');
+            };
+
+            window.openCoupleSpace = function() {
+                Object.values(overlays).forEach(o => o.classList.add('overlay-hidden'));
+                overlays['couple-space']?.classList.remove('overlay-hidden');
+                renderCoupleSpace();
+            };
+
+            function renderCoupleSpace() {
+                const container = document.getElementById('coupleSpaceContent');
+                if (!container) return;
+                container.innerHTML = `
+                    <div class="couple-space-header">
+                        <div class="couple-space-avatars">
+                            <div class="couple-space-avatar" style="${coupleLeftAvatar ? `background-image:url('${coupleLeftAvatar}');background-size:cover;` : ''}">${coupleLeftAvatar ? '' : 'L'}</div>
+                            <div class="couple-space-heart">&#10084;</div>
+                            <div class="couple-space-avatar" style="${coupleRightAvatar ? `background-image:url('${coupleRightAvatar}');background-size:cover;` : ''}">${coupleRightAvatar ? '' : 'R'}</div>
+                        </div>
+                        <div style="font-size:16px;font-weight:600;">${coupleLeftName} & ${coupleRightName}</div>
+                        <div class="couple-space-days" style="margin-top:4px;">在一起 365 天</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">情侣功能</div>
+                        <div class="couple-space-feature" onclick="alert('纪念日功能')">
+                            <div class="couple-space-feature-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                            <div class="chat-list-info"><div class="couple-space-feature-name">纪念日</div><div class="couple-space-feature-desc">记录重要日子</div></div>
+                        </div>
+                        <div class="couple-space-feature" onclick="alert('情侣相册功能')">
+                            <div class="couple-space-feature-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+                            <div class="chat-list-info"><div class="couple-space-feature-name">情侣相册</div><div class="couple-space-feature-desc">保存甜蜜瞬间</div></div>
+                        </div>
+                        <div class="couple-space-feature" onclick="alert('情侣打卡功能')">
+                            <div class="couple-space-feature-icon"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+                            <div class="chat-list-info"><div class="couple-space-feature-name">情侣打卡</div><div class="couple-space-feature-desc">记录一起去过的地方</div></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function initMeituanItems() {
+                meituanItems = [
+                    { name: '肯德基', desc: '炸鸡汉堡 · 4.8分', price: '35', icon: 'K' },
+                    { name: '星巴克', desc: '咖啡饮品 · 4.6分', price: '28', icon: 'S' },
+                    { name: '海底捞', desc: '火锅 · 4.9分', price: '120', icon: 'H' },
+                    { name: '麦当劳', desc: '快餐 · 4.5分', price: '30', icon: 'M' },
+                    { name: '喜茶', desc: '奶茶果茶 · 4.7分', price: '22', icon: 'X' }
+                ];
+            }
+
+            function renderMeituanList() {
+                const list = document.getElementById('meituanList');
+                if (!list) return;
+                list.innerHTML = '';
+                meituanItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'meituan-item';
+                    div.innerHTML = `
+                        <div class="meituan-item-icon">${item.icon}</div>
+                        <div class="meituan-item-info">
+                            <div class="meituan-item-name">${item.name}</div>
+                            <div class="meituan-item-desc">${item.desc}</div>
+                        </div>
+                        <div class="meituan-item-price">${item.price}</div>
+                    `;
+                    div.addEventListener('click', () => showModal(item.name, `<div style="font-size:13px;margin-bottom:10px;">${item.desc}</div><div style="font-size:20px;font-weight:700;margin-bottom:10px;">${item.price} 元起</div><button class="modal-btn" onclick="closeModal()">知道了</button>`));
+                    list.appendChild(div);
+                });
+            }
+
+            function refreshMeituan() {
+                initMeituanItems();
+                renderMeituanList();
+                const list = document.getElementById('meituanList');
+                list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">刷新中...</div>';
+                setTimeout(() => renderMeituanList(), 500);
+            }
+
+            function initShoppingItems() {
+                shoppingItems = [
+                    { name: '手机壳', desc: '简约磨砂保护壳', price: '29.9', shop: '数码配件专营店' },
+                    { name: '蓝牙耳机', desc: '无线降噪耳机', price: '199', shop: '音频旗舰店' },
+                    { name: '保温杯', desc: '316不锈钢保温杯', price: '59', shop: '生活家居馆' },
+                    { name: '背包', desc: '双肩电脑背包', price: '129', shop: '箱包旗舰店' }
+                ];
+            }
+
+            function renderShoppingList() {
+                const list = document.getElementById('shoppingList');
+                if (!list) return;
+                list.innerHTML = '';
+                shoppingItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'shopping-item';
+                    div.innerHTML = `
+                        <div class="shopping-item-icon">${item.name.charAt(0)}</div>
+                        <div class="shopping-item-info">
+                            <div class="shopping-item-name">${item.name}</div>
+                            <div class="shopping-item-desc">${item.desc} · ${item.shop}</div>
+                        </div>
+                        <div class="shopping-item-price">${item.price}</div>
+                    `;
+                    div.addEventListener('click', () => showModal('商品详情', `
+                        <div style="font-size:16px;font-weight:600;margin-bottom:6px;">${item.name}</div>
+                        <div style="font-size:12px;color:#999;margin-bottom:10px;">${item.desc}</div>
+                        <div style="font-size:22px;font-weight:700;margin-bottom:10px;">${item.price} 元</div>
+                        <div style="font-size:12px;color:#999;margin-bottom:10px;">店铺: ${item.shop}</div>
+                        <button class="modal-btn" onclick="buyItem('${item.name}', ${item.price})">购买</button>
+                        <button class="modal-btn secondary" onclick="closeModal()">取消</button>
+                    `));
+                    list.appendChild(div);
+                });
+            }
+
+            window.buyItem = function(name, price) {
+                showModal('确认购买', `
+                    <div style="font-size:14px;margin-bottom:10px;">商品: ${name}</div>
+                    <div style="font-size:14px;margin-bottom:10px;">价格: ${price} 元</div>
+                    <label>收货地址</label>
+                    <input type="text" class="modal-input" id="shippingAddress" placeholder="请输入收货地址">
+                    <button class="modal-btn" onclick="confirmPurchase('${name}', ${price})">确认购买</button>
+                    <button class="modal-btn secondary" onclick="closeModal()">取消</button>
+                `);
+            };
+
+            window.confirmPurchase = function(name, price) {
+                const address = document.getElementById('shippingAddress').value.trim();
+                if (!address) { alert('请输入收货地址'); return; }
+                if (walletBalance < price) { alert('余额不足'); return; }
+                walletBalance -= price;
+                saveConfig();
+                updateWalletDisplay();
+                closeModal();
+                alert('购买成功，将发货至: ' + address);
+            };
+
+            function switchTravelTab(tab) {
+                travelTab = tab;
+                document.querySelectorAll('[data-travel]').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.travel === tab);
+                });
+                renderTravelList();
+            }
+
+            function renderTravelList() {
+                const list = document.getElementById('travelList');
+                if (!list) return;
+                list.innerHTML = '';
+                const items = {
+                    plane: [
+                        { name: '北京 - 上海', desc: '东方航空 MU5137', price: '580', time: '08:00 - 10:15' },
+                        { name: '广州 - 北京', desc: '南方航空 CZ3101', price: '820', time: '09:30 - 12:45' },
+                        { name: '深圳 - 成都', desc: '深圳航空 ZH9403', price: '650', time: '14:00 - 16:30' }
+                    ],
+                    train: [
+                        { name: '北京 - 上海', desc: 'G101 复兴号', price: '553', time: '07:00 - 11:30' },
+                        { name: '广州 - 深圳', desc: 'G6201 和谐号', price: '74', time: '08:15 - 08:45' },
+                        { name: '上海 - 杭州', desc: 'G7301 复兴号', price: '73', time: '09:00 - 09:45' }
+                    ],
+                    railway: [
+                        { name: '北京 - 天津', desc: 'K27 快速列车', price: '23.5', time: '10:00 - 12:00' },
+                        { name: '上海 - 南京', desc: 'T109 特快列车', price: '46.5', time: '13:00 - 16:00' },
+                        { name: '广州 - 长沙', desc: 'Z230 直达列车', price: '98', time: '20:00 - 06:00' }
+                    ]
+                };
+                const currentItems = items[travelTab] || [];
+                currentItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'travel-item';
+                    div.innerHTML = `
+                        <div class="travel-item-icon">${travelTab === 'plane' ? 'P' : travelTab === 'train' ? 'G' : 'T'}</div>
+                        <div class="travel-item-info">
+                            <div class="travel-item-name">${item.name}</div>
+                            <div class="travel-item-desc">${item.desc} · ${item.time}</div>
+                        </div>
+                        <div class="travel-item-price">${item.price}</div>
+                    `;
+                    div.addEventListener('click', () => showModal('预订', `<div style="font-size:14px;margin-bottom:10px;">${item.name}</div><div style="font-size:12px;color:#999;margin-bottom:10px;">${item.desc}</div><div style="font-size:18px;font-weight:700;margin-bottom:10px;">${item.price} 元</div><button class="modal-btn" onclick="closeModal()">知道了</button>`));
+                    list.appendChild(div);
+                });
+            }
+
+            function renderCalendar() {
+                const container = document.getElementById('calendarContent');
+                if (!container) return;
+                const year = calendarDate.getFullYear();
+                const month = calendarDate.getMonth();
+                const today = new Date();
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const daysInPrevMonth = new Date(year, month, 0).getDate();
+                const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+                const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+                
+                document.getElementById('calendarMonthDisplay').textContent = `${year}年${monthNames[month]}`;
+                
+                let html = '<div class="card"><div class="card-title">' + year + '年' + monthNames[month] + '</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;">';
+                weekdays.forEach(d => { html += `<div class="calendar-weekday">${d}</div>`; });
+                for (let i = 0; i < firstDay; i++) {
+                    html += `<div class="calendar-day other-month">${daysInPrevMonth - firstDay + 1 + i}</div>`;
+                }
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                    html += `<div class="calendar-day ${isToday ? 'today' : ''}">${d}</div>`;
+                }
+                const totalCells = firstDay + daysInMonth;
+                const remainingCells = 7 - (totalCells % 7);
+                if (remainingCells < 7) {
+                    for (let d = 1; d <= remainingCells; d++) {
+                        html += `<div class="calendar-day other-month">${d}</div>`;
+                    }
+                }
+                html += '</div><div style="display:flex;justify-content:space-between;margin-top:10px;"><button class="save-button secondary" style="width:auto;padding:8px 12px;" onclick="prevMonth()">上月</button><button class="save-button secondary" style="width:auto;padding:8px 12px;" onclick="nextMonth()">下月</button></div></div>';
+                container.innerHTML = html;
+            }
+
+            window.prevMonth = function() { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); };
+            window.nextMonth = function() { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); };
+
+            function renderSMSList() {
+                const list = document.getElementById('smsList');
+                if (!list) return;
+                list.innerHTML = '';
+                const defaultSMS = [
+                    { from: '10086', content: '您本月流量剩余2.5GB', time: '10:30' },
+                    { from: '银行', content: '您的账户余额为3,200.00元', time: '昨天' },
+                    { from: '美团', content: '您的外卖已送达', time: '昨天' }
+                ];
+                const allSMS = smsMessages.length > 0 ? smsMessages : defaultSMS;
+                allSMS.forEach(sms => {
+                    const div = document.createElement('div');
+                    div.className = 'sms-item';
+                    div.innerHTML = `
+                        <div class="sms-avatar">${sms.from.charAt(0)}</div>
+                        <div class="sms-info">
+                            <div class="sms-name">${sms.from}</div>
+                            <div class="sms-preview">${sms.content}</div>
+                        </div>
+                        <div class="sms-time">${sms.time}</div>
+                    `;
+                    div.addEventListener('click', () => showModal(sms.from, `<div style="font-size:13px;line-height:1.6;">${sms.content}</div><div style="font-size:11px;color:#999;margin-top:8px;">${sms.time}</div>`));
+                    list.appendChild(div);
+                });
+                if (allSMS.length === 0) {
+                    list.innerHTML = '<div class="empty-state">暂无短信</div>';
+                }
+            }
+
+            window.sendNewSMS = function() {
+                showModal('新建短信', `
+                    <label>收件人</label>
+                    <input type="text" class="modal-input" id="smsTo" placeholder="输入收件人">
+                    <label>内容</label>
+                    <textarea class="modal-textarea" id="smsContent" placeholder="输入短信内容"></textarea>
+                    <button class="modal-btn" onclick="sendSMS()">发送</button>
+                `);
+            };
+
+            window.sendSMS = function() {
+                const to = document.getElementById('smsTo').value.trim();
+                const content = document.getElementById('smsContent').value.trim();
+                if (!to || !content) { alert('请填写完整'); return; }
+                smsMessages.push({ from: to, content: content, time: new Date().toLocaleTimeString().substring(0,5) });
+                saveConfig();
+                renderSMSList();
+                closeModal();
+            };
+
+            window.openWalletPage = function() {
+                document.querySelectorAll('.chat-page').forEach(p => p.classList.remove('active'));
+                document.getElementById('conversationPage').classList.remove('active');
+                document.getElementById('conversationSettingsPage').classList.remove('active');
+                document.getElementById('walletPage').classList.add('active');
+                document.getElementById('chatNav').style.display = 'none';
+                document.querySelector('#overlay-chat .overlay-header').style.display = 'none';
+                updateWalletDisplay();
+            };
+
+            window.closeWalletPage = function() {
+                document.getElementById('walletPage').classList.remove('active');
+                document.getElementById('chatPage-me').classList.add('active');
+                document.getElementById('chatNav').style.display = 'flex';
+                document.querySelector('#overlay-chat .overlay-header').style.display = 'flex';
+            };
+
+            window.openConversation = function(name, avatar) {
+                remarkName = name;
+                currentAIAvatar = avatar || '';
+                document.getElementById('conversationTitle').textContent = remarkName;
+                document.querySelectorAll('.chat-page').forEach(p => p.classList.remove('active'));
+                document.getElementById('walletPage').classList.remove('active');
+                document.getElementById('conversationPage').classList.add('active');
+                document.getElementById('conversationSettingsPage').classList.remove('active');
+                document.getElementById('chatNav').style.display = 'none';
+                document.querySelector('#overlay-chat .overlay-header').style.display = 'none';
+                document.getElementById('conversationMessages').innerHTML = `
+                    <div class="message-row ai">
+                        <div class="message-avatar">${currentAIAvatar ? `<img src="${currentAIAvatar}">` : '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'}</div>
+                        <div class="message-bubble message-ai">你好，我是${name}</div>
+                    </div>
+                `;
+            };
+
+            window.closeConversation = function() {
+                document.getElementById('conversationPage').classList.remove('active');
+                document.getElementById('conversationSettingsPage').classList.remove('active');
+                document.getElementById('chatPage-chat').classList.add('active');
+                document.getElementById('chatNav').style.display = 'flex';
+                document.querySelector('#overlay-chat .overlay-header').style.display = 'flex';
+                renderChatLists();
+            };
+
+            window.showConversationSettings = function() {
+                document.getElementById('conversationPage').classList.remove('active');
+                document.getElementById('conversationSettingsPage').classList.add('active');
+                document.getElementById('remarkInput').value = remarkName;
+                document.getElementById('bubbleCSSInput').value = bubbleCSS;
+                document.getElementById('toggleShowAIAvatar').classList.toggle('on', showAIAvatar);
+                document.getElementById('toggleShowUserAvatar').classList.toggle('on', showUserAvatar);
+            };
+
+            window.backToConversation = function() {
+                document.getElementById('conversationSettingsPage').classList.remove('active');
+                document.getElementById('conversationPage').classList.add('active');
+            };
+
+            window.saveRemark = function() {
+                const val = document.getElementById('remarkInput').value.trim();
+                if(val) { remarkName = val; document.getElementById('conversationTitle').textContent = remarkName; renderChatLists(); }
+            };
+
+            window.saveBubbleCSS = function() { bubbleCSS = document.getElementById('bubbleCSSInput').value.trim(); };
+
+            window.sendUserMessage = function() {
+                const input = document.getElementById('conversationInput');
+                const messages = document.getElementById('conversationMessages');
+                const text = input.value.trim();
+                if (!text) return;
+                const row = document.createElement('div');
+                row.className = 'message-row user';
+                const avatarHtml = showUserAvatar ? (userAvatar ? `<div class="message-avatar"><img src="${userAvatar}"></div>` : '<div class="message-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>') : '';
+                row.innerHTML = avatarHtml + `<div class="message-bubble message-user">${text}</div>`;
+                messages.appendChild(row);
+                input.value = '';
+                messages.scrollTop = messages.scrollHeight;
+            };
+
+            window.sendAIReply = function() {
+                const messages = document.getElementById('conversationMessages');
+                const applicable = getApplicableWorldbooks(remarkName);
+                const worldbookContext = applicable.map(wb => wb.content).join('\n\n');
+                const replyText = worldbookContext ? '[已加载世界书]\n' + worldbookContext.substring(0, 200) + '...' : '这是AI的回复';
+                const row = document.createElement('div');
+                row.className = 'message-row ai';
+                const avatarHtml = showAIAvatar ? (currentAIAvatar ? `<div class="message-avatar"><img src="${currentAIAvatar}"></div>` : '<div class="message-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>') : '';
+                row.innerHTML = avatarHtml + `<div class="message-bubble message-ai">${replyText}</div>`;
+                messages.appendChild(row);
+                messages.scrollTop = messages.scrollHeight;
+            };
+
+            window.toggleSwitch = function(el) {
+                el.classList.toggle('on');
+                if(el.id === 'toggleShowAIAvatar') showAIAvatar = el.classList.contains('on');
+                if(el.id === 'toggleShowUserAvatar') showUserAvatar = el.classList.contains('on');
+                saveConfig();
+            };
+
+            function showModal(title, content) {
+                document.getElementById('modalContent').innerHTML = `<div class="modal-close-btn" onclick="closeModal()">x</div><div class="modal-title">${title}</div>${content}`;
+                document.getElementById('modalOverlay').classList.add('active');
+            }
+
+            window.closeModal = function() { document.getElementById('modalOverlay').classList.remove('active'); };
+            document.getElementById('modalOverlay').addEventListener('click', e => { if(e.target === document.getElementById('modalOverlay')) closeModal(); });
+
+            window.showProfileModal = function() {
+                showModal('个人资料', `
+                    <label>头像</label>
+                    <input type="file" class="modal-input" id="profileAvatarInput" accept="image/*">
+                    <label>昵称</label>
+                    <input type="text" class="modal-input" id="profileNameInput" value="${userName}">
+                    <label>签名</label>
+                    <input type="text" class="modal-input" id="profileSigInput" value="${userSignature}">
+                    <button class="modal-btn" onclick="saveProfile()">保存</button>
+                `);
+                document.getElementById('profileAvatarInput').addEventListener('change', e => {
+                    const f = e.target.files[0];
+                    if(f) { const r = new FileReader(); r.onload = ev => { userAvatar = ev.target.result; }; r.readAsDataURL(f); }
+                });
+            };
+
+            window.saveProfile = function() {
+                userName = document.getElementById('profileNameInput').value.trim() || userName;
+                userSignature = document.getElementById('profileSigInput').value.trim() || userSignature;
+                updateUserDisplay();
+                saveConfig();
+                closeModal();
+            };
+
+            window.showBankCardPage = function() {
+                const list = bankCards.length > 0 ? bankCards.map((c, i) => `<div style="padding:8px;border-bottom:1px solid #eee;font-size:12px;">${c.type} ${c.name} ${c.cardNumber}</div>`).join('') : '<div class="empty-state">暂无银行卡</div>';
+                showModal('银行卡', `${list}<button class="modal-btn secondary" onclick="addBankCard()">添加银行卡</button>`);
+            };
+
+            window.addBankCard = function() {
+                const type = prompt('银行卡类型');
+                const name = prompt('持卡人姓名');
+                const cardNumber = prompt('卡号');
+                if(type && name && cardNumber) { bankCards.push({type, name, cardNumber}); saveConfig(); showBankCardPage(); }
+            };
+
+            window.showRelativeCardPage = function() {
+                const list = relativeCards.length > 0 ? relativeCards.map(c => `<div style="padding:8px;border-bottom:1px solid #eee;font-size:12px;">${c.from} 额度: ${c.limit} 已用: ${c.used}</div>`).join('') : '<div class="empty-state">暂无亲属卡</div>';
+                showModal('亲属卡', `${list}<button class="modal-btn secondary" onclick="aiGenerateRelativeCard()">生成亲属卡</button>`);
+            };
+
+            window.aiGenerateRelativeCard = function() {
+                relativeCards.push({from: '测试AI', limit: Math.floor(Math.random() * 5000), used: 0});
+                saveConfig();
+                showRelativeCardPage();
+            };
+
+            window.aiGenerateBalance = function() {
+                walletBalance = Math.floor(Math.random() * 10000);
+                saveConfig();
+                updateWalletDisplay();
+                closeModal();
+            };
+
+            window.showAddAIModal = function() {
+                showModal('新增AI角色', `
+                    <label>头像</label>
+                    <input type="file" class="modal-input" id="aiAvatarInput" accept="image/*">
+                    <label>名字</label>
+                    <input type="text" class="modal-input" id="aiNameInput">
+                    <label>网名</label>
+                    <input type="text" class="modal-input" id="aiNicknameInput">
+                    <label>身份</label>
+                    <input type="text" class="modal-input" id="aiIdentityInput">
+                    <label>性别</label>
+                    <select class="modal-input" id="aiGenderInput"><option>男</option><option>女</option><option>其他</option></select>
+                    <label>年龄</label>
+                    <input type="number" class="modal-input" id="aiAgeInput">
+                    <label>人设</label>
+                    <textarea class="modal-input" id="aiPersonaInput" style="height:60px;"></textarea>
+                    <button class="modal-btn" onclick="saveNewAI()">保存</button>
+                `);
+            };
+
+            window.saveNewAI = function() {
+                const avatarFile = document.getElementById('aiAvatarInput').files[0];
+                const addAI = (avatarData) => {
+                    customAIs.push({
+                        name: document.getElementById('aiNameInput').value || 'AI',
+                        avatar: avatarData,
+                        nickname: document.getElementById('aiNicknameInput').value,
+                        identity: document.getElementById('aiIdentityInput').value,
+                        gender: document.getElementById('aiGenderInput').value,
+                        age: document.getElementById('aiAgeInput').value,
+                        persona: document.getElementById('aiPersonaInput').value
+                    });
+                    saveConfig();
+                    renderChatLists();
+                    closeModal();
+                };
+                if(avatarFile) { const r = new FileReader(); r.onload = e => addAI(e.target.result); r.readAsDataURL(avatarFile); }
+                else { addAI(''); }
+            };
+
+            window.showMaskModal = function() {
+                showModal('面具设置', `
+                    <label>头像(可选)</label>
+                    <input type="file" class="modal-input" id="maskAvatarInput" accept="image/*">
+                    <label>名字</label>
+                    <input type="text" class="modal-input" id="maskNameInput">
+                    <label>网名</label>
+                    <input type="text" class="modal-input" id="maskNicknameInput">
+                    <label>人设</label>
+                    <input type="text" class="modal-input" id="maskPersonaInput">
+                    <label>性别</label>
+                    <select class="modal-input" id="maskGenderInput"><option>男</option><option>女</option><option>其他</option></select>
+                    <button class="modal-btn" onclick="saveMask()">保存</button>
+                `);
+            };
+
+            window.saveMask = function() {
+                const avatar = document.getElementById('maskAvatarInput').files[0];
+                const addMask = (avatarData) => {
+                    masks.push({ avatar: avatarData, name: document.getElementById('maskNameInput').value, nickname: document.getElementById('maskNicknameInput').value, persona: document.getElementById('maskPersonaInput').value, gender: document.getElementById('maskGenderInput').value });
+                    saveConfig();
+                    closeModal();
+                };
+                if(avatar) { const r = new FileReader(); r.onload = e => addMask(e.target.result); r.readAsDataURL(avatar); }
+                else { addMask(userAvatar); }
+            };
+
+            window.saveBeautySettings = function() { saveConfig(); alert('已保存'); };
+            window.testGlobalApi = function() { alert('测试成功(模拟)'); };
+            window.saveApiSettings = function() { globalApiConfig.url = document.getElementById('apiUrl').value; globalApiConfig.key = document.getElementById('apiKey').value; saveConfig(); alert('已保存'); };
+            window.fetchModels = function(type) {
+                showModal('选择模型', `<div>${['gpt-4o','gpt-4-turbo','gpt-3.5-turbo','claude-3.5-sonnet','gemini-1.5-pro'].map(m => `<button class="modal-btn" onclick="selectModel('${m}')">${m}</button>`).join('')}</div>`);
+            };
+            window.selectModel = function(model) { globalApiConfig.model = model; saveConfig(); closeModal(); alert('已选择: ' + model); };
+
+            document.getElementById('avatarWrapper').addEventListener('click', () => document.getElementById('avatarInput').click());
+            document.getElementById('avatarInput').addEventListener('change', e => {
+                const f = e.target.files[0];
+                if(!f) return;
+                const r = new FileReader();
+                r.onload = ev => { userAvatar = ev.target.result; updateUserDisplay(); saveConfig(); };
+                r.readAsDataURL(f);
+            });
+            document.getElementById('profileName').addEventListener('click', () => { const n = prompt('修改昵称'); if(n) { userName = n; updateUserDisplay(); saveConfig(); } });
+            document.getElementById('profileSub').addEventListener('click', () => { const n = prompt('修改签名'); if(n) { userSignature = n; updateUserDisplay(); saveConfig(); } });
+            document.getElementById('editProfileBtn').addEventListener('click', () => { const n = prompt('修改昵称'); if(n) { userName = n; updateUserDisplay(); saveConfig(); } });
+
+            document.getElementById('coupleLeft').addEventListener('click', () => {
+                const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+                inp.onchange = e => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { coupleLeftAvatar = ev.target.result; updateCoupleDisplay(); saveConfig(); }; r.readAsDataURL(f); } };
+                inp.click();
+            });
+            document.getElementById('coupleRight').addEventListener('click', () => {
+                const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+                inp.onchange = e => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { coupleRightAvatar = ev.target.result; updateCoupleDisplay(); saveConfig(); }; r.readAsDataURL(f); } };
+                inp.click();
+            });
+            document.getElementById('coupleNameLeft').addEventListener('click', () => { const n = prompt('修改昵称'); if(n) { coupleLeftName = n; updateCoupleDisplay(); saveConfig(); } });
+            document.getElementById('coupleNameRight').addEventListener('click', () => { const n = prompt('修改昵称'); if(n) { coupleRightName = n; updateCoupleDisplay(); saveConfig(); } });
+
+            document.getElementById('glassText').addEventListener('click', () => { const t = prompt('修改文字'); if(t) { glassText = t; updateGlassDisplay(); saveConfig(); } });
+            document.getElementById('glassImageArea').addEventListener('click', () => document.getElementById('glassImageInput').click());
+            document.getElementById('glassImageInput').addEventListener('change', e => {
+                const f = e.target.files[0];
+                if(!f) return;
+                const r = new FileReader();
+                r.onload = ev => { glassImageUrl = ev.target.result; updateGlassDisplay(); saveConfig(); };
+                r.readAsDataURL(f);
+            });
+
+            const chatNavItems = document.querySelectorAll('.chat-nav-item');
+            const chatPages = document.querySelectorAll('.chat-page');
+            chatNavItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const pageId = item.dataset.page;
+                    chatNavItems.forEach(n => n.classList.remove('active'));
+                    chatPages.forEach(p => p.classList.remove('active'));
+                    document.getElementById('conversationPage').classList.remove('active');
+                    document.getElementById('conversationSettingsPage').classList.remove('active');
+                    document.getElementById('walletPage').classList.remove('active');
+                    document.getElementById('chatNav').style.display = 'flex';
+                    document.querySelector('#overlay-chat .overlay-header').style.display = 'flex';
+                    item.classList.add('active');
+                    document.getElementById(pageId).classList.add('active');
+                });
+            });
+
+            document.getElementById('wallpaperInput')?.addEventListener('change', e => {
+                const f = e.target.files[0];
+                if(!f) return;
+                const r = new FileReader();
+                r.onload = ev => { wallpaperUrl = ev.target.result; applyWallpaper(); saveConfig(); };
+                r.readAsDataURL(f);
+            });
+
+            loadConfig();
+            renderApps();
+            updateUserDisplay();
+            updateCoupleDisplay();
+            updateGlassDisplay();
+            renderChatLists();
+            renderWorldbooks();
+            updateWalletDisplay();
+            renderSMSList();
+            initMeituanItems();
+            initShoppingItems();
+            renderCalendar();
+        })();
+    </script>
+</body>
+</html>
