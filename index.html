@@ -1943,8 +1943,8 @@
      document.querySelectorAll('.back-button:not(.settings-back-btn)').forEach(btn => btn.remove());window.backFromSettings = function() {
     document.getElementById('conversationSettingsPage').classList.remove('active');
     document.getElementById('conversationPage').classList.add('active');
-    document.getElementById('chatNav').style.display = 'none';              // flex → none
-    document.querySelector('#overlay-chat .overlay-header').style.display = 'none';  // flex → none
+    document.getElementById('chatNav').style.display = 'none';              
+    document.querySelector('#overlay-chat .overlay-header').style.display = 'none'; 
     document.getElementById('overlay-chat').classList.remove('overlay-hidden');
 };
 let touchStartX = 0;
