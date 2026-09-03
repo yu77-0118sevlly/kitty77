@@ -2,7 +2,6 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 绝对安全、无多余转义字符的 DOM 结构
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -52,7 +51,7 @@
                 <button class="chat-send-btn" id="chat-send-btn">发送</button>
             </div>
             
-            <!-- 💥 精致两排式纯文本小浮窗菜单 (无emoji、精准定位) -->
+            <!-- 精致防溢出小浮窗菜单 -->
             <div class="chat-context-menu" id="chat-context-menu">
                 <div class="ctx-item" id="ctx-btn-quote">引用</div>
                 <div class="ctx-item" id="ctx-btn-copy">复制</div>
@@ -62,14 +61,12 @@
                 <div class="ctx-item" id="ctx-btn-multiselect">多选</div>
             </div>
 
-            <!-- 多选底部操作栏 -->
             <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none;">
                 <button class="ms-action-btn" id="ms-btn-delete-all">删除所选</button>
                 <button class="ms-action-btn cancel" id="ms-btn-cancel">取消</button>
             </div>
         </div>
 
-        <!-- 聊天与美化设置页面 (完整的HTML，绝对不缺代码) -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -312,7 +309,6 @@
     const statusText = document.getElementById('chat-status-text');
     const ctxMenu = document.getElementById('chat-context-menu');
     
-    // 点击或滚动时自动隐藏浮窗菜单
     msgList.addEventListener('scroll', () => ctxMenu.classList.remove('show')); 
     msgList.addEventListener('click', () => ctxMenu.classList.remove('show'));
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
@@ -404,26 +400,26 @@
             timeSub.className = 'bubble-time-sub';
             timeSub.textContent = formatTime(msg.time);
 
-            // 💥 双击触发浮窗，并智能计算位置（在消息下方，绝不越出屏幕左右边界）
+            // 💥 最强安全防溢出计算：绝对定位基于屏幕物理视口，绝不被切断
             bubble.addEventListener('dblclick', (e) => {
                 if(isMultiSelectMode) return;
                 selectedMsgIndex = index; 
                 
                 const rect = bubble.getBoundingClientRect();
-                const detailRect = document.getElementById('chat-page-detail').getBoundingClientRect();
+                const menuWidth = 175; // 与 CSS 宽度严格对齐
                 
-                let leftPos = rect.left + rect.width / 2 - detailRect.left;
-                const menuWidth = 170; // 菜单固定宽度
+                // 初步计算水平居中位置
+                let safeLeft = rect.left + (rect.width / 2) - (menuWidth / 2);
                 
-                // 防溢出保护
-                if (leftPos + menuWidth / 2 > detailRect.width - 12) {
-                    leftPos = detailRect.width - menuWidth / 2 - 12;
-                } else if (leftPos - menuWidth / 2 < 12) {
-                    leftPos = menuWidth / 2 + 12;
+                // 强制视口碰撞检查：左右至少留 16px 安全边距
+                if (safeLeft < 16) {
+                    safeLeft = 16;
+                } else if (safeLeft + menuWidth > window.innerWidth - 16) {
+                    safeLeft = window.innerWidth - menuWidth - 16;
                 }
 
-                ctxMenu.style.left = `${leftPos}px`; 
-                ctxMenu.style.top = `${rect.bottom - detailRect.top + 8}px`; // 精准显示在气泡下方 8px
+                ctxMenu.style.left = `${safeLeft}px`; 
+                ctxMenu.style.top = `${rect.bottom + 8}px`; // 稳稳贴在气泡正下方
                 ctxMenu.classList.add('show');
             });
 
@@ -438,7 +434,6 @@
         scrollToBottom();
     };
 
-    // 绑定浮窗菜单的各项功能
     document.getElementById('ctx-btn-copy').addEventListener('click', (e) => {
         e.stopPropagation(); 
         if(selectedMsgIndex !== null && currentChatId) {
@@ -492,8 +487,6 @@
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
 
             let memories = JSON.parse(localStorage.getItem('wuyo_memories')) || {};
-            const roleName = getCurrentRoleInfo().name;
-            // 注意：存储在 wuyo_memories 里的是按角色ID或者姓名分类的，这里需确保匹配
             if(memories[currentChatId]) {
                 memories[currentChatId] = memories[currentChatId].filter(m => !m.text.includes(msgText));
                 localStorage.setItem('wuyo_memories', JSON.stringify(memories));
@@ -540,7 +533,6 @@
         }
     });
 
-    // 💥 打开设置菜单
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
         const styleConf = getChatStyleConfig();
         const roleInfo = getCurrentRoleInfo();
@@ -569,7 +561,6 @@
         applyChatStylesToDOM();
     });
 
-    // 💥 保存设置按钮
     document.getElementById('settings-save-btn').addEventListener('click', () => {
         const sig = document.getElementById('couple-sign-input').value;
         const bubbleBg = document.getElementById('bubble-color-picker').value;
@@ -675,7 +666,6 @@
     document.getElementById('settings-btn-memory').addEventListener('click', () => {
         document.getElementById('chat-page-settings').classList.remove('active');
         container.style.display = 'none'; window.openApp('memory');
-        // 修正了这里之前的语法错误
         setTimeout(() => { if(window.openMemory) window.openMemory(currentChatId, document.getElementById('chat-char-name').textContent, 'chat'); }, 100);
     });
 
