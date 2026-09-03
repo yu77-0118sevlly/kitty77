@@ -3,61 +3,9 @@
         const calApp = document.getElementById('calendar-app');
         if (!calApp) return;
 
-        if (window.lucide) lucide.createIcons();
-
         // 状态管理
         let currentDate = new Date();
         let selectedDateStr = formatDateKey(currentDate);
-        let currentView = 'month';
-
-        // 默认数据（当 localStorage 为空或损坏时使用）
-        const defaultEvents = [
-            { id: 'ev_101', title: '上班', date: formatDateKey(new Date()), start: '09:00', end: '10:00', category: '工作', location: '公司', note: '正常打卡', reminder: '5' },
-            { id: 'ev_102', title: '午饭', date: formatDateKey(new Date()), start: '12:00', end: '13:00', category: '生活', location: '食堂', note: '吃面条', reminder: '0' },
-            { id: 'ev_103', title: '下班', date: formatDateKey(new Date()), start: '18:00', end: '18:30', category: '工作', location: '公司', note: '回家', reminder: 'start' },
-            { id: 'ev_104', title: '和朋友吃饭', date: formatDateKey(new Date()), start: '20:00', end: '21:30', category: '约会', location: '三里屯', note: '庆祝聚餐', reminder: '10' }
-        ];
-
-        const defaultTodos = [
-            { id: 'td_1', text: '买东西', completed: false },
-            { id: 'td_2', text: '完成作业', completed: false },
-            { id: 'td_3', text: '回复消息', completed: true }
-        ];
-
-        let events;
-        try {
-            const raw = localStorage.getItem('wuyo_calendar_events');
-            events = raw ? JSON.parse(raw) : defaultEvents;
-            if (!Array.isArray(events)) events = defaultEvents;
-        } catch (e) {
-            console.error('[calendar] 日程数据损坏，已重置为默认数据', e);
-            events = defaultEvents;
-        }
-
-        let todos;
-        try {
-            const raw = localStorage.getItem('wuyo_calendar_todos');
-            todos = raw ? JSON.parse(raw) : defaultTodos;
-            if (!Array.isArray(todos)) todos = defaultTodos;
-        } catch (e) {
-            console.error('[calendar] 待办数据损坏，已重置为默认数据', e);
-            todos = defaultTodos;
-        }
-
-        function saveEvents() {
-            try {
-                localStorage.setItem('wuyo_calendar_events', JSON.stringify(events));
-            } catch (e) {
-                console.error('[calendar] 保存日程失败', e);
-            }
-        }
-        function saveTodos() {
-            try {
-                localStorage.setItem('wuyo_calendar_todos', JSON.stringify(todos));
-            } catch (e) {
-                console.error('[calendar] 保存待办失败', e);
-            }
-        }
 
         function formatDateKey(d) {
             const year = d.getFullYear();
@@ -66,73 +14,48 @@
             return `${year}-${month}-${day}`;
         }
 
-        // 💥 完美联动 WUYO OS 的 openApp：当打开 calendar 时触发渲染并激活平移动画
+        // 联动 WUYO OS 的打开与关闭
         const originalOpenApp = window.openApp;
         window.openApp = function(appId) {
             if (typeof originalOpenApp === 'function') originalOpenApp(appId);
             if (appId === 'calendar') {
-                const mainAppBox = document.getElementById('calendar-app-main');
-                if (mainAppBox) mainAppBox.classList.add('active');
-                renderCalendar();
+                calApp.style.display = 'block';
+                setTimeout(() => {
+                    calApp.classList.add('active');
+                    renderCalendar();
+                }, 10);
             }
         };
 
-        // 💥 完美联动 WUYO OS 的 closeApp：点击返回时收起动画
-        const originalCloseApp = window.closeApp;
-        window.closeApp = function(appId) {
-            if (appId === 'calendar') {
-                const mainAppBox = document.getElementById('calendar-app-main');
-                if (mainAppBox) mainAppBox.classList.remove('active');
-            }
-            if (typeof originalCloseApp === 'function') originalCloseApp(appId);
+        window.closeCalendar = function() {
+            calApp.classList.remove('active');
+            setTimeout(() => {
+                calApp.style.display = 'none';
+                const homeScreen = document.getElementById('home-screen');
+                if (homeScreen) homeScreen.style.display = 'flex';
+            }, 300);
         };
 
-        // 视图切换与日期导航事件绑定
-        document.querySelectorAll('.cal-view-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.cal-view-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                currentView = e.target.getAttribute('data-view');
-                renderCalendar();
-            });
+        // 按钮事件绑定
+        const prevBtn = document.getElementById('cal-prev-btn');
+        const nextBtn = document.getElementById('cal-next-btn');
+        const todayBtn = document.getElementById('cal-today-jump');
+
+        if (prevBtn) prevBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
         });
 
-        const todayJumpBtn = document.getElementById('cal-today-jump');
-        if (todayJumpBtn) {
-            todayJumpBtn.addEventListener('click', () => {
-                currentDate = new Date();
-                selectedDateStr = formatDateKey(currentDate);
-                renderCalendar();
-            });
-        }
+        if (nextBtn) nextBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
 
-        const prevBtn = document.getElementById('cal-prev-btn');
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                if (currentView === 'month') {
-                    currentDate.setMonth(currentDate.getMonth() - 1);
-                } else if (currentView === 'week') {
-                    currentDate.setDate(currentDate.getDate() - 7);
-                } else {
-                    currentDate.setDate(currentDate.getDate() - 1);
-                }
-                renderCalendar();
-            });
-        }
-
-        const nextBtn = document.getElementById('cal-next-btn');
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                if (currentView === 'month') {
-                    currentDate.setMonth(currentDate.getMonth() + 1);
-                } else if (currentView === 'week') {
-                    currentDate.setDate(currentDate.getDate() + 7);
-                } else {
-                    currentDate.setDate(currentDate.getDate() + 1);
-                }
-                renderCalendar();
-            });
-        }
+        if (todayBtn) todayBtn.addEventListener('click', () => {
+            currentDate = new Date();
+            selectedDateStr = formatDateKey(currentDate);
+            renderCalendar();
+        });
 
         function renderCalendar() {
             const year = currentDate.getFullYear();
@@ -140,24 +63,8 @@
             const titleEl = document.getElementById('cal-header-month-title');
             if (titleEl) titleEl.textContent = `${year}年${month + 1}月`;
 
-            const mContainer = document.getElementById('cal-view-month-container');
-            const wContainer = document.getElementById('cal-view-week-container');
-            const dContainer = document.getElementById('cal-view-day-container');
-
-            if (mContainer) mContainer.style.display = currentView === 'month' ? 'flex' : 'none';
-            if (wContainer) wContainer.style.display = currentView === 'week' ? 'flex' : 'none';
-            if (dContainer) dContainer.style.display = currentView === 'day' ? 'flex' : 'none';
-
-            if (currentView === 'month') {
-                renderMonthView(year, month);
-            } else if (currentView === 'week') {
-                renderWeekView(currentDate);
-            } else {
-                renderDayTimelineView(currentDate);
-            }
-
-            renderAgendaList(selectedDateStr);
-            if (window.lucide) lucide.createIcons();
+            renderMonthView(year, month);
+            renderAgendaInfo(selectedDateStr);
         }
 
         function renderMonthView(year, month) {
@@ -170,38 +77,30 @@
             const prevTotalDays = new Date(year, month, 0).getDate();
             const todayKey = formatDateKey(new Date());
 
+            // 上个月补白
             for (let i = firstDayIndex - 1; i >= 0; i--) {
-                const d = prevTotalDays - i;
-                grid.appendChild(createDayCell(d, true, null));
+                grid.appendChild(createCell(prevTotalDays - i, true, null));
             }
 
+            // 当月天数
             for (let d = 1; d <= totalDays; d++) {
                 const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                grid.appendChild(createDayCell(d, false, dateKey, dateKey === todayKey));
+                grid.appendChild(createCell(d, false, dateKey, dateKey === todayKey));
             }
 
-            const totalCellsSoFar = firstDayIndex + totalDays;
-            const nextMonthDays = totalCellsSoFar <= 35 ? 35 - totalCellsSoFar : 42 - totalCellsSoFar;
-            for (let d = 1; d <= nextMonthDays; d++) {
-                grid.appendChild(createDayCell(d, true, null));
+            // 下个月补白凑满 42 格
+            const totalCells = firstDayIndex + totalDays;
+            const nextDays = totalCells <= 35 ? 35 - totalCells : 42 - totalCells;
+            for (let d = 1; d <= nextDays; d++) {
+                grid.appendChild(createCell(d, true, null));
             }
         }
 
-        function createDayCell(dayNum, isOtherMonth, dateKey, isToday = false) {
+        function createCell(dayNum, isOtherMonth, dateKey, isToday = false) {
             const cell = document.createElement('div');
             cell.className = `cal-day-cell ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${dateKey === selectedDateStr ? 'selected' : ''}`;
-
-            let dotsHtml = '';
+            
             if (dateKey) {
-                const dayEvents = events.filter(ev => ev.date === dateKey);
-                if (dayEvents.length > 0) {
-                    dotsHtml = `<div class="cal-day-dots">`;
-                    dayEvents.slice(0, 3).forEach(() => {
-                        dotsHtml += `<div class="cal-event-dot"></div>`;
-                    });
-                    dotsHtml += `</div>`;
-                }
-
                 cell.addEventListener('click', () => {
                     selectedDateStr = dateKey;
                     currentDate = new Date(dateKey);
@@ -209,311 +108,19 @@
                 });
             }
 
-            cell.innerHTML = `<span class="cal-day-num">${dayNum}</span>${dotsHtml}`;
+            cell.innerHTML = `<span class="cal-day-num">${dayNum}</span>`;
             return cell;
         }
 
-        function renderWeekView(date) {
-            const container = document.getElementById('cal-view-week-container');
-            if (!container) return;
-            container.innerHTML = '<div style="font-size:14px; font-weight:600; padding:4px 0;">周视图 (点击任意日期查看)</div>';
-
-            const startOfWeek = new Date(date);
-            const day = startOfWeek.getDay();
-            startOfWeek.setDate(startOfWeek.getDate() - day);
-
-            let html = '<div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; text-align:center;">';
-            for (let i = 0; i < 7; i++) {
-                const d = new Date(startOfWeek);
-                d.setDate(d.getDate() + i);
-                const dKey = formatDateKey(d);
-                const isSelected = dKey === selectedDateStr;
-                html += `
-                    <div style="background:${isSelected?'#1C1C1E':'#FAFAFC'}; color:${isSelected?'#FFF':'#1C1C1E'}; border-radius:8px; padding:8px 4px; cursor:pointer;" onclick="window.selectDateByKey('${dKey}')">
-                        <div style="font-size:10px; color:${isSelected?'#DDD':'#8E8E93'}">${['日','一','二','三','四','五','六'][i]}</div>
-                        <div style="font-size:14px; font-weight:700; margin-top:4px;">${d.getDate()}</div>
-                    </div>
-                `;
-            }
-            html += '</div>';
-            container.innerHTML = html;
-        }
-
-        window.selectDateByKey = function(key) {
-            selectedDateStr = key;
-            currentDate = new Date(key);
-            renderCalendar();
-        };
-
-        function renderDayTimelineView(date) {
-            const container = document.getElementById('cal-view-day-container');
-            if (!container) return;
-            let html = `<div style="font-size:14px; font-weight:600; margin-bottom:8px;">${date.getFullYear()}年${date.getMonth()+1}月${date.getDate()}日 时间轴</div>`;
-
-            for (let hour = 0; hour < 24; hour++) {
-                const hourStr = String(hour).padStart(2, '0') + ':00';
-                const hourEvents = events.filter(ev => ev.date === selectedDateStr && ev.start && ev.start.startsWith(String(hour).padStart(2,'0')));
-
-                let evsHtml = '';
-                hourEvents.forEach(ev => {
-                    evsHtml += `<div style="background:#1C1C1E; color:#FFF; border-radius:6px; padding:4px 8px; font-size:12px; margin-bottom:4px; cursor:pointer;" onclick="window.openEditEvent('${ev.id}')">${ev.start} - ${ev.title}</div>`;
-                });
-
-                html += `
-                    <div class="timeline-hour-row" onclick="window.quickCreateAtHour('${hourStr}')">
-                        <div class="timeline-time-label">${hourStr}</div>
-                        <div class="timeline-content-area">${evsHtml}</div>
-                    </div>
-                `;
-            }
-            container.innerHTML = html;
-        }
-
-        window.quickCreateAtHour = function(timeStr) {
-            openCreateModal(selectedDateStr, timeStr);
-        };
-
-        function renderAgendaList(dateKey) {
-            const listArea = document.getElementById('cal-agenda-list-area');
+        function renderAgendaInfo(dateKey) {
             const labelEl = document.getElementById('cal-selected-date-label');
-            if (!listArea || !labelEl) return;
+            const boxEl = document.getElementById('cal-agenda-box');
+            if (!labelEl || !boxEl) return;
 
-            const dateObj = new Date(dateKey);
+            const d = new Date(dateKey);
             const weekdays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
-            labelEl.textContent = `${dateObj.getFullYear()}年${dateObj.getMonth()+1}月${dateObj.getDate()}日 ${weekdays[dateObj.getDay()]}`;
-
-            const dayEvents = events.filter(ev => ev.date === dateKey);
-            dayEvents.sort((a,b) => (a.start || '00:00').localeCompare(b.start || '00:00'));
-
-            if (dayEvents.length === 0) {
-                listArea.innerHTML = `<div style="text-align:center; color:#8E8E93; padding:24px 0; font-size:14px;">当天暂无日程安排</div>`;
-                return;
-            }
-
-            let html = '';
-            dayEvents.forEach(ev => {
-                html += `
-                    <div class="cal-event-card" onclick="window.openEditEvent('${ev.id}')">
-                        <div class="cal-event-time">${ev.start || '全天'} - ${ev.end || ''} (${ev.category})</div>
-                        <div class="cal-event-title">${ev.title}</div>
-                        ${ev.location ? `<div class="cal-event-desc">📍 ${ev.location}</div>` : ''}
-                        ${ev.note ? `<div class="cal-event-desc">${ev.note}</div>` : ''}
-                    </div>
-                `;
-            });
-            listArea.innerHTML = html;
+            labelEl.textContent = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${weekdays[d.getDay()]}`;
+            boxEl.textContent = `这一天暂无其他安排，点击上方格子可自由切换查看。`;
         }
-
-        // 弹窗与 CRUD
-        const eventModal = document.getElementById('cal-event-modal');
-        const todoModal = document.getElementById('cal-todo-modal');
-        const searchModal = document.getElementById('cal-search-modal');
-
-        const addBtn = document.getElementById('cal-add-btn');
-        const addQuickBtn = document.getElementById('cal-add-quick-btn');
-        if (addBtn) addBtn.addEventListener('click', () => openCreateModal(selectedDateStr, '09:00'));
-        if (addQuickBtn) addQuickBtn.addEventListener('click', () => openCreateModal(selectedDateStr, '09:00'));
-
-        function openCreateModal(dateStr, defaultTime) {
-            document.getElementById('cal-modal-title').textContent = '新建日程';
-            document.getElementById('cal-edit-event-id').value = '';
-            document.getElementById('cal-form-title').value = '';
-            document.getElementById('cal-form-date').value = dateStr;
-            document.getElementById('cal-form-start').value = defaultTime;
-            document.getElementById('cal-form-end').value = '10:00';
-            document.getElementById('cal-form-location').value = '';
-            document.getElementById('cal-form-note').value = '';
-            document.getElementById('cal-form-delete-btn').style.display = 'none';
-            if (eventModal) eventModal.classList.add('active');
-        }
-
-        window.openEditEvent = function(id) {
-            const ev = events.find(item => item.id === id);
-            if (!ev) return;
-            document.getElementById('cal-modal-title').textContent = '编辑日程';
-            document.getElementById('cal-edit-event-id').value = ev.id;
-            document.getElementById('cal-form-title').value = ev.title;
-            document.getElementById('cal-form-date').value = ev.date;
-            document.getElementById('cal-form-start').value = ev.start || '09:00';
-            document.getElementById('cal-form-end').value = ev.end || '10:00';
-            document.getElementById('cal-form-category').value = ev.category || '工作';
-            document.getElementById('cal-form-reminder').value = ev.reminder || '5';
-            document.getElementById('cal-form-location').value = ev.location || '';
-            document.getElementById('cal-form-note').value = ev.note || '';
-            document.getElementById('cal-form-delete-btn').style.display = 'block';
-            if (eventModal) eventModal.classList.add('active');
-        };
-
-        const closeEventModal = document.getElementById('cal-modal-close-btn');
-        if (closeEventModal) closeEventModal.addEventListener('click', () => eventModal.classList.remove('active'));
-
-        const saveEventBtn = document.getElementById('cal-form-save-btn');
-        if (saveEventBtn) {
-            saveEventBtn.addEventListener('click', () => {
-                const id = document.getElementById('cal-edit-event-id').value;
-                const title = document.getElementById('cal-form-title').value.trim();
-                const date = document.getElementById('cal-form-date').value;
-                const start = document.getElementById('cal-form-start').value;
-                const end = document.getElementById('cal-form-end').value;
-                const category = document.getElementById('cal-form-category').value;
-                const reminder = document.getElementById('cal-form-reminder').value;
-                const location = document.getElementById('cal-form-location').value;
-                const note = document.getElementById('cal-form-note').value;
-
-                if (!title) { alert('请输入日程标题'); return; }
-                if (!date) { alert('请选择日期'); return; }
-
-                if (id) {
-                    const idx = events.findIndex(item => item.id === id);
-                    if (idx !== -1) {
-                        events[idx] = { id, title, date, start, end, category, reminder, location, note };
-                    }
-                } else {
-                    const newEv = { id: 'ev_' + Date.now(), title, date, start, end, category, reminder, location, note };
-                    events.push(newEv);
-                }
-
-                saveEvents();
-                if (eventModal) eventModal.classList.remove('active');
-                selectedDateStr = date;
-                currentDate = new Date(date);
-                renderCalendar();
-            });
-        }
-
-        const deleteEventBtn = document.getElementById('cal-form-delete-btn');
-        if (deleteEventBtn) {
-            deleteEventBtn.addEventListener('click', () => {
-                const id = document.getElementById('cal-edit-event-id').value;
-                if (id && confirm('确定要删除这个日程吗？')) {
-                    events = events.filter(item => item.id !== id);
-                    saveEvents();
-                    if (eventModal) eventModal.classList.remove('active');
-                    renderCalendar();
-                }
-            });
-        }
-
-        // Todo
-        const todoBtn = document.getElementById('cal-todo-btn');
-        if (todoBtn) todoBtn.addEventListener('click', () => { renderTodoList(); if (todoModal) todoModal.classList.add('active'); });
-        const closeTodoBtn = document.getElementById('cal-todo-close-btn');
-        if (closeTodoBtn) closeTodoBtn.addEventListener('click', () => { if (todoModal) todoModal.classList.remove('active'); });
-
-        const addTodoBtn = document.getElementById('cal-add-todo-btn');
-        if (addTodoBtn) {
-            addTodoBtn.addEventListener('click', () => {
-                const input = document.getElementById('cal-new-todo-input');
-                const text = input.value.trim();
-                if (!text) return;
-                todos.push({ id: 'td_' + Date.now(), text, completed: false });
-                saveTodos();
-                input.value = '';
-                renderTodoList();
-            });
-        }
-
-        function renderTodoList() {
-            const container = document.getElementById('cal-todo-list-container');
-            if (!container) return;
-            if (todos.length === 0) {
-                container.innerHTML = `<div style="text-align:center; color:#8E8E93; padding:20px;">暂无待办事项</div>`;
-                return;
-            }
-            let html = '';
-            todos.forEach(td => {
-                html += `
-                    <div class="todo-item ${td.completed ? 'completed' : ''}">
-                        <div class="todo-left">
-                            <div class="todo-checkbox" onclick="window.toggleTodo('${td.id}')">${td.completed ? '✓' : ''}</div>
-                            <span class="todo-text">${td.text}</span>
-                        </div>
-                        <button class="cal-icon-btn" onclick="window.deleteTodo('${td.id}')">🗑️</button>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        window.toggleTodo = function(id) {
-            const td = todos.find(item => item.id === id);
-            if (td) {
-                td.completed = !td.completed;
-                saveTodos();
-                renderTodoList();
-            }
-        };
-
-        window.deleteTodo = function(id) {
-            todos = todos.filter(item => item.id !== id);
-            saveTodos();
-            renderTodoList();
-        };
-
-        // 搜索
-        const searchBtn = document.getElementById('cal-search-btn');
-        if (searchBtn) searchBtn.addEventListener('click', () => {
-            document.getElementById('cal-search-input').value = '';
-            document.getElementById('cal-search-results-container').innerHTML = '';
-            if (searchModal) searchModal.classList.add('active');
-        });
-        const closeSearchBtn = document.getElementById('cal-search-close-btn');
-        if (closeSearchBtn) closeSearchBtn.addEventListener('click', () => { if (searchModal) searchModal.classList.remove('active'); });
-
-        const searchInput = document.getElementById('cal-search-input');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                const keyword = e.target.value.trim().toLowerCase();
-                const container = document.getElementById('cal-search-results-container');
-                if (!container) return;
-                if (!keyword) { container.innerHTML = ''; return; }
-
-                const results = events.filter(ev =>
-                    ev.title.toLowerCase().includes(keyword) ||
-                    (ev.location && ev.location.toLowerCase().includes(keyword)) ||
-                    (ev.note && ev.note.toLowerCase().includes(keyword))
-                );
-
-                if (results.length === 0) {
-                    container.innerHTML = `<div style="text-align:center; color:#8E8E93; padding:20px;">未找到相关日程</div>`;
-                    return;
-                }
-
-                let html = '';
-                results.forEach(ev => {
-                    html += `
-                        <div class="cal-event-card" onclick="window.jumpToEventDate('${ev.date}', '${ev.id}')">
-                            <div class="cal-event-time">${ev.date} ${ev.start || ''}</div>
-                            <div class="cal-event-title">${ev.title}</div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            });
-        }
-
-        window.jumpToEventDate = function(dateStr, evId) {
-            if (searchModal) searchModal.classList.remove('active');
-            selectedDateStr = dateStr;
-            currentDate = new Date(dateStr);
-            renderCalendar();
-            setTimeout(() => {
-                window.openEditEvent(evId);
-            }, 200);
-        };
-
-                // 💥 只有当用户点击打开日历、容器显示后再执行渲染，彻底解决因 display:none 导致的白屏/空白问题
-        const originalOpenApp = window.openApp;
-        window.openApp = function(appId) {
-            if (typeof originalOpenApp === 'function') originalOpenApp(appId);
-            if (appId === 'calendar') {
-                const mainAppBox = document.getElementById('calendar-app-main');
-                if (mainAppBox) mainAppBox.classList.add('active');
-                setTimeout(() => {
-                    renderCalendar();
-                }, 50); // 确保容器显示后有宽高再渲染
-            }
-        };
-
     });
 })();
