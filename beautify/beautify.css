@@ -5,7 +5,7 @@
     --text-muted: #8e8e93;
     --border-color: rgba(0,0,0,0.05);
     
-    /* 去除了原本的蓝红，替换为高级灰黑色系 */
+    /* 高级灰黑色系 */
     --accent-color: #1c1c1e; 
     --danger-color: #4a4a4c;
 }
@@ -49,7 +49,7 @@ details.widget-details summary {
 }
 .detail-content { background: #fafafc; padding-left: 16px; }
 
-.avatar-preview { width: 36px; height: 36px; border-radius: 50%; background: #eaeaf0; background-size: cover; }
+.avatar-preview { width: 36px; height: 36px; border-radius: 50%; background: #eaeaf0; background-size: cover; background-position: center; }
 .danger-btn {
     width: 100%; padding: 16px; border: none; background: var(--card-bg);
     color: var(--danger-color); font-size: 16px; font-weight: 600; border-radius: 16px;
