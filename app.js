@@ -8,7 +8,6 @@ window.openApp = (appId) => {
     const appContainer = document.getElementById(`${appId}-app`);
     if (appContainer) appContainer.style.display = 'block';
 
-    // 如果是美化 App，且还未加载过模块，则动态注入 CSS 和 JS
     if (appId === 'beautify' && !window.beautifyLoaded) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
@@ -28,7 +27,7 @@ window.closeApp = (appId) => {
     if (appContainer) appContainer.style.display = 'none';
     
     const homeScreen = document.getElementById('home-screen');
-    if (homeScreen) homeScreen.style.display = 'flex'; // 恢复主页的 flex 布局
+    if (homeScreen) homeScreen.style.display = 'flex';
 };
 
 // ==========================================
@@ -64,6 +63,22 @@ window.applyConfig = () => {
         
         const aiSubEl = document.querySelector('.ai-info p');
         if(aiSubEl) aiSubEl.textContent = config.texts.aiSubtitle;
+
+        // 🟢 新增：AI 伙伴自定义头像应用
+        const aiAvatarEl = document.querySelector('.ai-avatar');
+        if (aiAvatarEl) {
+            if (config.texts.aiAvatar) {
+                aiAvatarEl.innerHTML = ''; // 清除原本的机器人图标
+                aiAvatarEl.style.backgroundImage = `url(${config.texts.aiAvatar})`;
+                aiAvatarEl.style.backgroundSize = 'cover';
+                aiAvatarEl.style.backgroundPosition = 'center';
+            } else {
+                // 如果没有自定义头像，恢复默认机器人图标
+                aiAvatarEl.style.backgroundImage = 'none';
+                aiAvatarEl.innerHTML = '<i data-lucide="bot"></i>';
+                lucide.createIcons({ root: aiAvatarEl });
+            }
+        }
     }
 
     if (config.profile) {
@@ -133,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     window.applyConfig();
 
-    // 时间与日期自动更新
     const updateDateTime = () => {
         const now = new Date();
         const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
@@ -157,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDateTime();
     setInterval(updateDateTime, 60000); 
 
-    // 桌面滑动分页指示器
     const swiper = document.getElementById('desktop-swiper');
     const dots = document.querySelectorAll('.pagination-dots .dot');
 
@@ -176,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 主页原始图片上传
     const imageUploader = document.getElementById('image-uploader');
     const uploadables = document.querySelectorAll('#home-screen .uploadable');
     let currentUploadTarget = null;
