@@ -8,6 +8,7 @@ window.openApp = (appId) => {
     const appContainer = document.getElementById(`${appId}-app`);
     if (appContainer) appContainer.style.display = 'block';
 
+    // 加载美化模块
     if (appId === 'beautify' && !window.beautifyLoaded) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
@@ -19,6 +20,20 @@ window.openApp = (appId) => {
         document.body.appendChild(script);
 
         window.beautifyLoaded = true;
+    }
+
+    // 🟢 加载聊天社交模块
+    if (appId === 'chat' && !window.chatLoaded) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'chat/chat.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'chat/chat.js';
+        document.body.appendChild(script);
+
+        window.chatLoaded = true;
     }
 };
 
