@@ -44,14 +44,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if(aiSubEl) aiSubEl.textContent = config.texts.aiSubtitle;
         }
 
-        // 3. 应用头像
-        if (config.profile && config.profile.avatar) {
-            const profilePic = document.getElementById('profile-pic');
-            if(profilePic) {
-                profilePic.style.backgroundImage = `url(${config.profile.avatar})`;
-                profilePic.classList.add('has-image');
+            // 3. 应用头像与昵称
+        if (config.profile) {
+            if (config.profile.nickname) {
+                const nicknameEl = document.getElementById('user-nickname');
+                if (nicknameEl) nicknameEl.textContent = config.profile.nickname;
+            }
+            if (config.profile.avatar) {
+                const profilePic = document.getElementById('profile-pic');
+                if(profilePic) {
+                    profilePic.style.backgroundImage = `url(${config.profile.avatar})`;
+                    profilePic.classList.add('has-image');
+                }
             }
         }
+
 
         // 4. 应用 Widget (Memory 等)
         if (config.widgets) {
