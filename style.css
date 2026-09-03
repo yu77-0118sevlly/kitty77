@@ -177,3 +177,27 @@ body {
 
 /* App 视图容器 */
 .app-view { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 999; }
+/* ==========================================
+   💥 桌面应用图标 4 列强制对齐终极补丁
+========================================== */
+.desktop-page .app-grid,
+.desktop-page .app-grid-container,
+.desktop-page .desktop-apps-grid,
+.desktop-page .apps-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px 0 !important;
+    padding: 0 16px !important;
+    width: 100% !important;
+    justify-items: center !important;
+}
+
+/* 确保每一个图标单元格居中，防止 flex 溢出拉伸 */
+.desktop-page .app-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+}
+
