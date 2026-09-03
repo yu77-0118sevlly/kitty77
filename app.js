@@ -51,8 +51,14 @@ window.openApp = (appId) => {
         window.memoryLoaded = true;
     }
 
-    // 7. 💥 补上日历模块的显示与渲染触发
+    // 7. 💥 纯净版日历模块打开触发
     if (appId === 'calendar') {
+        const mainAppBox = document.getElementById('calendar-app-main');
+        if (mainAppBox) {
+            setTimeout(() => {
+                mainAppBox.classList.add('active');
+            }, 10);
+        }
         if (window.renderCalendarInstance) {
             window.renderCalendarInstance();
         }
