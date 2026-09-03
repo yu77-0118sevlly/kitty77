@@ -16,20 +16,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <!-- 顶部状态栏 -->
-    <header id="status-bar">
-        <div class="time" id="clock">09:41</div>
-        <div class="status-right">
-            <!-- 最右上角的专属名称 -->
-            <span class="brand-name">WU YO</span>
-            <div class="status-icons">
-                <i data-lucide="bar-chart-2"></i>
-                <i data-lucide="wifi"></i>
-                <i data-lucide="battery-medium"></i>
-            </div>
-        </div>
-    </header>
-
+    
     <!-- 视图容器 (用于页面切换) -->
     <main id="view-container">
         
@@ -37,15 +24,18 @@
         <section id="view-home" class="view active">
             <div class="home-scroll-area">
                 
-                <!-- 顶部日期与用户头像 -->
-                <div class="header-section">
-                    <div class="date-display">
-                        <span class="day" id="current-day">星期三</span>
-                        <span class="date" id="current-date">10月25日</span>
-                    </div>
+                <!-- 顶部左上角 WU YO 标志与头像 -->
+                <div class="top-brand-bar">
+                    <div class="brand-name-large">WU YO</div>
                     <div class="user-avatar-card">
                         <i data-lucide="user" class="avatar-icon"></i>
                     </div>
+                </div>
+
+                <!-- 日期显示 -->
+                <div class="date-display">
+                    <span class="day" id="current-day">星期三</span>
+                    <span class="date" id="current-date">10月25日</span>
                 </div>
 
                 <!-- 拍立得风格装饰卡片 -->
@@ -67,39 +57,41 @@
                     </div>
                 </div>
 
-                <!-- App 桌面网格 (已扩充) -->
-                <div class="app-grid">
-                    <div class="app-item" data-target="view-chat">
-                        <div class="app-icon"><i data-lucide="message-square"></i></div>
-                        <span>聊天</span>
-                    </div>
-                    <div class="app-item" data-target="view-worldbook">
-                        <div class="app-icon"><i data-lucide="book"></i></div>
-                        <span>世界书</span>
-                    </div>
-                    <div class="app-item" data-target="view-theme">
-                        <div class="app-icon"><i data-lucide="palette"></i></div>
-                        <span>美化</span>
-                    </div>
-                    <div class="app-item" data-target="view-photos">
-                        <div class="app-icon"><i data-lucide="image"></i></div>
-                        <span>相册</span>
-                    </div>
-                    <div class="app-item" data-target="view-notes">
-                        <div class="app-icon"><i data-lucide="file-text"></i></div>
-                        <span>备忘录</span>
-                    </div>
-                    <div class="app-item" data-target="view-music">
-                        <div class="app-icon"><i data-lucide="music"></i></div>
-                        <span>音乐</span>
-                    </div>
-                    <div class="app-item" data-target="view-calendar">
-                        <div class="app-icon"><i data-lucide="calendar"></i></div>
-                        <span>日历</span>
-                    </div>
-                    <div class="app-item" data-target="view-settings">
-                        <div class="app-icon"><i data-lucide="settings"></i></div>
-                        <span>设置</span>
+                <!-- App 桌面网格 (支持横向左右滑动) -->
+                <div class="app-grid-wrapper">
+                    <div class="app-grid">
+                        <div class="app-item" data-target="view-chat">
+                            <div class="app-icon"><i data-lucide="message-square"></i></div>
+                            <span>聊天</span>
+                        </div>
+                        <div class="app-item" data-target="view-worldbook">
+                            <div class="app-icon"><i data-lucide="book"></i></div>
+                            <span>世界书</span>
+                        </div>
+                        <div class="app-item" data-target="view-theme">
+                            <div class="app-icon"><i data-lucide="palette"></i></div>
+                            <span>美化</span>
+                        </div>
+                        <div class="app-item" data-target="view-photos">
+                            <div class="app-icon"><i data-lucide="image"></i></div>
+                            <span>相册</span>
+                        </div>
+                        <div class="app-item" data-target="view-notes">
+                            <div class="app-icon"><i data-lucide="file-text"></i></div>
+                            <span>备忘录</span>
+                        </div>
+                        <div class="app-item" data-target="view-music">
+                            <div class="app-icon"><i data-lucide="music"></i></div>
+                            <span>音乐</span>
+                        </div>
+                        <div class="app-item" data-target="view-calendar">
+                            <div class="app-icon"><i data-lucide="calendar"></i></div>
+                            <span>日历</span>
+                        </div>
+                        <div class="app-item" data-target="view-settings">
+                            <div class="app-icon"><i data-lucide="settings"></i></div>
+                            <span>设置</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -130,9 +122,7 @@
                 <span class="nav-title">世界书</span>
                 <button class="icon-btn"><i data-lucide="plus"></i></button>
             </div>
-            <div class="page-content">
-                <!-- 预留世界书条目列表 -->
-            </div>
+            <div class="page-content"></div>
         </section>
 
         <!-- 4. 个性美化视图 -->
@@ -144,9 +134,7 @@
                 <span class="nav-title">个性美化</span>
                 <div class="icon-btn-placeholder"></div>
             </div>
-            <div class="page-content">
-                <!-- 预留美化选项 -->
-            </div>
+            <div class="page-content"></div>
         </section>
 
         <!-- 5. 相册视图 -->
@@ -158,9 +146,7 @@
                 <span class="nav-title">相册</span>
                 <button class="icon-btn"><i data-lucide="search"></i></button>
             </div>
-            <div class="page-content">
-                <!-- 预留相册内容 -->
-            </div>
+            <div class="page-content"></div>
         </section>
 
         <!-- 6. 备忘录视图 -->
@@ -172,9 +158,7 @@
                 <span class="nav-title">备忘录</span>
                 <button class="icon-btn"><i data-lucide="edit"></i></button>
             </div>
-            <div class="page-content">
-                <!-- 预留备忘录内容 -->
-            </div>
+            <div class="page-content"></div>
         </section>
 
         <!-- 7. 音乐视图 -->
@@ -186,9 +170,7 @@
                 <span class="nav-title">音乐</span>
                 <button class="icon-btn"><i data-lucide="play-circle"></i></button>
             </div>
-            <div class="page-content">
-                <!-- 预留音乐内容 -->
-            </div>
+            <div class="page-content"></div>
         </section>
 
         <!-- 8. 日历视图 -->
@@ -200,9 +182,7 @@
                 <span class="nav-title">日历</span>
                 <button class="icon-btn"><i data-lucide="calendar-plus"></i></button>
             </div>
-            <div class="page-content">
-                <!-- 预留日历内容 -->
-            </div>
+            <div class="page-content"></div>
         </section>
 
         <!-- 9. 设置视图 -->
@@ -214,9 +194,7 @@
                 <span class="nav-title">设置</span>
                 <div class="icon-btn-placeholder"></div>
             </div>
-            <div class="page-content">
-                <!-- 预留设置选项 -->
-            </div>
+            <div class="page-content"></div>
         </section>
 
     </main>
@@ -230,11 +208,6 @@
             <div class="dock-item" data-target="view-theme"><i data-lucide="layout-grid"></i></div>
         </div>
     </nav>
-
-    <!-- 底部操作条 (Home Indicator) -->
-    <div id="home-indicator">
-        <div class="indicator-bar" data-target="view-home"></div>
-    </div>
 
     <script src="app.js"></script>
 </body>
