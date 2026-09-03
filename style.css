@@ -42,7 +42,18 @@ html, body {
 }
 
 /* ================= 顶部 Header ================= */
-.top-header {
+.top-header {/* 补充右上角头像和名字的排版 */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.user-nickname {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
     display: flex; justify-content: space-between; align-items: flex-start;
     padding: 0 24px 16px 24px;
     flex-shrink: 0;
