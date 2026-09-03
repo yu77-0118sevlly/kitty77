@@ -2,7 +2,7 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：中文界面，独立设置页，英文底栏
+    // 1. 初始化 DOM：恢复独立的聊天设置页面，且 UI 全部改回中文，底栏保留英文
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -19,8 +19,8 @@
             <div class="wechat-bottom-nav">
                 <div class="wechat-nav-item active"><i data-lucide="message-square"></i><span>Chats</span></div>
                 <div class="wechat-nav-item" id="nav-btn-contacts"><i data-lucide="users"></i><span>Contacts</span></div>
-                <div class="wechat-nav-item"><i data-lucide="compass"></i><span>Moments</span></div>
-                <div class="wechat-nav-item"><i data-lucide="user"></i><span>Me</span></div>
+                <div class="wechat-nav-item" onclick="alert('朋友圈功能开发中')"><i data-lucide="compass"></i><span>Moments</span></div>
+                <div class="wechat-nav-item" onclick="alert('个人中心功能开发中')"><i data-lucide="user"></i><span>Me</span></div>
             </div>
         </div>
 
@@ -51,14 +51,14 @@
             </div>
         </div>
 
-        <!-- 💥 全新的独立设置页面 -->
+        <!-- 💥 致命修复：找回独立的设置页面！纯中文！ -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
                 <span class="chat-header-title">聊天设置</span>
                 <div style="width:32px;"></div>
             </header>
-            <div style="flex:1; overflow-y:auto;">
+            <div style="flex:1; overflow-y:auto; padding-top:16px;">
                 <div class="settings-list-group">
                     <div class="settings-list-item" id="settings-btn-profile">
                         <span>角色主页</span><i data-lucide="chevron-right"></i>
@@ -77,10 +77,8 @@
     `;
     lucide.createIcons({ root: container });
 
-    // 底栏跳转
-    document.getElementById('nav-btn-contacts').addEventListener('click', () => {
-        container.style.display = 'none'; window.openApp('contacts');
-    });
+    // 2. 底栏跳转
+    document.getElementById('nav-btn-contacts').addEventListener('click', () => { container.style.display = 'none'; window.openApp('contacts'); });
 
     let currentChatId = null; 
     let globalChatData = JSON.parse(localStorage.getItem('wuyo_global_chat_data')) || {};
@@ -88,7 +86,7 @@
     
     const getSystemDefaultChar = () => {
         const configStr = localStorage.getItem('wuyo_config');
-        let name = 'AI 伙伴'; let avatar = ''; let desc = '随时准备与你交流…';
+        let name = 'AI'; let avatar = ''; let desc = '随时准备与你交流…';
         if(configStr) {
             const config = JSON.parse(configStr);
             if(config.texts) {
@@ -172,7 +170,7 @@
         ctxMenu.classList.remove('show');
     });
 
-    // 💥 独立设置页面的跳转逻辑
+    // 💥 修复独立设置页面的所有跳转交互 
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
         document.getElementById('chat-page-settings').classList.add('active');
     });
