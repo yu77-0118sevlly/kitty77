@@ -10,24 +10,54 @@
         let selectedDateStr = formatDateKey(currentDate);
         let currentView = 'month';
 
-        let events = JSON.parse(localStorage.getItem('wuyo_calendar_events')) || [
+        // 默认数据（当 localStorage 为空或损坏时使用）
+        const defaultEvents = [
             { id: 'ev_101', title: '上班', date: formatDateKey(new Date()), start: '09:00', end: '10:00', category: '工作', location: '公司', note: '正常打卡', reminder: '5' },
             { id: 'ev_102', title: '午饭', date: formatDateKey(new Date()), start: '12:00', end: '13:00', category: '生活', location: '食堂', note: '吃面条', reminder: '0' },
             { id: 'ev_103', title: '下班', date: formatDateKey(new Date()), start: '18:00', end: '18:30', category: '工作', location: '公司', note: '回家', reminder: 'start' },
             { id: 'ev_104', title: '和朋友吃饭', date: formatDateKey(new Date()), start: '20:00', end: '21:30', category: '约会', location: '三里屯', note: '庆祝聚餐', reminder: '10' }
         ];
 
-        let todos = JSON.parse(localStorage.getItem('wuyo_calendar_todos')) || [
+        const defaultTodos = [
             { id: 'td_1', text: '买东西', completed: false },
             { id: 'td_2', text: '完成作业', completed: false },
             { id: 'td_3', text: '回复消息', completed: true }
         ];
 
+        // 🔧 修复：JSON.parse 加 try/catch，避免损坏数据导致整段脚本中断
+        let events;
+        try {
+            const raw = localStorage.getItem('wuyo_calendar_events');
+            events = raw ? JSON.parse(raw) : defaultEvents;
+            if (!Array.isArray(events)) events = defaultEvents;
+        } catch (e) {
+            console.error('[calendar] 日程数据损坏，已重置为默认数据', e);
+            events = defaultEvents;
+        }
+
+        let todos;
+        try {
+            const raw = localStorage.getItem('wuyo_calendar_todos');
+            todos = raw ? JSON.parse(raw) : defaultTodos;
+            if (!Array.isArray(todos)) todos = defaultTodos;
+        } catch (e) {
+            console.error('[calendar] 待办数据损坏，已重置为默认数据', e);
+            todos = defaultTodos;
+        }
+
         function saveEvents() {
-            localStorage.setItem('wuyo_calendar_events', JSON.stringify(events));
+            try {
+                localStorage.setItem('wuyo_calendar_events', JSON.stringify(events));
+            } catch (e) {
+                console.error('[calendar] 保存日程失败', e);
+            }
         }
         function saveTodos() {
-            localStorage.setItem('wuyo_calendar_todos', JSON.stringify(todos));
+            try {
+                localStorage.setItem('wuyo_calendar_todos', JSON.stringify(todos));
+            } catch (e) {
+                console.error('[calendar] 保存待办失败', e);
+            }
         }
 
         function formatDateKey(d) {
@@ -149,7 +179,7 @@
         function createDayCell(dayNum, isOtherMonth, dateKey, isToday = false) {
             const cell = document.createElement('div');
             cell.className = `cal-day-cell ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${dateKey === selectedDateStr ? 'selected' : ''}`;
-            
+
             let dotsHtml = '';
             if (dateKey) {
                 const dayEvents = events.filter(ev => ev.date === dateKey);
@@ -176,7 +206,7 @@
             const container = document.getElementById('cal-view-week-container');
             if (!container) return;
             container.innerHTML = '<div style="font-size:14px; font-weight:600; padding:4px 0;">周视图 (点击任意日期查看)</div>';
-            
+
             const startOfWeek = new Date(date);
             const day = startOfWeek.getDay();
             startOfWeek.setDate(startOfWeek.getDate() - day);
@@ -208,11 +238,11 @@
             const container = document.getElementById('cal-view-day-container');
             if (!container) return;
             let html = `<div style="font-size:14px; font-weight:600; margin-bottom:8px;">${date.getFullYear()}年${date.getMonth()+1}月${date.getDate()}日 时间轴</div>`;
-            
+
             for (let hour = 0; hour < 24; hour++) {
                 const hourStr = String(hour).padStart(2, '0') + ':00';
                 const hourEvents = events.filter(ev => ev.date === selectedDateStr && ev.start && ev.start.startsWith(String(hour).padStart(2,'0')));
-                
+
                 let evsHtml = '';
                 hourEvents.forEach(ev => {
                     evsHtml += `<div style="background:#1C1C1E; color:#FFF; border-radius:6px; padding:4px 8px; font-size:12px; margin-bottom:4px; cursor:pointer;" onclick="window.openEditEvent('${ev.id}')">${ev.start} - ${ev.title}</div>`;
@@ -236,7 +266,7 @@
             const listArea = document.getElementById('cal-agenda-list-area');
             const labelEl = document.getElementById('cal-selected-date-label');
             if (!listArea || !labelEl) return;
-            
+
             const dateObj = new Date(dateKey);
             const weekdays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
             labelEl.textContent = `${dateObj.getFullYear()}年${dateObj.getMonth()+1}月${dateObj.getDate()}日 ${weekdays[dateObj.getDay()]}`;
@@ -427,8 +457,8 @@
                 if (!container) return;
                 if (!keyword) { container.innerHTML = ''; return; }
 
-                const results = events.filter(ev => 
-                    ev.title.toLowerCase().includes(keyword) || 
+                const results = events.filter(ev =>
+                    ev.title.toLowerCase().includes(keyword) ||
                     (ev.location && ev.location.toLowerCase().includes(keyword)) ||
                     (ev.note && ev.note.toLowerCase().includes(keyword))
                 );
@@ -460,5 +490,10 @@
                 window.openEditEvent(evId);
             }, 200);
         };
+
+        // 🔧 修复：脚本加载完成后立即渲染一次日历，
+        // 不要只依赖 openApp 的包装函数（如果日历是内嵌在 HTML 里而不是
+        // 通过 openApp 动态加载的，之前的写法会导致月视图永远不渲染）。
+        renderCalendar();
     });
 })();
