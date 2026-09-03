@@ -54,7 +54,7 @@
             </div>
         </div>
 
-        <!-- 💥 气泡、恋爱与高级美化设置页面 (加入头像显示开关) -->
+        <!-- 气泡、恋爱与高级美化设置页面 -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -311,7 +311,6 @@
             const avDiv = document.createElement('div');
             avDiv.className = 'bubble-avatar';
 
-            // 根据开关控制头像显隐
             if (isUser) {
                 if (!styleConf.showUserAvatar) {
                     avDiv.classList.add('hidden');
@@ -376,7 +375,6 @@
         ctxMenu.classList.remove('show');
     });
 
-    // 打开设置菜单，回填各项数据
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
         const styleConf = getChatStyleConfig();
         const roleInfo = getCurrentRoleInfo();
@@ -403,7 +401,6 @@
         applyChatStylesToDOM();
     });
 
-    // 点击保存按钮：持久化写入所有配置
     document.getElementById('settings-save-btn').addEventListener('click', () => {
         const sig = document.getElementById('couple-sign-input').value;
         const bubbleBg = document.getElementById('bubble-color-picker').value;
@@ -505,7 +502,7 @@
     document.getElementById('settings-btn-memory').addEventListener('click', () => {
         document.getElementById('chat-page-settings').classList.remove('active');
         container.style.display = 'none'; window.openApp('memory');
-        setTimeout(() => { if(window.openMemory) window.openMemory(currentChatId, document.getElementById('chat-char-name')->textContent, 'chat'); }, 100);
+        setTimeout(() => { if(window.openMemory) window.openMemory(currentChatId, document.getElementById('chat-char-name').textContent, 'chat'); }, 100);
     });
 
     document.getElementById('settings-btn-profile').addEventListener('click', () => {
