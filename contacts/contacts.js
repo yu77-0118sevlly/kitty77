@@ -2,20 +2,32 @@
     const container = document.getElementById('contacts-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：三层页面架构 (列表 -> 个人主页 -> 编辑页)
+    // ==========================================
+    // 1. 初始化 DOM：三层页面架构 + 底部英文导航
+    // ==========================================
     container.innerHTML = `
         <!-- 页面 1：通讯录列表 -->
         <div class="ct-page root active" id="ct-page-list">
             <header class="ct-header">
                 <div style="width:32px;"></div>
-                <span class="ct-header-title">通讯录</span>
+                <span class="ct-header-title">Contacts</span>
                 <button class="ct-icon-btn" id="btn-goto-create"><i data-lucide="user-plus"></i></button>
             </header>
             <div class="ct-body">
-                <div class="ct-search-bar"><input type="text" class="ct-search-input" placeholder="🔍 搜索角色"></div>
+                <div class="ct-search-bar">
+                    <i data-lucide="search" style="width:16px; height:16px; color:#8E8E93; margin-right:8px;"></i>
+                    <input type="text" class="ct-search-input" placeholder="Search">
+                </div>
                 <div id="ct-list-render-area"></div>
             </div>
-            <!-- 底部导航占位 (由全局统一控制，这里预留空隙) -->
+            
+            <!-- 💥 统一的英文 Bottom Tab -->
+            <div class="wechat-bottom-nav">
+                <div class="wechat-nav-item" id="nav-btn-chats"><i data-lucide="message-square"></i><span>Chats</span></div>
+                <div class="wechat-nav-item active"><i data-lucide="users"></i><span>Contacts</span></div>
+                <div class="wechat-nav-item" id="nav-btn-moments-ct"><i data-lucide="compass"></i><span>Moments</span></div>
+                <div class="wechat-nav-item" id="nav-btn-me-ct"><i data-lucide="user"></i><span>Me</span></div>
+            </div>
         </div>
 
         <!-- 页面 2：角色个人主页 -->
@@ -33,8 +45,8 @@
         <div class="ct-page" id="ct-page-editor">
             <header class="ct-header">
                 <button class="ct-icon-btn ct-back-btn"><i data-lucide="chevron-left"></i></button>
-                <span class="ct-header-title" id="editor-title">创建新角色</span>
-                <button class="ct-text-btn" id="btn-save-role">完成</button>
+                <span class="ct-header-title" id="editor-title">Profile Settings</span>
+                <button class="ct-text-btn" id="btn-save-role">Save</button>
             </header>
             <div class="ct-body">
                 <div class="ct-form-group">
@@ -78,30 +90,42 @@
                     </div>
                 </div>
                 
-                <button class="ct-btn-large danger" id="btn-delete-role" style="display:none; margin: 16px;">删除角色</button>
+                <button class="ct-btn-large danger" id="btn-delete-role" style="display:none; margin: 16px; color:#FF3B30;">Delete Contact</button>
             </div>
             <input type="file" id="ct-avatar-uploader" accept="image/*" style="display:none;">
         </div>
     `;
     lucide.createIcons({ root: container });
 
-    // 2. 核心数据管理 (全局角色数据库)
+    // ==========================================
+    // 2. 底栏导航跳转逻辑
+    // ==========================================
+    document.getElementById('nav-btn-chats').addEventListener('click', () => {
+        container.style.display = 'none'; // 隐藏 contacts
+        window.openApp('chat');           // 回到 chat
+    });
+    document.getElementById('nav-btn-moments-ct').addEventListener('click', () => alert('Moments (开发中)'));
+    document.getElementById('nav-btn-me-ct').addEventListener('click', () => alert('Me (开发中)'));
+
+    // ==========================================
+    // 3. 核心数据管理 (全局角色数据库)
+    // ==========================================
     let wuyoRoles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
     let currentEditRoleId = null;
     let currentProfileRoleId = null;
 
-    // 3. 渲染通讯录列表
+    // 4. 渲染通讯录列表
     const renderContactList = () => {
         const listArea = document.getElementById('ct-list-render-area');
         if (wuyoRoles.length === 0) {
-            listArea.innerHTML = `<div style="text-align:center; padding:40px 16px; color:#8E8E93; font-size:14px;">通讯录为空<br>点击右上角添加您的第一个专属 AI 角色</div>`;
+            listArea.innerHTML = `<div style="text-align:center; padding:60px 16px; color:#8E8E93; font-size:14px;">No contacts yet.<br>Click the plus icon to add your first AI.</div>`;
             return;
         }
         let html = '';
         wuyoRoles.forEach(role => {
             const avatarStyle = role.avatar ? `background-image: url(${role.avatar});` : '';
             const avatarInner = role.avatar ? '' : `<i data-lucide="user"></i>`;
-            const displayName = role.remark ? `${role.remark} <span style="font-size:14px; color:#8E8E93;">(${role.name})</span>` : role.name;
+            const displayName = role.remark ? `${role.remark} <span style="font-size:14px; color:#8E8E93; margin-left:4px;">(${role.name})</span>` : role.name;
             
             html += `
                 <div class="ct-list-item" onclick="window.openRoleProfile('${role.id}')">
@@ -114,7 +138,7 @@
         lucide.createIcons({ root: listArea });
     };
 
-    // 4. 渲染个人主页
+    // 5. 渲染个人主页
     window.openRoleProfile = (roleId) => {
         const role = wuyoRoles.find(r => r.id === roleId);
         if(!role) return;
@@ -122,17 +146,17 @@
         
         const avatarStyle = role.avatar ? `background-image: url(${role.avatar});` : '';
         const displayName = role.remark || role.name;
-        const realNameHtml = role.remark ? `<div class="ct-profile-remark">昵称：${role.name}</div>` : '';
+        const realNameHtml = role.remark ? `<div class="ct-profile-remark">Name: ${role.name}</div>` : '';
         
         const profileArea = document.getElementById('ct-profile-render-area');
         profileArea.innerHTML = `
             <div class="ct-profile-top">
                 <div class="ct-profile-avatar" style="${avatarStyle}"></div>
                 <div class="ct-profile-info">
-                    <div class="ct-profile-name">${displayName} <i data-lucide="${role.gender === '女' ? 'venus' : 'mars'}" style="width:16px; color:#8E8E93;"></i></div>
+                    <div class="ct-profile-name">${displayName}</div>
                     ${realNameHtml}
                     <div class="ct-tag-row">
-                        <span class="ct-tag">状态: ${role.relationship || '朋友'}</span>
+                        <span class="ct-tag">${role.relationship || 'Friend'}</span>
                         ${role.city ? `<span class="ct-tag">${role.city}</span>` : ''}
                     </div>
                 </div>
@@ -140,33 +164,38 @@
             
             <div class="ct-group">
                 <div class="ct-row">
-                    <div class="ct-row-label">性格标签</div>
-                    <div class="ct-row-value">${role.personality || '暂无设定'}</div>
+                    <div class="ct-row-label">Personality</div>
+                    <div class="ct-row-value">${role.personality || 'Not set'}</div>
                 </div>
                 <div class="ct-row">
-                    <div class="ct-row-label">背景设定</div>
-                    <div class="ct-row-value">${role.bgStory || '暂无设定'}</div>
+                    <div class="ct-row-label">Background</div>
+                    <div class="ct-row-value">${role.bgStory || 'Not set'}</div>
                 </div>
             </div>
             
-            <button class="ct-btn-large primary" onclick="window.chatWithRole('${role.id}')"><i data-lucide="message-square"></i> 发消息</button>
-            <button class="ct-btn-large"><i data-lucide="book-open"></i> 专属世界书/记忆 (开发中)</button>
+            <button class="ct-btn-large primary" onclick="window.chatWithRole('${role.id}')" style="color: #1C1C1E;"><i data-lucide="message-square"></i> Send Message</button>
+            <button class="ct-btn-large" onclick="window.openMemoryFromProfile('${role.id}', '${role.name}')"><i data-lucide="brain-circuit"></i> AI Memory</button>
         `;
         lucide.createIcons({ root: profileArea });
         document.getElementById('ct-page-profile').classList.add('active');
     };
 
-    // 为以后调用 Chat App 预留全局接口
+    // 跳转发消息
     window.chatWithRole = (roleId) => {
-        container.style.display = 'none'; // 隐藏通讯录
+        container.style.display = 'none'; 
         document.getElementById('home-screen').style.display = 'none';
-        document.getElementById('chat-app').style.display = 'block';
-        // 如果 chat 模块已加载，则通知它打开指定角色
+        window.openApp('chat');
         if(window.openChatDetail) window.openChatDetail(roleId);
-        else window.openApp('chat'); // Fallback
     };
 
-    // 5. 创建与编辑角色
+    // 从个人主页跳转到记忆
+    window.openMemoryFromProfile = (roleId, roleName) => {
+        container.style.display = 'none';
+        window.openApp('memory');
+        setTimeout(() => { if(window.openMemory) window.openMemory(roleId, roleName); }, 100);
+    };
+
+    // 6. 创建与编辑角色
     const openEditor = (roleId = null) => {
         currentEditRoleId = roleId;
         const titleEl = document.getElementById('editor-title');
@@ -175,7 +204,7 @@
         
         if (roleId) {
             const role = wuyoRoles.find(r => r.id === roleId);
-            titleEl.textContent = '编辑角色资料';
+            titleEl.textContent = 'Edit Profile';
             delBtn.style.display = 'block';
             if(role.avatar) preview.style.backgroundImage = `url(${role.avatar})`; else preview.style.backgroundImage = '';
             document.getElementById('role-name').value = role.name || '';
@@ -185,10 +214,9 @@
             document.getElementById('role-personality').value = role.personality || '';
             document.getElementById('role-bgstory').value = role.bgStory || '';
         } else {
-            titleEl.textContent = '创建新角色';
+            titleEl.textContent = 'New Contact';
             delBtn.style.display = 'none';
             preview.style.backgroundImage = '';
-            // 清空表单
             document.querySelectorAll('.ct-input, .ct-textarea').forEach(el => el.value = '');
             document.getElementById('role-relation').value = '朋友';
         }
@@ -198,7 +226,6 @@
     document.getElementById('btn-goto-create').addEventListener('click', () => openEditor(null));
     document.getElementById('btn-goto-edit').addEventListener('click', () => openEditor(currentProfileRoleId));
 
-    // 返回按钮逻辑
     document.querySelectorAll('.ct-back-btn').forEach(btn => {
         btn.addEventListener('click', (e) => e.target.closest('.ct-page').classList.remove('active'));
     });
@@ -218,10 +245,10 @@
         }
     });
 
-    // 保存角色
+    // 保存
     document.getElementById('btn-save-role').addEventListener('click', () => {
         const name = document.getElementById('role-name').value.trim();
-        if(!name) return alert("角色昵称不能为空哦！");
+        if(!name) return alert("昵称不能为空哦！");
 
         const roleData = {
             id: currentEditRoleId || 'char_' + Date.now().toString(36),
@@ -242,21 +269,19 @@
         }
 
         localStorage.setItem('wuyo_roles', JSON.stringify(wuyoRoles));
-        tempAvatar = ''; // reset
+        tempAvatar = ''; 
         renderContactList();
         
-        // 返回处理
         document.getElementById('ct-page-editor').classList.remove('active');
-        if(currentEditRoleId) window.openRoleProfile(currentEditRoleId); // 刷新个人主页
+        if(currentEditRoleId) window.openRoleProfile(currentEditRoleId); 
     });
 
-    // 删除角色
+    // 删除
     document.getElementById('btn-delete-role').addEventListener('click', () => {
-        if(confirm("确定要删除这个角色吗？聊天记录和回忆也将一同清除！")) {
+        if(confirm("Delete this contact? All chat history will be lost.")) {
             wuyoRoles = wuyoRoles.filter(r => r.id !== currentEditRoleId);
             localStorage.setItem('wuyo_roles', JSON.stringify(wuyoRoles));
             
-            // 清理全局聊天记录
             const globalChat = JSON.parse(localStorage.getItem('wuyo_global_chat_data')) || {};
             delete globalChat[currentEditRoleId];
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChat));
@@ -267,9 +292,5 @@
         }
     });
 
-    // 初始化渲染
     renderContactList();
-
-    // 关闭 App 逻辑绑定到全局（如果从底座点击返回的话）
-    // 桌面上的图标点击已在全局接管
 })();
