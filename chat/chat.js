@@ -25,7 +25,7 @@
         </div>
 
         <div class="chat-page" id="chat-page-detail">
-            <!-- 💥 借鉴第二张图：左上角带头像的顶部导航栏，下方显示个性签名 -->
+            <!-- 💥 左上角带头像 + 备注名 + 下方个性签名导航栏 -->
             <header class="chat-header">
                 <div class="chat-header-left" id="chat-back-to-list">
                     <button class="chat-icon-btn" style="padding:0;"><i data-lucide="chevron-left"></i></button>
@@ -198,7 +198,7 @@
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
     // ==========================================
-    // 💥 完美渲染：双头像横幅 + 双方头像气泡 + 气泡下方时间戳
+    // 💥 完美渲染：双头像紧贴 + 左上角头像导航 + 气泡下时间戳
     // ==========================================
     const renderMessages = () => {
         if(!currentChatId) return; 
@@ -208,7 +208,7 @@
         const roleInfo = getCurrentRoleInfo();
         const coupleConf = getCoupleConfig();
 
-        // 1. 顶部可随消息上滑的双头像横幅
+        // 1. 顶部双头像横幅 (去掉爱心，完美紧贴)
         const bannerEl = document.createElement('div');
         bannerEl.className = 'chat-couple-banner';
         
@@ -218,7 +218,6 @@
         bannerEl.innerHTML = `
             <div class="couple-avatars-box">
                 <div class="couple-avatar-item" style="${userAvStyle}">${coupleConf.userAvatar ? '' : '<i data-lucide="user"></i>'}</div>
-                <span class="couple-heart-icon">❤️</span>
                 <div class="couple-avatar-item" style="${aiAvStyle}">${roleInfo.avatar ? '' : '<i data-lucide="bot"></i>'}</div>
             </div>
             <div class="couple-signature-text">${coupleConf.signature}</div>
@@ -239,7 +238,6 @@
             const row = document.createElement('div');
             row.className = `chat-bubble-row ${isUser ? 'user' : 'ai'}`;
 
-            // 头像
             const avDiv = document.createElement('div');
             avDiv.className = 'bubble-avatar';
             if (isUser) {
@@ -250,7 +248,6 @@
                 else { avDiv.innerHTML = '<i data-lucide="bot" style="width:18px;height:18px;"></i>'; }
             }
 
-            // 气泡与下方时间戳包装列
             const col = document.createElement('div');
             col.className = 'bubble-column';
 
@@ -258,7 +255,6 @@
             bubble.className = `chat-bubble ${isUser ? 'user' : 'ai'}`;
             bubble.innerHTML = msg.content.replace(/\n/g, '<br>');
 
-            // 💥 气泡下方显示独立时间戳
             const timeSub = document.createElement('div');
             timeSub.className = 'bubble-time-sub';
             timeSub.textContent = formatTime(msg.time);
@@ -298,7 +294,6 @@
         ctxMenu.classList.remove('show');
     });
 
-    // 独立设置页面
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
         const conf = getCoupleConfig();
         const roleInfo = getCurrentRoleInfo();
@@ -442,7 +437,6 @@
         localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
         
         inputArea.value = ''; inputArea.style.height = 'auto'; 
-        sendBtn.classList.remove('active'); 
         renderMessages(); 
         triggerAiReply(); 
     };
