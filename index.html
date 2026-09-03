@@ -9,7 +9,67 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="moments/moments.css">
-    <link rel="stylesheet" href="calendar/calendar.css">
+
+    <!-- 💥 直接内联日历样式，彻底根除线上 CSS 加载失败或缓存问题 -->
+    <style>
+        .calendar-app {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            background: #FFFFFF !important;
+            z-index: 9999 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            color: #1C1C1E;
+        }
+        .cal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: calc(env(safe-area-inset-top, 44px) + 12px) 16px 12px 16px;
+            background: #FFFFFF; border-bottom: 0.5px solid rgba(0,0,0,0.08);
+        }
+        .cal-header-left { display: flex; align-items: center; gap: 12px; }
+        .cal-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .cal-toolbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 16px; background: #FAFAFC; border-bottom: 0.5px solid rgba(0,0,0,0.05);
+        }
+        .cal-nav-group { display: flex; align-items: center; gap: 8px; }
+        .cal-today-btn {
+            background: #F4F4F7; border: 0.5px solid rgba(0,0,0,0.1);
+            padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .cal-body {
+            flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+            display: flex; flex-direction: column; background: #FFFFFF;
+        }
+        .cal-month-view { display: flex; flex-direction: column; padding: 12px; }
+        .cal-weekdays-header {
+            display: grid; grid-template-columns: repeat(7, 1fr); text-align: center;
+            font-size: 12px; font-weight: 600; color: #8E8E93; padding-bottom: 8px;
+        }
+        .cal-days-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+        }
+        .cal-day-cell {
+            aspect-ratio: 1 / 1.15; background: #FAFAFC; border-radius: 8px;
+            padding: 6px; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; cursor: pointer; border: 0.5px solid transparent;
+        }
+        .cal-day-cell.other-month { opacity: 0.25; }
+        .cal-day-cell.today { border-color: #1C1C1E; background: #FFFFFF; }
+        .cal-day-cell.selected { background: #1C1C1E !important; color: #FFFFFF !important; }
+        .cal-day-cell.selected .cal-day-num { color: #FFFFFF !important; }
+        .cal-day-num { font-size: 15px; font-weight: 600; }
+        .cal-agenda-section {
+            border-top: 0.5px solid rgba(0,0,0,0.08); background: #FFFFFF;
+            padding: 16px; flex: 1; display: flex; flex-direction: column;
+        }
+        .cal-agenda-header { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #1C1C1E; }
+        .cal-agenda-box {
+            background: #F4F4F7; border-radius: 12px; padding: 16px; font-size: 14px; color: #3A3A3C;
+        }
+    </style>
 </head>
 <body>
     
@@ -23,9 +83,7 @@
             
             <!-- ====== 第一页：核心主屏幕 ====== -->
             <div class="desktop-page">
-                <!-- 强制左上角全部横向排成一排，并与右侧居中对齐 -->
                 <header class="top-header" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; margin-top: 10px; margin-bottom: 24px; padding: 0 16px;">
-                    
                     <div class="header-left" style="display: flex !important; flex-direction: row !important; align-items: baseline !important; gap: 8px !important;">
                         <span class="brand-name" style="font-size: 16px !important; font-weight: 800 !important; color: #1c1c1e !important; margin: 0 !important; line-height: 1 !important;">WUYO</span>
                         <span class="day" id="current-day" style="font-size: 13px !important; color: #8E8E93 !important; font-weight: 600 !important; line-height: 1 !important; margin-left: 4px !important;">星期四</span>
@@ -66,7 +124,6 @@
                     </div>
                 </div>
 
-                <!-- 💥 第一页 8 个图标整整齐齐：第一行 4 个，第二行 4 个 -->
                 <div class="app-grid">
                     <div class="app-item" onclick="window.openApp('worldbook')"><div class="app-icon"><i data-lucide="book"></i></div><span>世界书</span></div>
                     <div class="app-item" onclick="window.openApp('beautify')"><div class="app-icon"><i data-lucide="palette"></i></div><span>美化</span></div>
@@ -182,7 +239,7 @@
             <!-- 顶部导航 -->
             <header class="cal-header">
                 <div class="cal-header-left">
-                    <button class="cal-icon-btn" onclick="window.closeCalendar()">◀ 返回</button>
+                    <button class="cal-today-btn" onclick="window.closeCalendar()">◀ 返回</button>
                     <span class="cal-title" id="cal-header-month-title">2026年9月</span>
                 </div>
             </header>
