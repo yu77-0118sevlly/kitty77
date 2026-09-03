@@ -28,6 +28,7 @@
         let tempEditableUserAvatar = '';
         let tempEditableAiAvatar = '';
         let tempEditableBgImg = '';
+        let tempLocalWbContent = ''; 
 
         const getCurrentRoleInfo = () => {
             let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
@@ -71,6 +72,21 @@
             };
         };
 
+        const getBehaviorConfig = () => {
+            let conf = JSON.parse(localStorage.getItem('wuyo_behavior_config')) || {};
+            return {
+                minSentences: conf.minSentences || '',
+                maxSentences: conf.maxSentences || '',
+                proactiveEnabled: conf.proactiveEnabled || false,
+                proactiveInterval: conf.proactiveInterval || '30',
+                dndStart: conf.dndStart || '23:00',
+                dndEnd: conf.dndEnd || '08:00',
+                localWbEnabled: conf.localWbEnabled || false,
+                showTimestamp: conf.showTimestamp !== false,
+                innerVoice: conf.innerVoice || false
+            };
+        };
+
         const applyChatStylesToDOM = () => {
             const conf = getChatStyleConfig();
             const msgListEl = document.getElementById('chat-message-list');
@@ -89,7 +105,6 @@
         const renderChatList = () => {
             const listArea = document.getElementById('chat-list-render-area');
             let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [{ id: 'char_default', name: 'AI 伙伴', avatar: '' }];
-            
             roles.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
             let html = '';
@@ -98,7 +113,7 @@
                 let lastMsg = '准备好开始对话了...'; 
                 let lastTime = '';
                 if(history.length > 0) { 
-                    lastMsg = history[history.length - 1].content; 
+                    lastMsg = history[history.length - 1].content.replace(/<[^>]+>/g, ''); 
                     lastTime = formatTime(history[history.length - 1].time); 
                 }
 
@@ -126,12 +141,10 @@
 
         window.openChatDetail = (charId) => {
             currentChatId = charId; 
-            tempEditableUserAvatar = ''; 
-            tempEditableAiAvatar = ''; 
-            tempEditableBgImg = '';
+            tempEditableUserAvatar = ''; tempEditableAiAvatar = ''; tempEditableBgImg = '';
+            tempLocalWbContent = localStorage.getItem('wuyo_localwb_' + charId) || '';
             
-            isMultiSelectMode = false; 
-            selectedIndices.clear();
+            isMultiSelectMode = false; selectedIndices.clear();
             document.getElementById('chat-multiselect-bar').style.display = 'none';
             document.getElementById('chat-input-area').style.display = 'flex';
 
@@ -164,12 +177,44 @@
         msgList.addEventListener('click', () => ctxMenu.classList.remove('show'));
         const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
+        const fetchInnerVoice = async (roleName) => {
+            document.getElementById('iv-modal-title').textContent = `${roleName} 的心声`;
+            document.getElementById('iv-modal-content').textContent = '正在获取心声...';
+            document.getElementById('inner-voice-modal').style.display = 'flex';
+            
+            try {
+                const apiConfigStr = localStorage.getItem('wuyo_settings_api');
+                if(!apiConfigStr) throw new Error("API未配置");
+                const apiConfig = JSON.parse(apiConfigStr);
+                const historyContext = globalChatData[currentChatId].slice(-10).map(m => ({ role: m.role, content: m.content }));
+                
+                const sysPrompt = `[SYSTEM]\nBased on the conversation context, generate the CURRENT inner thoughts and feelings of ${roleName}. Do not use any quotes. Maximum 2 short sentences. STRICTLY NO EMOJIS. Maintain a minimalist, black-and-white tone. Use Simplified Chinese.`;
+                const apiMessages = [{ role: 'system', content: sysPrompt }, ...historyContext];
+                
+                const cleanUrl = apiConfig.chat.url.replace(/\/+$/, '') + '/v1/chat/completions';
+                const response = await fetch(cleanUrl, {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiConfig.chat.key}` },
+                    body: JSON.stringify({ model: apiConfig.chat.model, messages: apiMessages, temperature: 0.8 })
+                });
+                const data = await response.json();
+                document.getElementById('iv-modal-content').textContent = data.choices[0].message.content.trim();
+            } catch(e) {
+                document.getElementById('iv-modal-content').textContent = '获取心声失败: ' + e.message;
+            }
+        };
+
+        document.getElementById('iv-modal-close').addEventListener('click', () => {
+            document.getElementById('inner-voice-modal').style.display = 'none';
+        });
+
         const renderMessages = () => {
             if(!currentChatId) return; 
             msgList.innerHTML = '';
             const history = globalChatData[currentChatId] || [];
             const roleInfo = getCurrentRoleInfo();
             const styleConf = getChatStyleConfig();
+            const behaviorConf = getBehaviorConfig();
 
             const bannerEl = document.createElement('div');
             bannerEl.className = 'chat-couple-banner';
@@ -195,7 +240,6 @@
                 }
 
                 const isUser = msg.role === 'user';
-                
                 const outerWrapper = document.createElement('div');
                 outerWrapper.style.cssText = 'display: flex; align-items: flex-start; width: 100%; margin-bottom: 0;';
 
@@ -234,6 +278,16 @@
                     if (!styleConf.showAiAvatar) avDiv.classList.add('hidden');
                     else if (roleInfo.avatar) avDiv.style.backgroundImage = `url(${roleInfo.avatar})`; 
                     else avDiv.innerHTML = '<i data-lucide="bot" style="width:18px;height:18px;"></i>'; 
+                    
+                    // 心声点击绑定
+                    if (behaviorConf.innerVoice) {
+                        avDiv.style.cursor = 'pointer';
+                        avDiv.title = '点击查看心声';
+                        avDiv.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            fetchInnerVoice(roleInfo.name);
+                        });
+                    }
                 }
 
                 const col = document.createElement('div');
@@ -255,6 +309,11 @@
                 const timeSub = document.createElement('div');
                 timeSub.className = 'bubble-time-sub';
                 timeSub.textContent = formatTime(msg.time);
+                
+                // 控制时间戳显示
+                if (!behaviorConf.showTimestamp) {
+                    timeSub.style.display = 'none';
+                }
 
                 let clickTimer = null;
                 bubble.addEventListener('click', (e) => {
@@ -275,7 +334,7 @@
                                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiConfig.chat.key}` },
                                     body: JSON.stringify({
                                         model: apiConfig.chat.model,
-                                        messages: [{role: 'user', content: `请将以下内容翻译成简体中文，只返回翻译结果：\n${msg.content.replace(/<[^>]*>?/gm, '')}`}],
+                                        messages: [{role: 'user', content: `请将以下内容翻译成简体中文，只返回翻译结果，没有任何表情符号：\n${msg.content.replace(/<[^>]*>?/gm, '')}`}],
                                         temperature: 0.1
                                     })
                                 });
@@ -337,7 +396,7 @@
         document.getElementById('ctx-btn-quote').addEventListener('click', (e) => {
             e.stopPropagation();
             if(selectedMsgIndex !== null && currentChatId) {
-                quoteMessage = globalChatData[currentChatId][selectedMsgIndex].content;
+                quoteMessage = globalChatData[currentChatId][selectedMsgIndex].content.replace(/<[^>]+>/g, '');
                 document.getElementById('quote-bar-text').textContent = `引用: ${quoteMessage}`;
                 document.getElementById('chat-quote-bar').style.display = 'flex';
                 inputArea.focus();
@@ -426,6 +485,7 @@
         document.getElementById('chat-btn-settings').addEventListener('click', () => {
             const styleConf = getChatStyleConfig();
             const roleInfo = getCurrentRoleInfo();
+            const bConf = getBehaviorConfig();
             
             document.getElementById('couple-sign-input').value = styleConf.signature;
             document.getElementById('bubble-color-picker').value = styleConf.bubbleBg;
@@ -440,6 +500,18 @@
             document.getElementById('ai-timezone-select').value = styleConf.aiTimezone;
             document.getElementById('ai-language-select').value = styleConf.aiLanguage;
             document.getElementById('auto-translate-toggle').checked = styleConf.autoTranslate;
+
+            // 行为设定回填
+            document.getElementById('bh-min-sentences').value = bConf.minSentences;
+            document.getElementById('bh-max-sentences').value = bConf.maxSentences;
+            document.getElementById('bh-proactive-toggle').checked = bConf.proactiveEnabled;
+            document.getElementById('bh-proactive-interval').value = bConf.proactiveInterval;
+            document.getElementById('bh-dnd-start').value = bConf.dndStart;
+            document.getElementById('bh-dnd-end').value = bConf.dndEnd;
+            document.getElementById('bh-localwb-toggle').checked = bConf.localWbEnabled;
+            document.getElementById('bh-timestamp-toggle').checked = bConf.showTimestamp;
+            document.getElementById('bh-innervoice-toggle').checked = bConf.innerVoice;
+            document.getElementById('localwb-status').textContent = localStorage.getItem('wuyo_localwb_' + currentChatId) ? '已导入' : '未导入';
             
             const pUser = document.getElementById('preview-user-av');
             pUser.style.backgroundImage = styleConf.userAvatar ? `url(${styleConf.userAvatar})` : '';
@@ -450,12 +522,18 @@
             document.getElementById('chat-page-settings').classList.add('active');
         });
 
+        // 导航按钮
         document.getElementById('settings-btn-advanced').addEventListener('click', () => {
             document.getElementById('chat-page-advanced-settings').classList.add('active');
         });
-
         document.getElementById('advanced-settings-back').addEventListener('click', () => {
             document.getElementById('chat-page-advanced-settings').classList.remove('active');
+        });
+        document.getElementById('settings-btn-behavior').addEventListener('click', () => {
+            document.getElementById('chat-page-behavior-settings').classList.add('active');
+        });
+        document.getElementById('behavior-settings-back').addEventListener('click', () => {
+            document.getElementById('chat-page-behavior-settings').classList.remove('active');
         });
         
         document.getElementById('chat-settings-back').addEventListener('click', () => {
@@ -474,6 +552,7 @@
                     if(tempEditableAiAvatar) r.faceImg = tempEditableAiAvatar;
                     localStorage.setItem('wuyo_roles', JSON.stringify(roles));
                 }
+                if(tempLocalWbContent) localStorage.setItem('wuyo_localwb_' + currentChatId, tempLocalWbContent);
             }
 
             let coupleConf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
@@ -495,6 +574,18 @@
             if(tempEditableBgImg) chatStyleConf.bgImg = tempEditableBgImg;
             localStorage.setItem('wuyo_chat_style_config', JSON.stringify(chatStyleConf));
 
+            let bConf = {};
+            bConf.minSentences = document.getElementById('bh-min-sentences').value;
+            bConf.maxSentences = document.getElementById('bh-max-sentences').value;
+            bConf.proactiveEnabled = document.getElementById('bh-proactive-toggle').checked;
+            bConf.proactiveInterval = document.getElementById('bh-proactive-interval').value;
+            bConf.dndStart = document.getElementById('bh-dnd-start').value;
+            bConf.dndEnd = document.getElementById('bh-dnd-end').value;
+            bConf.localWbEnabled = document.getElementById('bh-localwb-toggle').checked;
+            bConf.showTimestamp = document.getElementById('bh-timestamp-toggle').checked;
+            bConf.innerVoice = document.getElementById('bh-innervoice-toggle').checked;
+            localStorage.setItem('wuyo_behavior_config', JSON.stringify(bConf));
+
             alert("设置保存成功！");
             document.getElementById('chat-page-settings').classList.remove('active');
             
@@ -506,6 +597,7 @@
         document.getElementById('set-user-avatar-btn').addEventListener('click', () => { activeUploadTarget = 'user'; document.getElementById('couple-avatar-uploader').click(); });
         document.getElementById('set-ai-avatar-btn').addEventListener('click', () => { activeUploadTarget = 'ai'; document.getElementById('couple-avatar-uploader').click(); });
         document.getElementById('set-bg-img-btn').addEventListener('click', () => { document.getElementById('chat-bg-uploader').click(); });
+        document.getElementById('bh-localwb-import-btn').addEventListener('click', () => { document.getElementById('localwb-uploader').click(); });
 
         document.getElementById('couple-avatar-uploader').addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -533,6 +625,23 @@
                     document.getElementById('bg-img-status').textContent = '已选择新背景';
                 };
                 reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('localwb-uploader').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        JSON.parse(event.target.result);
+                        tempLocalWbContent = event.target.result;
+                        document.getElementById('localwb-status').textContent = '已导入(待保存)';
+                    } catch(err) {
+                        alert("JSON 格式错误！");
+                    }
+                };
+                reader.readAsText(file);
             }
         });
 
@@ -601,6 +710,7 @@
             let finalPrompt = "";
             if (window.getAllActiveWorldbookContext) finalPrompt += window.getAllActiveWorldbookContext() + "\n\n";
             if (window.getMemoryContext) finalPrompt += window.getMemoryContext(currentChatId) + "\n\n";
+            
             const personaStr = localStorage.getItem('wuyo_settings_persona');
             if (personaStr) {
                 const persona = JSON.parse(personaStr);
@@ -611,6 +721,22 @@
             finalPrompt += `[SYSTEM: CHAR]\n${roleInfo.name}\n\n`;
             
             const styleConf = getChatStyleConfig();
+            const bConf = getBehaviorConfig();
+            
+            // 局部世界书
+            if (bConf.localWbEnabled) {
+                const lwb = localStorage.getItem('wuyo_localwb_' + currentChatId);
+                if (lwb) finalPrompt += `[SYSTEM: LOCAL WORLDBOOK]\n${lwb}\n\n`;
+            }
+            
+            // 长度限制
+            if (bConf.minSentences || bConf.maxSentences) {
+                let len = "Respond with ";
+                if (bConf.minSentences) len += `at least ${bConf.minSentences} sentences`;
+                if (bConf.minSentences && bConf.maxSentences) len += " and ";
+                if (bConf.maxSentences) len += `at most ${bConf.maxSentences} sentences`;
+                finalPrompt += `[SYSTEM: LENGTH CONSTRAINT]\n${len}.\n\n`;
+            }
             
             let uT = new Date().toLocaleString();
             let aT = new Date().toLocaleString();
@@ -734,6 +860,38 @@
         });
         document.getElementById('chat-ext-ai').addEventListener('click', triggerAiReply);
         
+        // AI 主动发送消息轮询
+        setInterval(() => {
+            if (!currentChatId || document.visibilityState !== 'visible') return;
+            const bConf = getBehaviorConfig();
+            if (!bConf.proactiveEnabled || !bConf.proactiveInterval) return;
+
+            const now = new Date(); 
+            const currentMin = now.getHours() * 60 + now.getMinutes();
+            const parseTime = (t) => { const [h,m] = t.split(':'); return parseInt(h)*60 + parseInt(m); };
+            const startM = parseTime(bConf.dndStart || '23:00'); 
+            const endM = parseTime(bConf.dndEnd || '08:00');
+            
+            let isDnd = false;
+            if (startM < endM) {
+                isDnd = (currentMin >= startM && currentMin < endM);
+            } else {
+                isDnd = (currentMin >= startM || currentMin < endM);
+            }
+            if (isDnd) return;
+
+            const history = globalChatData[currentChatId] || [];
+            if (history.length === 0) return;
+            
+            const lastMsg = history[history.length - 1];
+            
+            if (Date.now() - lastMsg.time > bConf.proactiveInterval * 60000) {
+                const statusText = document.getElementById('chat-status-text');
+                if (statusText.textContent.includes('正在输入')) return;
+                triggerAiReply(); 
+            }
+        }, 15000);
+
         renderChatList();
     }
 })();
