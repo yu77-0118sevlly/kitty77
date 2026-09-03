@@ -200,3 +200,22 @@ body {
 
 /* App 视图容器 */
 .app-view { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 999; }
+/* ==========================================
+   💥 App 自由移动与长按拖拽高亮样式
+========================================== */
+.app-item {
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.app-item:active {
+    cursor: grabbing;
+}
+.app-item.dragging {
+    opacity: 0.4;
+    transform: scale(0.9);
+}
+.app-item.drag-over {
+    border: 2px dashed #1c1c1e;
+    border-radius: 18px;
+}
