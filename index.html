@@ -74,11 +74,11 @@
                 <div class="app-grid">
                     <div class="app-item"><div class="app-icon"><i data-lucide="book"></i></div><span>世界书</span></div>
                     
-                    <!-- 修复了美化按钮的跳转，使用 onclick 防止跳出全屏 -->
-                   <div class="app-item" onclick="window.openApp('beautify')">
-    <div class="app-icon"><i data-lucide="palette"></i></div>
-    <span>美化</span>
-</div>
+                    <!-- 美化按钮 -->
+                    <div class="app-item" onclick="window.openApp('beautify')">
+                        <div class="app-icon"><i data-lucide="palette"></i></div>
+                        <span>美化</span>
+                    </div>
                     
                     <div class="app-item"><div class="app-icon"><i data-lucide="image"></i></div><span>相册</span></div>
                     <div class="app-item"><div class="app-icon"><i data-lucide="file-text"></i></div><span>备忘录</span></div>
@@ -147,13 +147,19 @@
             <div class="dock-container">
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="phone"></i></div></div>
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="users"></i></div></div>
-                <div class="dock-item"><div class="dock-icon"><i data-lucide="message-square"></i></div></div>
+                <!-- 🟢 修复1：在这里加上了打开聊天的 onclick 事件 -->
+                <div class="dock-item" onclick="window.openApp('chat')"><div class="dock-icon"><i data-lucide="message-square"></i></div></div>
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="more-horizontal"></i></div></div>
             </div>
         </nav>
 
     </main>
-<section id="beautify-app" class="app-view" style="display: none;"></section>
+
+    <section id="beautify-app" class="app-view" style="display: none;"></section>
+    
+    <!-- 🟢 修复2：在这里加上了聊天 App 的容器 -->
+    <section id="chat-app" class="app-view" style="display: none;"></section>
+    
     <script src="app.js"></script>
 </body>
 </html>
