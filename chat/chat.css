@@ -1,5 +1,5 @@
 /* ==========================================
-   Chat App - 纯黑白灰高级样式 (含双头像、签名与气泡头像)
+   Chat App - 纯黑白灰极致高级排版 
 ========================================== */
 #chat-app { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #F4F4F7; color: #1C1C1E; z-index: 9999; display: flex; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; -webkit-tap-highlight-color: transparent; }
 .chat-container { display: flex; flex-direction: column; height: 100%; position: relative; }
@@ -7,12 +7,15 @@
 .chat-page.active { transform: translateX(0); }
 .chat-page.root { transform: translateX(0); z-index: 5; }
 
-/* 顶部导航 */
-.chat-header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; height: calc(env(safe-area-inset-top, 44px) + 56px); padding-top: env(safe-area-inset-top, 44px); padding-left: 16px; padding-right: 16px; background: rgba(244, 244, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 0.5px solid rgba(0,0,0,0.05); z-index: 20; }
-.chat-header-title { font-size: 17px; font-weight: 600; color: #1C1C1E; }
+/* 💥 借鉴第二张图：左上角带头像的顶部导航栏 */
+.chat-header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; height: calc(env(safe-area-inset-top, 44px) + 56px); padding-top: env(safe-area-inset-top, 44px); padding-left: 12px; padding-right: 16px; background: rgba(244, 244, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 0.5px solid rgba(0,0,0,0.05); z-index: 20; }
+.chat-header-left { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.chat-header-avatar { width: 32px; height: 32px; border-radius: 50%; background: #E5E5EA; background-size: cover; background-position: center; flex-shrink: 0; display: flex; justify-content: center; align-items: center; color: #8E8E93; }
+.chat-title-area { display: flex; flex-direction: column; align-items: flex-start; }
+.chat-title { font-size: 15px; font-weight: 600; color: #1C1C1E; line-height: 1.2; }
+.chat-status { font-size: 11px; color: #8E8E93; font-weight: 400; margin-top: 1px; }
+
 .chat-icon-btn { background: none; border: none; font-size: 20px; color: #1C1C1E; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
-.chat-title-area { display: flex; flex-direction: column; align-items: center; }
-.chat-status { font-size: 11px; color: #8E8E93; font-weight: 500; margin-top: 2px;}
 
 /* 底栏 */
 .wechat-bottom-nav {
@@ -43,54 +46,33 @@
 .chat-list-time { font-size: 12px; color: #8E8E93; }
 .chat-list-msg { font-size: 14px; color: #8E8E93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* ==========================================
-   💥 聊天详情区与画圈的双头像/签名区域 (随聊天上滑)
-========================================== */
-.chat-messages {
-    flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px;
-    -webkit-overflow-scrolling: touch; scroll-behavior: smooth; position: relative;
-}
+/* 聊天消息区 */
+.chat-messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; position: relative; }
 
-/* 顶部浪漫标语与双头像框容器 (随消息向上滚动) */
-.chat-couple-banner {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 30px 0 20px 0; width: 100%; gap: 12px; flex-shrink: 0;
-}
-.couple-avatars-box {
-    display: flex; align-items: center; gap: 12px;
-}
-.couple-avatar-item {
-    width: 52px; height: 52px; border-radius: 16px; background: #E5E5EA;
-    background-size: cover; background-position: center; box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    display: flex; justify-content: center; align-items: center; color: #8E8E93;
-}
-.couple-heart-icon { font-size: 16px; color: #1C1C1E; font-weight: 300; }
-.couple-signature-text {
-    font-size: 13px; font-weight: 500; color: #8E8E93; letter-spacing: 0.5px;
-    text-align: center;
-}
+/* 顶部浪漫标语 */
+.chat-couple-banner { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0 10px 0; width: 100%; gap: 8px; flex-shrink: 0; }
+.couple-avatars-box { display: flex; align-items: center; gap: 10px; }
+.couple-avatar-item { width: 44px; height: 44px; border-radius: 14px; background: #E5E5EA; background-size: cover; background-position: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; justify-content: center; align-items: center; color: #8E8E93; }
+.couple-heart-icon { font-size: 14px; color: #1C1C1E; }
+.couple-signature-text { font-size: 12px; font-weight: 500; color: #8E8E93; text-align: center; }
 
 .chat-empty { text-align: center; color: #8E8E93; font-size: 13px; margin-top: 10px; }
-.chat-timestamp { text-align: center; font-size: 11px; color: #8E8E93; margin-top: 8px; margin-bottom: -8px; font-weight: 500;}
 
-/* 💥 带头像的气泡样式排版 */
+/* 💥 气泡下方独立显示时间戳 */
 .chat-bubble-row { display: flex; width: 100%; gap: 10px; align-items: flex-start; }
 .chat-bubble-row.user { flex-direction: row-reverse; }
 .chat-bubble-row.ai { flex-direction: row; }
 
-.bubble-avatar {
-    width: 38px; height: 38px; border-radius: 12px; background: #E5E5EA;
-    background-size: cover; background-position: center; flex-shrink: 0;
-    display: flex; justify-content: center; align-items: center; color: #8E8E93;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
-.chat-bubble {
-    max-width: 70%; padding: 12px 16px; border-radius: 20px; font-size: 15px; 
-    line-height: 1.5; word-wrap: break-word; position: relative;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03); user-select: none; -webkit-user-select: none;
-}
+.bubble-column { display: flex; flex-direction: column; max-width: 70%; gap: 4px; }
+.chat-bubble-row.user .bubble-column { align-items: flex-end; }
+.chat-bubble-row.ai .bubble-column { align-items: flex-start; }
+
+.bubble-avatar { width: 36px; height: 36px; border-radius: 10px; background: #E5E5EA; background-size: cover; background-position: center; flex-shrink: 0; display: flex; justify-content: center; align-items: center; color: #8E8E93; }
+.chat-bubble { padding: 12px 16px; border-radius: 18px; font-size: 15px; line-height: 1.5; word-wrap: break-word; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
 .chat-bubble.user { background: #1C1C1E; color: #FFFFFF; border-bottom-right-radius: 4px; }
 .chat-bubble.ai { background: #FFFFFF; color: #1C1C1E; border-bottom-left-radius: 4px; }
+
+.bubble-time-sub { font-size: 10px; color: #8E8E93; padding: 0 4px; font-weight: 500; }
 
 /* 打字动画 */
 .typing-indicator { display: flex; gap: 4px; padding: 6px 4px; align-items: center; justify-content: center; height: 24px;}
@@ -99,7 +81,7 @@
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-/* 底部输入框 */
+/* 输入框 */
 .chat-input-area { flex-shrink: 0; padding: 10px 12px calc(env(safe-area-inset-bottom, 20px) + 10px) 12px; background: #F4F4F7; border-top: 0.5px solid rgba(0,0,0,0.05); display: flex; align-items: flex-end; gap: 8px; z-index: 10; }
 .chat-ext-btn { background: none; border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #1C1C1E; flex-shrink: 0; margin-bottom: 3px; cursor: pointer; }
 .chat-input { flex: 1; background: #FFFFFF; border: none; border-radius: 20px; padding: 10px 16px; font-size: 15px; color: #1C1C1E; max-height: 120px; resize: none; outline: none; line-height: 1.4; margin: 0 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
@@ -113,7 +95,6 @@
 .ctx-item:last-child { border-right: none; }
 .ctx-item i { width: 18px; height: 18px; color: #1C1C1E; }
 
-/* 独立设置页面样式 */
 .settings-list-group { background: #FFFFFF; border-radius: 16px; margin: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); overflow: hidden; }
 .settings-list-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 0.5px solid #F2F2F7; cursor: pointer; font-size: 15px; color: #1C1C1E; font-weight: 500; transition: background 0.2s;}
 .settings-list-item:active { background: #F2F2F7; }
