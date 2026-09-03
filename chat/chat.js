@@ -2,7 +2,7 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：顶部强制带有“保存”按钮
+    // 1. 初始化 DOM：设置菜单中加入气泡样式、美化导入、背景图功能
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -54,11 +54,11 @@
             </div>
         </div>
 
-        <!-- 💥 气泡与恋爱设置页面：顶部带有一个清晰的“保存”文字按钮 -->
+        <!-- 💥 气泡、恋爱与高级美化设置页面 -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
-                <span class="chat-header-title">气泡与恋爱设置</span>
+                <span class="chat-header-title">聊天与气泡美化</span>
                 <button id="settings-save-btn" style="font-size:16px; font-weight:600; color:#1C1C1E; background:none; border:none; cursor:pointer; padding:4px;">保存</button>
             </header>
             <div style="flex:1; overflow-y:auto; padding-top:16px;">
@@ -87,6 +87,37 @@
                     </div>
                 </div>
 
+                <div style="padding: 0 16px 8px 24px; font-size:12px; color:#8E8E93;">气泡样式与背景图自定义</div>
+                <div class="settings-list-group">
+                    <div class="settings-list-item">
+                        <span>气泡颜色</span>
+                        <input type="color" id="bubble-color-picker" value="#FFFFFF" style="width:36px; height:24px; border:none; background:none; cursor:pointer;">
+                    </div>
+                    <div class="settings-list-item">
+                        <span>气泡大小 (字号)</span>
+                        <select id="bubble-fontsize-select" style="border:none; background:transparent; font-size:15px; color:#8E8E93; outline:none; text-align:right;">
+                            <option value="13px">小 (13px)</option>
+                            <option value="14px" selected>标准 (14px)</option>
+                            <option value="16px">大 (16px)</option>
+                        </select>
+                    </div>
+                    <div class="settings-list-item">
+                        <span>气泡圆角 (粗细)</span>
+                        <select id="bubble-radius-select" style="border:none; background:transparent; font-size:15px; color:#8E8E93; outline:none; text-align:right;">
+                            <option value="8px">锐利 (8px)</option>
+                            <option value="14px" selected>适中 (14px)</option>
+                            <option value="22px">圆润 (22px)</option>
+                        </select>
+                    </div>
+                    <div class="settings-list-item" id="set-bg-img-btn">
+                        <span>聊天背景图</span>
+                        <span style="font-size:14px; color:#8E8E93;" id="bg-img-status">点击上传</span>
+                    </div>
+                    <div class="settings-list-item" id="import-theme-preset">
+                        <span>导入美化预设代码</span><i data-lucide="chevron-right"></i>
+                    </div>
+                </div>
+
                 <div class="settings-list-group">
                     <div class="settings-list-item danger" id="settings-btn-clear">
                         清空聊天记录
@@ -94,6 +125,7 @@
                 </div>
             </div>
             <input type="file" id="couple-avatar-uploader" accept="image/*" style="display:none;">
+            <input type="file" id="chat-bg-uploader" accept="image/*" style="display:none;">
         </div>
     `;
     lucide.createIcons({ root: container });
@@ -106,6 +138,7 @@
     
     let tempEditableUserAvatar = '';
     let tempEditableAiAvatar = '';
+    let tempEditableBgImg = '';
 
     const getCurrentRoleInfo = () => {
         let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
@@ -124,21 +157,39 @@
         };
     };
 
-    const getCoupleConfig = () => {
-        let conf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
-        let finalUserAv = tempEditableUserAvatar !== '' ? tempEditableUserAvatar : (conf.userAvatar || '');
-        
-        if(!finalUserAv) {
-            const configStr = localStorage.getItem('wuyo_config');
-            if(configStr) {
-                const cfg = JSON.parse(configStr);
-                if(cfg.profile && cfg.profile.avatar) finalUserAv = cfg.profile.avatar;
-            }
+    const getChatStyleConfig = () => {
+        let conf = JSON.parse(localStorage.getItem('wuyo_chat_style_config')) || {};
+        const coupleConf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
+        const configStr = localStorage.getItem('wuyo_config');
+        let defaultUserAvatar = '';
+        if(configStr) {
+            const cfg = JSON.parse(configStr);
+            if(cfg.profile && cfg.profile.avatar) defaultUserAvatar = cfg.profile.avatar;
         }
         return {
-            userAvatar: finalUserAv,
-            signature: conf.signature !== undefined ? conf.signature : '我会爱你很久很久'
+            userAvatar: tempEditableUserAvatar !== '' ? tempEditableUserAvatar : (coupleConf.userAvatar || defaultUserAvatar),
+            signature: coupleConf.signature !== undefined ? coupleConf.signature : '我会爱你很久很久',
+            bubbleBg: conf.bubbleBg || '#FFFFFF',
+            bubbleFontSize: conf.bubbleFontSize || '14px',
+            bubbleRadius: conf.bubbleRadius || '14px',
+            bgImg: tempEditableBgImg !== '' ? tempEditableBgImg : (conf.bgImg || '')
         };
+    };
+
+    // 应用气泡样式变量到 DOM
+    const applyChatStylesToDOM = () => {
+        const styleConf = getChatStyleConfig();
+        const msgListEl = document.getElementById('chat-message-list');
+        if(msgListEl) {
+            msgListEl.style.setProperty('--bubble-bg', styleConf.bubbleBg);
+            msgListEl.style.setProperty('--bubble-font-size', styleConf.bubbleFontSize);
+            msgListEl.style.setProperty('--bubble-radius', styleConf.bubbleRadius);
+            if(styleConf.bgImg) {
+                msgListEl.style.backgroundImage = `url(${styleConf.bgImg})`;
+            } else {
+                msgListEl.style.backgroundImage = 'none';
+            }
+        }
     };
 
     const formatTime = (ts) => { const d = new Date(ts); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
@@ -181,6 +232,7 @@
         currentChatId = charId; 
         tempEditableUserAvatar = ''; 
         tempEditableAiAvatar = '';
+        tempEditableBgImg = '';
         const roleInfo = getCurrentRoleInfo();
         document.getElementById('chat-char-name').textContent = roleInfo.name;
         document.getElementById('chat-status-text').textContent = roleInfo.sub;
@@ -191,6 +243,7 @@
 
         document.getElementById('chat-page-detail').classList.add('active'); 
         renderMessages();
+        applyChatStylesToDOM();
     };
 
     document.getElementById('chat-back-to-list').addEventListener('click', () => {
@@ -214,21 +267,21 @@
         if(!globalChatData[currentChatId]) globalChatData[currentChatId] = [];
         const history = globalChatData[currentChatId];
         const roleInfo = getCurrentRoleInfo();
-        const coupleConf = getCoupleConfig();
+        const styleConf = getChatStyleConfig();
 
         // 顶部双头像横幅
         const bannerEl = document.createElement('div');
         bannerEl.className = 'chat-couple-banner';
         
-        const userAvStyle = coupleConf.userAvatar ? `background-image:url(${coupleConf.userAvatar});` : '';
+        const userAvStyle = styleConf.userAvatar ? `background-image:url(${styleConf.userAvatar});` : '';
         const aiAvStyle = roleInfo.avatar ? `background-image:url(${roleInfo.avatar});` : '';
 
         bannerEl.innerHTML = `
             <div class="couple-avatars-box">
-                <div class="couple-avatar-item" style="${userAvStyle}">${coupleConf.userAvatar ? '' : '<i data-lucide="user"></i>'}</div>
+                <div class="couple-avatar-item" style="${userAvStyle}">${styleConf.userAvatar ? '' : '<i data-lucide="user"></i>'}</div>
                 <div class="couple-avatar-item" style="${aiAvStyle}">${roleInfo.avatar ? '' : '<i data-lucide="bot"></i>'}</div>
             </div>
-            <div class="couple-signature-text">${coupleConf.signature}</div>
+            <div class="couple-signature-text">${styleConf.signature}</div>
         `;
         msgList.appendChild(bannerEl);
 
@@ -249,7 +302,7 @@
             const avDiv = document.createElement('div');
             avDiv.className = 'bubble-avatar';
             if (isUser) {
-                if (coupleConf.userAvatar) { avDiv.style.backgroundImage = `url(${coupleConf.userAvatar})`; }
+                if (styleConf.userAvatar) { avDiv.style.backgroundImage = `url(${styleConf.userAvatar})`; }
                 else { avDiv.innerHTML = '<i data-lucide="user" style="width:18px;height:18px;"></i>'; }
             } else {
                 if (roleInfo.avatar) { avDiv.style.backgroundImage = `url(${roleInfo.avatar})`; }
@@ -302,32 +355,49 @@
         ctxMenu.classList.remove('show');
     });
 
+    // 打开设置菜单
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
-        const conf = getCoupleConfig();
+        const styleConf = getChatStyleConfig();
         const roleInfo = getCurrentRoleInfo();
-        document.getElementById('couple-sign-input').value = conf.signature;
+        document.getElementById('couple-sign-input').value = styleConf.signature;
+        document.getElementById('bubble-color-picker').value = styleConf.bubbleBg;
+        document.getElementById('bubble-fontsize-select').value = styleConf.bubbleFontSize;
+        document.getElementById('bubble-radius-select').value = styleConf.bubbleRadius;
         
         const pUser = document.getElementById('preview-user-av');
-        if(conf.userAvatar) pUser.style.backgroundImage = `url(${conf.userAvatar})`; else pUser.style.backgroundImage = '';
+        if(styleConf.userAvatar) pUser.style.backgroundImage = `url(${styleConf.userAvatar})`; else pUser.style.backgroundImage = '';
         
         const pAi = document.getElementById('preview-ai-av');
         if(roleInfo.avatar) pAi.style.backgroundImage = `url(${roleInfo.avatar})`; else pAi.style.backgroundImage = '';
 
+        document.getElementById('bg-img-status').textContent = styleConf.bgImg ? '已设置背景' : '点击上传';
         document.getElementById('chat-page-settings').classList.add('active');
     });
     
     document.getElementById('chat-settings-back').addEventListener('click', () => {
         document.getElementById('chat-page-settings').classList.remove('active');
         renderMessages(); 
+        applyChatStylesToDOM();
     });
 
-    // 点击保存按钮
+    // 点击保存按钮：持久化写入所有气泡、头像、背景、签名配置
     document.getElementById('settings-save-btn').addEventListener('click', () => {
         const sig = document.getElementById('couple-sign-input').value;
-        let conf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
-        conf.signature = sig;
-        if(tempEditableUserAvatar) conf.userAvatar = tempEditableUserAvatar;
-        localStorage.setItem('wuyo_couple_config', JSON.stringify(conf));
+        const bubbleBg = document.getElementById('bubble-color-picker').value;
+        const fontSize = document.getElementById('bubble-fontsize-select').value;
+        const radius = document.getElementById('bubble-radius-select').value;
+
+        let coupleConf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
+        coupleConf.signature = sig;
+        if(tempEditableUserAvatar) coupleConf.userAvatar = tempEditableUserAvatar;
+        localStorage.setItem('wuyo_couple_config', JSON.stringify(coupleConf));
+
+        let chatStyleConf = JSON.parse(localStorage.getItem('wuyo_chat_style_config')) || {};
+        chatStyleConf.bubbleBg = bubbleBg;
+        chatStyleConf.bubbleFontSize = fontSize;
+        chatStyleConf.bubbleRadius = radius;
+        if(tempEditableBgImg) chatStyleConf.bgImg = tempEditableBgImg;
+        localStorage.setItem('wuyo_chat_style_config', JSON.stringify(chatStyleConf));
 
         if(tempEditableAiAvatar && currentChatId) {
             let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
@@ -338,19 +408,18 @@
             }
         }
 
-        alert("保存成功！");
+        alert("美化设置保存成功！");
         document.getElementById('chat-page-settings').classList.remove('active');
         
-        const roleInfo = getCurrentRoleInfo();
-        const headerAv = document.getElementById('header-ai-avatar');
-        if(roleInfo.avatar) { headerAv.style.backgroundImage = `url(${roleInfo.avatar})`; headerAv.innerHTML = ''; }
-        
+        applyChatStylesToDOM();
         renderMessages();
     });
 
+    // 头像与背景图上传逻辑
     let activeUploadTarget = null;
     document.getElementById('set-user-avatar-btn').addEventListener('click', () => { activeUploadTarget = 'user'; document.getElementById('couple-avatar-uploader').click(); });
     document.getElementById('set-ai-avatar-btn').addEventListener('click', () => { activeUploadTarget = 'ai'; document.getElementById('couple-avatar-uploader').click(); });
+    document.getElementById('set-bg-img-btn').addEventListener('click', () => { document.getElementById('chat-bg-uploader').click(); });
 
     document.getElementById('couple-avatar-uploader').addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -367,6 +436,35 @@
                 }
             };
             reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('chat-bg-uploader').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                tempEditableBgImg = event.target.result;
+                document.getElementById('bg-img-status').textContent = '已选择新背景';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 导入美化预设
+    document.getElementById('import-theme-preset').addEventListener('click', () => {
+        const code = prompt("请粘贴或输入美化预设的 JSON 配置代码：");
+        if(code) {
+            try {
+                const json = JSON.parse(code);
+                if(json.bubbleBg) document.getElementById('bubble-color-picker').value = json.bubbleBg;
+                if(json.bubbleFontSize) document.getElementById('bubble-fontsize-select').value = json.bubbleFontSize;
+                if(json.bubbleRadius) document.getElementById('bubble-radius-select').value = json.bubbleRadius;
+                if(json.signature) document.getElementById('couple-sign-input').value = json.signature;
+                alert("预设导入成功！请点击右上角「保存」生效。");
+            } catch(err) {
+                alert("JSON 代码格式错误，导入失败！");
+            }
         }
     });
 
