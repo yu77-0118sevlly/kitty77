@@ -1,18 +1,19 @@
 /* ==========================================
    Contacts App 专属纯黑白灰样式
 ========================================== */
+/* 💥 修复点：强制统一为 100%，与 Chat 保持像素级一致 */
 #contacts-app { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #F4F4F7; color: #1C1C1E; z-index: 9999; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; overflow: hidden; -webkit-tap-highlight-color: transparent; }
 .ct-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #F4F4F7; display: flex; flex-direction: column; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateX(100%); z-index: 10; }
 .ct-page.active { transform: translateX(0); }
 .ct-page.root { transform: translateX(0); z-index: 5; }
 
 /* 顶部导航 */
-.ct-header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; height: calc(env(safe-area-inset-top, 44px) + 56px); padding-top: env(safe-area-inset-top, 44px); padding-left: 16px; padding-right: 16px; background: rgba(244, 244, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 0.5px solid rgba(0,0,0,0.05); z-index: 20; }
+.ct-header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; height: calc(env(safe-area-inset-top, 44px) + 56px); padding-top: env(safe-area-inset-top, 44px); padding: env(safe-area-inset-top, 44px) 16px 0 16px; background: rgba(244, 244, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 0.5px solid rgba(0,0,0,0.05); z-index: 20; }
 .ct-header-title { font-size: 17px; font-weight: 600; color: #1C1C1E; }
 .ct-icon-btn { background: none; border: none; font-size: 22px; color: #1C1C1E; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
 .ct-text-btn { background: none; border: none; font-size: 16px; font-weight: 600; color: #1C1C1E; cursor: pointer; }
 
-/* 💥 统一英文底栏 (高度绝对一致) */
+/* 统一英文底栏 */
 .wechat-bottom-nav {
     position: absolute; bottom: 0; left: 0; width: 100%;
     height: calc(54px + env(safe-area-inset-bottom, 20px));
@@ -48,9 +49,10 @@
 .ct-group { background: #FFF; margin-bottom: 8px; }
 .ct-row { display: flex; padding: 16px 24px; border-bottom: 0.5px solid #F2F2F7; align-items: flex-start; gap: 16px; }
 .ct-row:last-child { border-bottom: none; }
-.ct-row-label { width: 100px; font-size: 15px; color: #8E8E93; flex-shrink: 0; }
-.ct-row-value { font-size: 15px; color: #1C1C1E; flex: 1; line-height: 1.5; word-wrap: break-word; }
+.ct-row-label { width: 100px; font-size: 15px; color: #1C1C1E; font-weight: 500; flex-shrink: 0; }
+.ct-row-value { font-size: 15px; color: #8E8E93; flex: 1; line-height: 1.5; word-wrap: break-word; }
 
+/* 黑白灰大按钮 */
 .ct-btn-large { width: 100%; padding: 16px; background: #FFF; border: none; font-size: 16px; font-weight: 600; color: #1C1C1E; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 8px; transition: 0.2s;}
 .ct-btn-large:active { background: #F2F2F7; }
 
