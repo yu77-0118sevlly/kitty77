@@ -2,17 +2,17 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM
+    // 1. 初始化 DOM：中文界面，独立设置页，英文底栏
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
                 <div style="width:32px;"></div>
-                <span class="chat-header-title">Chats</span>
+                <span class="chat-header-title">微信</span>
                 <button class="chat-icon-btn"><i data-lucide="plus-circle"></i></button>
             </header>
             <div class="chat-search-bar">
                 <i data-lucide="search"></i>
-                <input type="text" class="chat-search-input" placeholder="Search">
+                <input type="text" class="chat-search-input" placeholder="搜索">
             </div>
             <div class="chat-list-container" id="chat-list-render-area"></div>
             
@@ -29,7 +29,7 @@
                 <button class="chat-icon-btn" id="chat-back-to-list"><i data-lucide="chevron-left"></i></button>
                 <div class="chat-title-area">
                     <span class="chat-title" id="chat-char-name">AI</span>
-                    <span class="chat-status" id="chat-status-text">Online</span>
+                    <span class="chat-status" id="chat-status-text">在线</span>
                 </div>
                 <button class="chat-icon-btn" id="chat-btn-settings"><i data-lucide="more-horizontal"></i></button>
             </header>
@@ -38,24 +38,39 @@
 
             <div class="chat-input-area">
                 <button class="chat-ext-btn"><i data-lucide="mic"></i></button>
-                <textarea class="chat-input" id="chat-textarea" placeholder="Message..." rows="1"></textarea>
-                <button class="chat-ext-btn" id="chat-ext-ai" title="AI Reply"><i data-lucide="bot"></i></button>
+                <textarea class="chat-input" id="chat-textarea" placeholder="发消息..." rows="1"></textarea>
+                <button class="chat-ext-btn" id="chat-ext-ai" title="强制 AI 回复"><i data-lucide="bot"></i></button>
                 <button class="chat-ext-btn" id="chat-ext-plus"><i data-lucide="plus"></i></button>
-                <button class="chat-send-btn" id="chat-send-btn">Send</button>
+                <button class="chat-send-btn" id="chat-send-btn">发送</button>
             </div>
             
             <div class="chat-context-menu" id="chat-context-menu">
-                <div class="ctx-item" id="ctx-btn-copy"><i data-lucide="copy"></i>Copy</div>
-                <div class="ctx-item" id="ctx-btn-reply"><i data-lucide="reply"></i>Reply</div>
-                <div class="ctx-item" id="ctx-btn-delete"><i data-lucide="trash-2"></i>Delete</div>
+                <div class="ctx-item" id="ctx-btn-copy"><i data-lucide="copy"></i>复制</div>
+                <div class="ctx-item" id="ctx-btn-reply"><i data-lucide="reply"></i>回复</div>
+                <div class="ctx-item" id="ctx-btn-delete"><i data-lucide="trash-2"></i>删除</div>
             </div>
+        </div>
 
-            <div class="chat-drawer-overlay" id="chat-drawer">
-                <div class="chat-drawer">
-                    <button class="drawer-btn" id="drawer-btn-profile">Profile</button>
-                    <button class="drawer-btn" id="drawer-btn-memory">Memory</button>
-                    <button class="drawer-btn" id="drawer-btn-clear" style="font-weight:600;">Clear History</button>
-                    <button class="drawer-btn cancel" id="drawer-btn-cancel">Cancel</button>
+        <!-- 💥 全新的独立设置页面 -->
+        <div class="chat-page" id="chat-page-settings">
+            <header class="chat-header">
+                <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
+                <span class="chat-header-title">聊天设置</span>
+                <div style="width:32px;"></div>
+            </header>
+            <div style="flex:1; overflow-y:auto;">
+                <div class="settings-list-group">
+                    <div class="settings-list-item" id="settings-btn-profile">
+                        <span>角色主页</span><i data-lucide="chevron-right"></i>
+                    </div>
+                    <div class="settings-list-item" id="settings-btn-memory">
+                        <span>AI 长期记忆</span><i data-lucide="chevron-right"></i>
+                    </div>
+                </div>
+                <div class="settings-list-group">
+                    <div class="settings-list-item danger" id="settings-btn-clear">
+                        清空聊天记录
+                    </div>
                 </div>
             </div>
         </div>
@@ -73,7 +88,7 @@
     
     const getSystemDefaultChar = () => {
         const configStr = localStorage.getItem('wuyo_config');
-        let name = 'AI'; let avatar = ''; let desc = 'Ready to chat...';
+        let name = 'AI 伙伴'; let avatar = ''; let desc = '随时准备与你交流…';
         if(configStr) {
             const config = JSON.parse(configStr);
             if(config.texts) {
@@ -123,7 +138,7 @@
     const renderMessages = () => {
         if(!currentChatId) return; msgList.innerHTML = '';
         const history = globalChatData[currentChatId];
-        if(history.length === 0) { msgList.innerHTML = `<div class="chat-empty">No messages yet.</div>`; return; }
+        if(history.length === 0) { msgList.innerHTML = `<div class="chat-empty">暂无消息，打个招呼吧</div>`; return; }
 
         let lastTime = 0;
         history.forEach((msg, index) => {
@@ -148,29 +163,38 @@
     };
 
     document.getElementById('ctx-btn-copy').addEventListener('click', (e) => {
-        e.stopPropagation(); if(selectedMsgIndex !== null && currentChatId) navigator.clipboard.writeText(globalChatData[currentChatId][selectedMsgIndex].content).then(() => alert('Copied'));
+        e.stopPropagation(); if(selectedMsgIndex !== null && currentChatId) navigator.clipboard.writeText(globalChatData[currentChatId][selectedMsgIndex].content).then(() => alert('已复制'));
         ctxMenu.classList.remove('show');
     });
     document.getElementById('ctx-btn-delete').addEventListener('click', (e) => {
         e.stopPropagation();
-        if(selectedMsgIndex !== null && currentChatId) { if(confirm('Delete message?')) { globalChatData[currentChatId].splice(selectedMsgIndex, 1); localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData)); renderMessages(); } }
+        if(selectedMsgIndex !== null && currentChatId) { if(confirm('确定删除这条消息？')) { globalChatData[currentChatId].splice(selectedMsgIndex, 1); localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData)); renderMessages(); } }
         ctxMenu.classList.remove('show');
     });
 
-    const drawer = document.getElementById('chat-drawer');
-    document.getElementById('chat-btn-settings').addEventListener('click', () => drawer.classList.add('show'));
-    document.getElementById('drawer-btn-cancel').addEventListener('click', () => drawer.classList.remove('show'));
-    document.getElementById('drawer-btn-clear').addEventListener('click', () => {
-        if(confirm('Clear history? Cannot be undone!')) { globalChatData[currentChatId] = []; localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData)); renderMessages(); drawer.classList.remove('show'); }
+    // 💥 独立设置页面的跳转逻辑
+    document.getElementById('chat-btn-settings').addEventListener('click', () => {
+        document.getElementById('chat-page-settings').classList.add('active');
+    });
+    document.getElementById('chat-settings-back').addEventListener('click', () => {
+        document.getElementById('chat-page-settings').classList.remove('active');
     });
 
-    document.getElementById('drawer-btn-memory').addEventListener('click', () => {
-        drawer.classList.remove('show'); container.style.display = 'none'; window.openApp('memory');
-        setTimeout(() => { if(window.openMemory) window.openMemory(currentChatId, document.getElementById('chat-char-name').textContent); }, 100);
+    document.getElementById('settings-btn-clear').addEventListener('click', () => {
+        if(confirm('清空聊天记录？不可恢复！')) {
+            globalChatData[currentChatId] = []; localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
+            renderMessages(); document.getElementById('chat-page-settings').classList.remove('active');
+        }
     });
 
-    document.getElementById('drawer-btn-profile').addEventListener('click', () => {
-        drawer.classList.remove('show');
+    document.getElementById('settings-btn-memory').addEventListener('click', () => {
+        document.getElementById('chat-page-settings').classList.remove('active');
+        container.style.display = 'none'; window.openApp('memory');
+        setTimeout(() => { if(window.openMemory) window.openMemory(currentChatId, document.getElementById('chat-char-name').textContent, 'chat'); }, 100);
+    });
+
+    document.getElementById('settings-btn-profile').addEventListener('click', () => {
+        document.getElementById('chat-page-settings').classList.remove('active');
         if(window.openRoleProfile) { container.style.display = 'none'; window.openApp('contacts'); window.openRoleProfile(currentChatId); }
     });
 
@@ -185,7 +209,7 @@
         if (window.getAllActiveWorldbookContext) finalPrompt += window.getAllActiveWorldbookContext() + "\n\n";
         if (window.getMemoryContext) finalPrompt += window.getMemoryContext(currentChatId) + "\n\n";
         const personaStr = localStorage.getItem('wuyo_settings_persona');
-        if (personaStr) { const persona = JSON.parse(personaStr); finalPrompt += `[SYSTEM: USER]\n${persona.name||'Unknown'}\n${persona.info||'Unknown'}\n\n`; }
+        if (personaStr) { const persona = JSON.parse(personaStr); finalPrompt += `[SYSTEM: USER]\n${persona.name||'未知'}\n${persona.info||'未知'}\n\n`; }
         const charInfo = getSystemDefaultChar();
         finalPrompt += `[SYSTEM: CHAR]\n${charInfo.name}\n${charInfo.desc}\n\n`;
         const now = new Date(); finalPrompt += `[SYSTEM: TIME]\n${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${formatTime(now.getTime())}\n\n`;
@@ -195,11 +219,11 @@
     const triggerAiReply = async () => {
         if(!currentChatId) return;
         const apiConfigStr = localStorage.getItem('wuyo_settings_api');
-        if(!apiConfigStr) return alert("Please configure API in Settings first!");
+        if(!apiConfigStr) return alert("请先在设置中配置 API！");
         const apiConfig = JSON.parse(apiConfigStr);
-        if(!apiConfig.chat || !apiConfig.chat.url || !apiConfig.chat.key) return alert("API config incomplete.");
+        if(!apiConfig.chat || !apiConfig.chat.url || !apiConfig.chat.key) return alert("API 配置不完整！");
 
-        statusText.textContent = 'Typing...'; statusText.style.color = '#1C1C1E';
+        statusText.textContent = '对方正在输入...'; statusText.style.color = '#1C1C1E';
         const aiMsgObj = { role: 'assistant', content: '', time: Date.now() };
         globalChatData[currentChatId].push(aiMsgObj); renderMessages(); 
         
@@ -231,10 +255,10 @@
                     }
                 }
             }
-            statusText.textContent = 'Online'; statusText.style.color = '#8E8E93';
+            statusText.textContent = '在线'; statusText.style.color = '#8E8E93';
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData)); renderChatList(); 
         } catch (error) {
-            statusText.textContent = 'Offline'; aiMsgObj.content = `[Error: ${error.message}]`; currentBubble.innerHTML = aiMsgObj.content;
+            statusText.textContent = '未连接'; aiMsgObj.content = `[错误: ${error.message}]`; currentBubble.innerHTML = aiMsgObj.content;
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
         }
     };
