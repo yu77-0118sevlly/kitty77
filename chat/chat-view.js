@@ -1,5 +1,5 @@
 window.ChatViewTemplate = `
-    <!-- 聊天列表页 -->
+    <!-- 1. 聊天列表页 -->
     <div class="chat-page root active" id="chat-page-list">
         <header class="chat-header">
             <div style="width:32px;"></div>
@@ -19,7 +19,7 @@ window.ChatViewTemplate = `
         </div>
     </div>
 
-    <!-- 聊天详情页 -->
+    <!-- 2. 聊天详情页 -->
     <div class="chat-page" id="chat-page-detail">
         <header class="chat-header">
             <div class="chat-header-left" id="chat-back-to-list">
@@ -65,14 +65,14 @@ window.ChatViewTemplate = `
         </div>
     </div>
 
-    <!-- 独立美化与设置页面 -->
+    <!-- 3. 设置页面 -->
     <div class="chat-page" id="chat-page-settings">
         <header class="chat-header">
             <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
             <span class="chat-header-title">聊天与气泡美化</span>
             <button id="settings-save-btn" style="font-size:16px; font-weight:600; color:#1C1C1E; background:none; border:none; cursor:pointer; padding:4px;">保存</button>
         </header>
-        <div style="flex:1; overflow-y:auto; padding-top:16px;">
+        <div style="flex:1; overflow-y:auto; padding-top:16px; padding-bottom:40px;">
             <div class="settings-list-group">
                 <div class="settings-list-item" id="settings-btn-profile"><span>角色主页</span><i data-lucide="chevron-right"></i></div>
                 <div class="settings-list-item" id="settings-btn-memory"><span>AI 长期记忆</span><i data-lucide="chevron-right"></i></div>
@@ -87,7 +87,7 @@ window.ChatViewTemplate = `
             <div style="padding: 0 16px 8px 24px; font-size:12px; color:#8E8E93;">异地模式与时间感知 (同步当地天气)</div>
             <div class="settings-list-group">
                 <div class="settings-list-item"><span>我的时区</span>
-                    <select id="user-timezone-select" style="border:none; background:transparent; font-size:15px; color:#8E8E93; outline:none; text-align:right;">
+                    <select id="user-timezone-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
                         <option value="Asia/Shanghai">北京时间 (中国)</option>
                         <option value="Asia/Tokyo">东京时间 (日本)</option>
                         <option value="America/New_York">纽约时间 (美东)</option>
@@ -95,7 +95,7 @@ window.ChatViewTemplate = `
                     </select>
                 </div>
                 <div class="settings-list-item"><span>TA 的时区</span>
-                    <select id="ai-timezone-select" style="border:none; background:transparent; font-size:15px; color:#8E8E93; outline:none; text-align:right;">
+                    <select id="ai-timezone-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
                         <option value="Asia/Shanghai">北京时间 (中国)</option>
                         <option value="Asia/Tokyo">东京时间 (日本)</option>
                         <option value="America/New_York">纽约时间 (美东)</option>
@@ -103,7 +103,7 @@ window.ChatViewTemplate = `
                     </select>
                 </div>
                 <div class="settings-list-item"><span>TA 的语言</span>
-                    <select id="ai-language-select" style="border:none; background:transparent; font-size:15px; color:#8E8E93; outline:none; text-align:right;">
+                    <select id="ai-language-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
                         <option value="default">默认 (中文)</option>
                         <option value="English">英语</option>
                         <option value="Japanese">日语</option>
@@ -144,10 +144,11 @@ window.ChatViewTemplate = `
                     </select>
                 </div>
                 <div class="settings-list-item" id="set-bg-img-btn"><span>聊天背景图</span><span style="font-size:14px; color:#8E8E93;" id="bg-img-status">点击上传</span></div>
-                <div class="settings-list-item" id="import-theme-preset"><span>导入美化预设代码</span><i data-lucide="chevron-right"></i></div>
+                <div class="settings-list-item" id="import-theme-preset"><span>导入预设代码</span><i data-lucide="chevron-right"></i></div>
             </div>
             <div class="settings-list-group"><div class="settings-list-item danger" id="settings-btn-clear">清空聊天记录</div></div>
         </div>
         <input type="file" id="couple-avatar-uploader" accept="image/*" style="display:none;">
         <input type="file" id="chat-bg-uploader" accept="image/*" style="display:none;">
+    </div>
 `;
