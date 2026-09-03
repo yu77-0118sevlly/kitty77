@@ -11,13 +11,12 @@
 </head>
 <body>
     
-    <!-- 极其暴力的隐藏，彻底杜绝“未选择文件”出现在屏幕上 -->
     <input type="file" id="image-uploader" accept="image/*" style="display: none !important; opacity: 0; position: absolute; z-index: -999; width: 0; height: 0; overflow: hidden;">
 
     <!-- 主屏幕容器 -->
     <main id="home-screen">
         
-               <!-- 顶部品牌与日期区 (替换这一段) -->
+        <!-- 顶部品牌与日期区 -->
         <header class="top-header">
             <div class="header-left">
                 <div class="brand-name">WUYO</div>
@@ -26,7 +25,6 @@
                     <span class="date" id="current-date">9月3日</span>
                 </div>
             </div>
-            <!-- 修改了这里：加入了昵称显示 -->
             <div class="header-right">
                 <span class="user-nickname" id="user-nickname">锁骨痣</span>
                 <div class="profile-widget uploadable" id="profile-pic">
@@ -34,15 +32,6 @@
                 </div>
             </div>
         </header>
-
-        <!-- ... 中间代码不变 ... -->
-
-        <!-- 找到你的美化 App，替换成下面这行 (使用 onclick 确保跳转) -->
-        <div class="app-item" onclick="window.location.href='beautify/index.html'">
-            <div class="app-icon"><i data-lucide="palette"></i></div>
-            <span>美化</span>
-        </div>
-
 
         <!-- 桌面滑动分页区 -->
         <div class="desktop-swiper" id="desktop-swiper">
@@ -70,7 +59,7 @@
                     </div>
                 </div>
 
-                <!-- 2. AI 伙伴 (锁死高度的小型横向卡片) -->
+                <!-- 2. AI 伙伴 -->
                 <div class="ai-card">
                     <div class="ai-avatar">
                         <i data-lucide="bot"></i>
@@ -81,14 +70,16 @@
                     </div>
                 </div>
 
-                <!-- 3. 第一页 App 网格 (4x2) -->
+                <!-- 3. 第一页 App 网格 -->
                 <div class="app-grid">
                     <div class="app-item"><div class="app-icon"><i data-lucide="book"></i></div><span>世界书</span></div>
-                   <a href="beautify/index.html" class="app-item" style="text-decoration: none;">
-    <div class="app-icon"><i data-lucide="palette"></i></div>
-    <span>美化</span>
-</a>
-
+                    
+                    <!-- 修复了美化按钮的跳转，使用 onclick 防止跳出全屏 -->
+                    <div class="app-item" onclick="window.location.href='beautify/index.html'">
+                        <div class="app-icon"><i data-lucide="palette"></i></div>
+                        <span>美化</span>
+                    </div>
+                    
                     <div class="app-item"><div class="app-icon"><i data-lucide="image"></i></div><span>相册</span></div>
                     <div class="app-item"><div class="app-icon"><i data-lucide="file-text"></i></div><span>备忘录</span></div>
                     <div class="app-item"><div class="app-icon"><i data-lucide="music"></i></div><span>音乐</span></div>
@@ -101,9 +92,7 @@
             <!-- ====== 第二页 ====== -->
             <div class="desktop-page">
                 
-                <!-- 1. 第二页 Widget 收纳区 -->
                 <div class="widget-row-secondary">
-                    <!-- 音乐 (宽) -->
                     <div class="widget widget-wide music-widget">
                         <div class="music-cover uploadable" id="music-cover">
                             <i data-lucide="music" class="placeholder-icon"></i>
@@ -135,7 +124,6 @@
                     </div>
                 </div>
 
-                <!-- 2. 第二页 App 网格 (4x2) -->
                 <div class="app-grid">
                     <div class="app-item"><div class="app-icon"><i data-lucide="scan-search"></i></div><span>查手机</span></div>
                     <div class="app-item"><div class="app-icon"><i data-lucide="smartphone"></i></div><span>小手机</span></div>
@@ -150,13 +138,11 @@
 
         </div>
 
-        <!-- 页面指示点 -->
         <div class="pagination-dots" id="pagination-dots">
             <div class="dot active"></div>
             <div class="dot"></div>
         </div>
 
-        <!-- 极简 Dock 栏 -->
         <nav id="dock">
             <div class="dock-container">
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="phone"></i></div></div>
