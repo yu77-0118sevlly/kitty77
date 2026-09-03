@@ -75,10 +75,10 @@
                     <div class="app-item"><div class="app-icon"><i data-lucide="book"></i></div><span>世界书</span></div>
                     
                     <!-- 修复了美化按钮的跳转，使用 onclick 防止跳出全屏 -->
-                    <div class="app-item" onclick="window.location.href='beautify/index.html'">
-                        <div class="app-icon"><i data-lucide="palette"></i></div>
-                        <span>美化</span>
-                    </div>
+                   <div class="app-item" onclick="window.openApp('beautify')">
+    <div class="app-icon"><i data-lucide="palette"></i></div>
+    <span>美化</span>
+</div>
                     
                     <div class="app-item"><div class="app-icon"><i data-lucide="image"></i></div><span>相册</span></div>
                     <div class="app-item"><div class="app-icon"><i data-lucide="file-text"></i></div><span>备忘录</span></div>
@@ -153,7 +153,7 @@
         </nav>
 
     </main>
-
+<section id="beautify-app" class="app-view" style="display: none;"></section>
     <script src="app.js"></script>
 </body>
 </html>
