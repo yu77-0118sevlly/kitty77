@@ -1,567 +1,147 @@
-(function () {
-    'use strict';
+(function() {
+    const container = document.getElementById('chat-app');
+    if (!container) return;
 
-    const app = document.getElementById('chat-app');
-    if (!app) return;
-
-    /* =========================
-       数据
-    ========================= */
-
-    const KEY = {
-        chars: 'wuyo_chars',
-        chats: 'wuyo_chats',
-        settings: 'wuyo_chat_settings'
-    };
-
-    const load = (key, fallback) => {
-        try {
-            return JSON.parse(localStorage.getItem(key)) || fallback;
-        } catch {
-            return fallback;
-        }
-    };
-
-    const save = (key, data) => {
-        localStorage.setItem(key, JSON.stringify(data));
-    };
-
-    let characters = load(KEY.chars, []);
-    let chats = load(KEY.chats, {});
-    let settings = load(KEY.settings, {});
-
-    let current = null;
-
-    /* =========================
-       工具
-    ========================= */
-
-    const $ = id => document.getElementById(id);
-
-    const id = () =>
-        'char_' + Date.now() + Math.random().toString(16).slice(2);
-
-    const time = () => {
-        const d = new Date();
-        return String(d.getHours()).padStart(2, '0') + ':' +
-               String(d.getMinutes()).padStart(2, '0');
-    };
-
-    const safe = text => {
-        const div = document.createElement('div');
-        div.textContent = text ?? '';
-        return div.innerHTML;
-    };
-
-    /* =========================
-       页面
-    ========================= */
-
-    app.innerHTML = `
-        <div class="chat-main">
-
+    // 1. 初始化聊天室 UI
+    container.innerHTML = `
+        <div class="chat-container">
             <header class="chat-header">
-                <button id="chat-back">‹</button>
-                <h2 id="chat-title">Chats</h2>
-                <button id="chat-add">＋</button>
+                <button class="chat-icon-btn" onclick="window.closeApp('chat')"><i data-lucide="chevron-left"></i></button>
+                <div class="chat-title-area">
+                    <span class="chat-title" id="chat-char-name">AI 伙伴</span>
+                    <span class="chat-status" id="chat-status-text">在线</span>
+                </div>
+                <button class="chat-icon-btn"><i data-lucide="more-horizontal"></i></button>
             </header>
+            
+            <div class="chat-messages" id="chat-message-list"></div>
 
-            <main id="chat-content"></main>
-
-            <nav class="chat-nav">
-                <button data-page="chats">Chats</button>
-                <button data-page="contacts">Contacts</button>
-                <button data-page="moments">Moments</button>
-                <button data-page="me">Me</button>
-            </nav>
-
+            <div class="chat-input-area">
+                <button class="chat-icon-btn"><i data-lucide="plus-circle"></i></button>
+                <textarea class="chat-input" id="chat-textarea" placeholder="发消息..." rows="1"></textarea>
+                <button class="chat-send-btn" id="chat-send-btn"><i data-lucide="send"></i></button>
+            </div>
         </div>
-
-        <section id="chat-room" class="chat-room">
-            <header class="chat-room-head">
-                <button id="room-back">‹</button>
-                <strong id="room-name"></strong>
-                <button id="room-more">•••</button>
-            </header>
-
-            <div id="messages"></div>
-
-            <footer class="chat-input">
-                <input id="message-input" placeholder="Message">
-                <button id="send">↑</button>
-            </footer>
-        </section>
-
-        <div id="chat-modal" class="chat-modal"></div>
     `;
+    lucide.createIcons({ root: container });
 
-    const content = $('chat-content');
-    const room = $('chat-room');
-    const messagesBox = $('messages');
-    const modal = $('chat-modal');
+    // 2. 全局变量与配置
+    let chatHistory = JSON.parse(localStorage.getItem('wuyo_chat_history')) || [];
+    const msgList = document.getElementById('chat-message-list');
+    const inputArea = document.getElementById('chat-textarea');
+    const sendBtn = document.getElementById('chat-send-btn');
+    const statusText = document.getElementById('chat-status-text');
 
-    /* =========================
-       聊天记录
-    ========================= */
-
-    function getChat(name) {
-        if (!chats[name]) chats[name] = [];
-        return chats[name];
+    // 读取 Char 名字
+    const configStr = localStorage.getItem('wuyo_config');
+    if(configStr) {
+        const config = JSON.parse(configStr);
+        if(config.texts && config.texts.aiTitle) document.getElementById('chat-char-name').textContent = config.texts.aiTitle;
     }
 
-    function addMessage(name, from, text) {
-        getChat(name).push({
-            from,
-            text,
-            time: time()
-        });
+    // 格式化时间 (例如：17:43)
+    const formatTime = (ts) => {
+        const d = new Date(ts);
+        return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    };
 
-        save(KEY.chats, chats);
-    }
-
-    /* =========================
-       Chats
-    ========================= */
-
-    function renderChats() {
-        $('chat-title').textContent = 'Chats';
-
-        if (!characters.length) {
-            content.innerHTML = `
-                <div class="chat-empty">
-                    No chats
-                </div>
-            `;
+    // 3. 渲染历史消息
+    const renderMessages = () => {
+        msgList.innerHTML = '';
+        if(chatHistory.length === 0) {
+            msgList.innerHTML = `<div class="chat-empty">暂无消息，打个招呼吧</div>`;
             return;
         }
 
-        content.innerHTML = characters.map(c => {
-            const list = getChat(c.name);
-            const last = list[list.length - 1];
-
-            return `
-                <div class="chat-item" data-id="${c.id}">
-                    <div class="chat-avatar"
-                         style="${c.avatar ? `background-image:url('${c.avatar}')` : ''}">
-                    </div>
-
-                    <div class="chat-info">
-                        <strong>${safe(c.name)}</strong>
-                        <span>${safe(last?.text || 'Start chatting')}</span>
-                    </div>
-
-                    <small>${last?.time || ''}</small>
-                </div>
-            `;
-        }).join('');
-
-        content.querySelectorAll('.chat-item').forEach(el => {
-            el.onclick = () => {
-                const c = characters.find(x => x.id === el.dataset.id);
-                if (c) openChat(c);
-            };
-        });
-    }
-
-    /* =========================
-       Contacts
-    ========================= */
-
-    function renderContacts() {
-        $('chat-title').textContent = 'Contacts';
-
-        content.innerHTML = `
-            <button class="add-contact" id="add-contact">
-                Add Friend
-            </button>
-
-            ${characters.map(c => `
-                <div class="chat-item" data-id="${c.id}">
-                    <div class="chat-avatar"
-                         style="${c.avatar ? `background-image:url('${c.avatar}')` : ''}">
-                    </div>
-
-                    <div class="chat-info">
-                        <strong>${safe(c.nickname || c.name)}</strong>
-                        <span>${safe(c.note || c.name)}</span>
-                    </div>
-                </div>
-            `).join('')}
-        `;
-
-        $('add-contact').onclick = () => characterEditor();
-
-        content.querySelectorAll('.chat-item').forEach(el => {
-            el.onclick = () => {
-                const c = characters.find(x => x.id === el.dataset.id);
-                if (c) openChat(c);
-            };
-        });
-    }
-
-    /* =========================
-       Me
-    ========================= */
-
-    function renderMe() {
-        $('chat-title').textContent = 'Me';
-
-        content.innerHTML = `
-            <div class="me-page">
-
-                <div class="me-avatar"></div>
-
-                <h2>User</h2>
-
-                <button id="wallet-btn">Wallet</button>
-                <button id="mask-btn">User Mask</button>
-                <button id="beautify-btn">Chat Beautify</button>
-
-            </div>
-        `;
-
-        $('wallet-btn').onclick = () => {
-            alert('Wallet module');
-        };
-
-        $('mask-btn').onclick = () => {
-            alert('User Mask module');
-        };
-
-        $('beautify-btn').onclick = () => {
-            alert('Beautify module');
-        };
-    }
-
-    /* =========================
-       Moments
-    ========================= */
-
-    function renderMoments() {
-        $('chat-title').textContent = 'Moments';
-
-        content.innerHTML = `
-            <div class="moments-page">
-
-                <button id="moment-add">
-                    New Moment
-                </button>
-
-                <div class="moment-empty">
-                    No moments
-                </div>
-
-            </div>
-        `;
-
-        $('moment-add').onclick = () => {
-            alert('Moment module');
-        };
-    }
-
-    /* =========================
-       打开聊天
-    ========================= */
-
-    function openChat(character) {
-        current = character;
-
-        $('room-name').textContent =
-            character.nickname || character.name;
-
-        room.classList.add('active');
-
-        renderMessages();
-    }
-
-    /* =========================
-       消息
-    ========================= */
-
-    function renderMessages() {
-        if (!current) return;
-
-        messagesBox.innerHTML =
-            getChat(current.name).map(m => `
-                <div class="message ${m.from}">
-                    <div class="bubble">
-                        ${safe(m.text)}
-                    </div>
-                    <small>${m.time || ''}</small>
-                </div>
-            `).join('');
-
-        messagesBox.scrollTop =
-            messagesBox.scrollHeight;
-    }
-
-    function sendMessage() {
-        const input = $('message-input');
-        const text = input.value.trim();
-
-        if (!text || !current) return;
-
-        addMessage(current.name, 'user', text);
-
-        input.value = '';
-
-        renderMessages();
-        renderChats();
-    }
-
-    /* =========================
-       角色编辑
-    ========================= */
-
-    function characterEditor(character = null) {
-        modal.innerHTML = `
-            <div class="editor">
-
-                <header>
-                    <strong>${character ? 'Edit Character' : 'New Character'}</strong>
-                    <button id="modal-close">×</button>
-                </header>
-
-                <input id="c-name"
-                    placeholder="Name"
-                    value="${safe(character?.name || '')}">
-
-                <input id="c-nickname"
-                    placeholder="Nickname"
-                    value="${safe(character?.nickname || '')}">
-
-                <input id="c-wechat"
-                    placeholder="WeChat ID"
-                    value="${safe(character?.wechat || '')}">
-
-                <input id="c-phone"
-                    placeholder="Phone"
-                    value="${safe(character?.phone || '')}">
-
-                <textarea id="c-persona"
-                    placeholder="Persona">${safe(character?.persona || '')}</textarea>
-
-                <button id="c-save">Save</button>
-            </div>
-        `;
-
-        modal.classList.add('active');
-
-        $('modal-close').onclick = closeModal;
-
-        $('c-save').onclick = () => {
-            const name = $('c-name').value.trim();
-
-            if (!name) {
-                alert('Please enter a name');
-                return;
+        let lastTime = 0;
+        chatHistory.forEach(msg => {
+            // 如果间隔超过 5 分钟，显示时间戳
+            if (msg.time - lastTime > 5 * 60 * 1000) {
+                const timeEl = document.createElement('div');
+                timeEl.className = 'chat-timestamp';
+                timeEl.textContent = formatTime(msg.time);
+                msgList.appendChild(timeEl);
             }
+            lastTime = msg.time;
 
-            const data = {
-                id: character?.id || id(),
-                name,
-                nickname: $('c-nickname').value.trim(),
-                wechat: $('c-wechat').value.trim(),
-                phone: $('c-phone').value.trim(),
-                persona: $('c-persona').value.trim(),
-                avatar: character?.avatar || ''
-            };
-
-            if (character) {
-                characters = characters.map(c =>
-                    c.id === character.id ? data : c
-                );
-            } else {
-                characters.push(data);
-            }
-
-            save(KEY.chars, characters);
-
-            closeModal();
-            renderChats();
-        };
-    }
-
-    function closeModal() {
-        modal.classList.remove('active');
-        modal.innerHTML = '';
-    }
-
-    /* =========================
-       Chat 设置
-    ========================= */
-
-    function chatSettings() {
-        if (!current) return;
-
-        modal.innerHTML = `
-            <div class="editor">
-
-                <header>
-                    <strong>Chat Settings</strong>
-                    <button id="modal-close">×</button>
-                </header>
-
-                <button data-setting="time">
-                    Time Awareness
-                </button>
-
-                <button data-setting="location">
-                    Location Mode
-                </button>
-
-                <button data-setting="active">
-                    Active Messages
-                </button>
-
-                <button data-setting="activity">
-                    Free Activity
-                </button>
-
-                <button data-setting="translation">
-                    Translation
-                </button>
-
-                <button data-setting="voice">
-                    Voice
-                </button>
-
-                <button data-setting="memory">
-                    Memory
-                </button>
-
-                <button data-setting="background">
-                    Chat Background
-                </button>
-
-            </div>
-        `;
-
-        $('modal-close').onclick = closeModal;
-
-        modal.querySelectorAll('[data-setting]').forEach(btn => {
-            btn.onclick = () => {
-                const key = btn.dataset.setting;
-
-                settings[current.id] =
-                    settings[current.id] || {};
-
-                settings[current.id][key] =
-                    !settings[current.id][key];
-
-                save(KEY.settings, settings);
-
-                btn.textContent =
-                    btn.textContent +
-                    (settings[current.id][key]
-                        ? '  ON'
-                        : '  OFF');
-            };
+            const isUser = msg.role === 'user';
+            const wrapper = document.createElement('div');
+            wrapper.className = `chat-bubble-wrapper ${isUser ? 'right' : 'left'}`;
+            wrapper.innerHTML = `<div class="chat-bubble ${isUser ? 'user' : 'ai'}">${msg.content.replace(/\n/g, '<br>')}</div>`;
+            msgList.appendChild(wrapper);
         });
-    }
+        scrollToBottom();
+    };
 
-    /* =========================
-       导航
-    ========================= */
+    const scrollToBottom = () => {
+        setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50);
+    };
 
-    app.querySelectorAll('.chat-nav button').forEach(btn => {
-        btn.onclick = () => {
-            const page = btn.dataset.page;
+    renderMessages();
 
-            if (page === 'chats') renderChats();
-            if (page === 'contacts') renderContacts();
-            if (page === 'moments') renderMoments();
-            if (page === 'me') renderMe();
-        };
+    // 4. 输入框自适应
+    inputArea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        if(this.value.trim() !== '') sendBtn.classList.add('active');
+        else sendBtn.classList.remove('active');
     });
 
-    /* =========================
-       按钮
-    ========================= */
-
-    $('chat-add').onclick = () => characterEditor();
-
-    $('chat-back').onclick = () => {
-        if (typeof window.closeApp === 'function') {
-            window.closeApp('chat');
-        }
+    // 5. 显示“对方正在输入”动画
+    const showTypingIndicator = () => {
+        statusText.textContent = '对方正在输入...';
+        statusText.style.color = '#1C1C1E';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'chat-bubble-wrapper left';
+        wrapper.id = 'typing-indicator-bubble';
+        wrapper.innerHTML = `
+            <div class="chat-bubble ai">
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+                </div>
+            </div>`;
+        msgList.appendChild(wrapper);
+        scrollToBottom();
     };
 
-    $('room-back').onclick = () => {
-        room.classList.remove('active');
-        current = null;
-        renderChats();
+    const hideTypingIndicator = () => {
+        statusText.textContent = '在线';
+        statusText.style.color = '#34C759';
+        const indicator = document.getElementById('typing-indicator-bubble');
+        if(indicator) indicator.remove();
     };
 
-    $('room-more').onclick = chatSettings;
-
-    $('send').onclick = sendMessage;
-
-    $('message-input').addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-
-    modal.onclick = e => {
-        if (e.target === modal) closeModal();
-    };
-
-    /* =========================
-       AI
-    ========================= */
-
-    window.wuyoChatAI = async function () {
-        if (!current) return;
-
-        const config = load('wuyo_config', {});
-
-        const api = config.api || config;
-
-        if (!api.url || !api.key) {
-            alert('Please configure API first.');
-            return;
-        }
-
-        addMessage(
-            current.name,
-            'system',
-            'Thinking...'
-        );
-
+    // 6. 发送消息
+    const sendMessage = () => {
+        const text = inputArea.value.trim();
+        if(!text) return;
+        
+        chatHistory.push({ role: 'user', content: text, time: Date.now() });
+        localStorage.setItem('wuyo_chat_history', JSON.stringify(chatHistory));
+        
+        inputArea.value = '';
+        inputArea.style.height = 'auto';
+        sendBtn.classList.remove('active');
         renderMessages();
 
-        /*
-         * AI 请求模块之后独立扩展。
-         * 这里故意不让 API 逻辑塞满 chat.js。
-         */
+        // 模拟真实 API 思考延迟
+        showTypingIndicator();
+        
+        setTimeout(() => {
+            hideTypingIndicator();
+            // 这里留好接口：将来替换成 await fetch(...)
+            chatHistory.push({ 
+                role: 'assistant', 
+                content: '（此处以后将接入 API，并自动读取您的内设世界书规则进行回复。UI 已经完美支持多行文本、时间戳和排版啦！）', 
+                time: Date.now() 
+            });
+            localStorage.setItem('wuyo_chat_history', JSON.stringify(chatHistory));
+            renderMessages();
+        }, 2000);
     };
 
-    /* =========================
-       对外接口
-    ========================= */
-
-    window.wuyoChat = {
-        characters,
-        openChat,
-        renderChats,
-        renderContacts,
-        renderMoments,
-        renderMe,
-        characterEditor,
-        chatSettings,
-        getChat,
-        addMessage
-    };
-
-    /* =========================
-       启动
-    ========================= */
-
-    room.classList.remove('active');
-    modal.classList.remove('active');
-
-    renderChats();
-
+    sendBtn.addEventListener('click', sendMessage);
+    inputArea.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
 })();
