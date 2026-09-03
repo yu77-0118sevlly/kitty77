@@ -51,13 +51,12 @@ window.openApp = (appId) => {
         window.memoryLoaded = true;
     }
 
-    // 🔧 修复：移除了「7. 动态加载日历模块」的重复加载逻辑。
-    // calendar.css / calendar.js 现在已经在 index.html 的 <head> 和
-    // 页面底部被静态加载了一次；如果这里再动态加载一遍，calendar.js
-    // 会被执行两次，导致事件重复绑定、状态被覆盖等一系列诡异问题
-    // （包括你截图里"弹窗一直显示在正文里"的情况）。
-    // 如果以后想把日历改回纯动态加载，记得同时从 index.html 里删除
-    // 静态的 <link>/<script> 引用，两种方式二选一，不要同时用。
+    // 7. 💥 补上日历模块的显示与渲染触发
+    if (appId === 'calendar') {
+        if (window.renderCalendarInstance) {
+            window.renderCalendarInstance();
+        }
+    }
 };
 
 window.closeApp = (appId) => {
