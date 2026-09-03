@@ -9,7 +9,8 @@ window.ChatViewTemplate = `
         <div class="wechat-bottom-nav">
             <div class="wechat-nav-item active"><i data-lucide="message-square"></i><span>Chats</span></div>
             <div class="wechat-nav-item" id="nav-btn-contacts"><i data-lucide="users"></i><span>Contacts</span></div>
-            <div class="wechat-nav-item" onclick="alert('功能开发中')"><i data-lucide="compass"></i><span>Moments</span></div>
+            <div class="wechat-nav-item" id="nav-btn-moments"><i data-lucide="compass"></i><span>Moments</span></div>
+
             <div class="wechat-nav-item" onclick="alert('功能开发中')"><i data-lucide="user"></i><span>Me</span></div>
         </div>
     </div>
