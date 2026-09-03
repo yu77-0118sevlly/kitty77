@@ -25,7 +25,7 @@
                 <div class="beautify-setting-item vertical"><span>AI 伴侣标题</span><input type="text" id="text-ai-title" value="AI 伙伴"></div>
                 <div class="beautify-setting-item vertical"><span>AI 伴侣副标题</span><input type="text" id="text-ai-subtitle" value="随时准备与你交流…"></div>
                 
-                <!-- 🟢 新增：自定义 AI 头像 -->
+                <!-- 🟢 自定义 AI 头像设置区域 -->
                 <div class="beautify-setting-item">
                     <span>AI 头像</span>
                     <div class="beautify-avatar-preview" id="ai-avatar-preview"></div>
@@ -79,7 +79,7 @@
 
     const defaultConfig = {
         style: { bgColor: '#f4f4f7', bgImage: '', cardRadius: '24', cardOpacity: '55' },
-        // 🟢 新增 aiAvatar 字段存放自定义机器人头像
+        // 🟢 初始化 aiAvatar 字段
         texts: { brand: 'WUYO', aiTitle: 'AI 伙伴', aiSubtitle: '随时准备与你交流…', aiAvatar: '' },
         profile: { nickname: '锁骨痣', avatar: '' },
         widgets: {
@@ -115,7 +115,7 @@
         document.getElementById('text-ai-title').value = wuyoConfig.texts.aiTitle;
         document.getElementById('text-ai-subtitle').value = wuyoConfig.texts.aiSubtitle;
         
-        // 渲染已保存的 AI 头像
+        // 🟢 渲染已保存的 AI 头像预览
         if(wuyoConfig.texts.aiAvatar) {
             document.getElementById('ai-avatar-preview').style.backgroundImage = `url(${wuyoConfig.texts.aiAvatar})`;
         }
@@ -135,7 +135,6 @@
     };
     bindData();
 
-    // 创建美化模块专属的文件上传器，避免与主页冲突
     const uploader = document.createElement('input');
     uploader.type = 'file';
     uploader.accept = 'image/*';
@@ -156,15 +155,20 @@
             const reader = new FileReader();
             reader.onload = (event) => {
                 const base64 = event.target.result;
+                
+                // 处理所有图片上传
                 if (currentTarget === 'bg-image') wuyoConfig.style.bgImage = base64;
                 if (currentTarget === 'profile-avatar') {
                     wuyoConfig.profile.avatar = base64;
                     document.getElementById('profile-avatar-preview').style.backgroundImage = `url(${base64})`;
                 }
+                
+                // 🟢 捕获 AI 头像上传并更新预览
                 if (currentTarget === 'ai-avatar') {
                     wuyoConfig.texts.aiAvatar = base64;
                     document.getElementById('ai-avatar-preview').style.backgroundImage = `url(${base64})`;
                 }
+
                 if (currentTarget === 'w-memory-img') wuyoConfig.widgets.memory.img = base64;
                 if (currentTarget === 'w-couple-img') wuyoConfig.widgets.couple.img = base64;
                 if (currentTarget.startsWith('app-img-')) {
@@ -178,7 +182,7 @@
         uploader.value = '';
     });
 
-    // 保存设置
+    // 🟢 保存设置逻辑
     document.getElementById('beautify-save-btn').addEventListener('click', () => {
         wuyoConfig.style.bgColor = document.getElementById('bg-color').value;
         wuyoConfig.style.cardRadius = document.getElementById('card-radius').value;
@@ -203,11 +207,13 @@
             }
         });
 
+        // 真实长久保存到 localStorage
         localStorage.setItem('wuyo_config', JSON.stringify(wuyoConfig));
         
-        // 🟢 新增：贴心的成功提示弹窗
+        // 弹出你要求的可爱提示
         alert('保存成功ovo');
         
+        // 应用并退回主页
         if (typeof window.applyConfig === 'function') window.applyConfig();
         window.closeApp('beautify'); 
     });
