@@ -2,7 +2,6 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：设置菜单中加入用户头像与 AI 头像的开关
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -54,7 +53,6 @@
             </div>
         </div>
 
-        <!-- 气泡、恋爱与高级美化设置页面 -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -278,7 +276,6 @@
         const roleInfo = getCurrentRoleInfo();
         const styleConf = getChatStyleConfig();
 
-        // 顶部双头像横幅
         const bannerEl = document.createElement('div');
         bannerEl.className = 'chat-couple-banner';
         
