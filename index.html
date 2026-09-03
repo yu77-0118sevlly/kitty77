@@ -67,7 +67,7 @@
                     </div>
                 </div>
 
-                <!-- App 桌面网格 -->
+                <!-- App 桌面网格 (已扩充) -->
                 <div class="app-grid">
                     <div class="app-item" data-target="view-chat">
                         <div class="app-icon"><i data-lucide="message-square"></i></div>
@@ -77,13 +77,29 @@
                         <div class="app-icon"><i data-lucide="book"></i></div>
                         <span>世界书</span>
                     </div>
+                    <div class="app-item" data-target="view-theme">
+                        <div class="app-icon"><i data-lucide="palette"></i></div>
+                        <span>美化</span>
+                    </div>
+                    <div class="app-item" data-target="view-photos">
+                        <div class="app-icon"><i data-lucide="image"></i></div>
+                        <span>相册</span>
+                    </div>
+                    <div class="app-item" data-target="view-notes">
+                        <div class="app-icon"><i data-lucide="file-text"></i></div>
+                        <span>备忘录</span>
+                    </div>
+                    <div class="app-item" data-target="view-music">
+                        <div class="app-icon"><i data-lucide="music"></i></div>
+                        <span>音乐</span>
+                    </div>
+                    <div class="app-item" data-target="view-calendar">
+                        <div class="app-icon"><i data-lucide="calendar"></i></div>
+                        <span>日历</span>
+                    </div>
                     <div class="app-item" data-target="view-settings">
                         <div class="app-icon"><i data-lucide="settings"></i></div>
                         <span>设置</span>
-                    </div>
-                    <div class="app-item" data-target="view-theme">
-                        <div class="app-icon"><i data-lucide="palette"></i></div>
-                        <span>个性美化</span>
                     </div>
                 </div>
             </div>
@@ -119,21 +135,7 @@
             </div>
         </section>
 
-        <!-- 4. 设置视图 -->
-        <section id="view-settings" class="view">
-            <div class="nav-bar">
-                <button class="icon-btn back-btn" data-target="view-home">
-                    <i data-lucide="chevron-left"></i>
-                </button>
-                <span class="nav-title">设置</span>
-                <div class="icon-btn-placeholder"></div>
-            </div>
-            <div class="page-content">
-                <!-- 预留设置选项 -->
-            </div>
-        </section>
-
-        <!-- 5. 个性美化视图 -->
+        <!-- 4. 个性美化视图 -->
         <section id="view-theme" class="view">
             <div class="nav-bar">
                 <button class="icon-btn back-btn" data-target="view-home">
@@ -147,15 +149,85 @@
             </div>
         </section>
 
+        <!-- 5. 相册视图 -->
+        <section id="view-photos" class="view">
+            <div class="nav-bar">
+                <button class="icon-btn back-btn" data-target="view-home">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+                <span class="nav-title">相册</span>
+                <button class="icon-btn"><i data-lucide="search"></i></button>
+            </div>
+            <div class="page-content">
+                <!-- 预留相册内容 -->
+            </div>
+        </section>
+
+        <!-- 6. 备忘录视图 -->
+        <section id="view-notes" class="view">
+            <div class="nav-bar">
+                <button class="icon-btn back-btn" data-target="view-home">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+                <span class="nav-title">备忘录</span>
+                <button class="icon-btn"><i data-lucide="edit"></i></button>
+            </div>
+            <div class="page-content">
+                <!-- 预留备忘录内容 -->
+            </div>
+        </section>
+
+        <!-- 7. 音乐视图 -->
+        <section id="view-music" class="view">
+            <div class="nav-bar">
+                <button class="icon-btn back-btn" data-target="view-home">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+                <span class="nav-title">音乐</span>
+                <button class="icon-btn"><i data-lucide="play-circle"></i></button>
+            </div>
+            <div class="page-content">
+                <!-- 预留音乐内容 -->
+            </div>
+        </section>
+
+        <!-- 8. 日历视图 -->
+        <section id="view-calendar" class="view">
+            <div class="nav-bar">
+                <button class="icon-btn back-btn" data-target="view-home">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+                <span class="nav-title">日历</span>
+                <button class="icon-btn"><i data-lucide="calendar-plus"></i></button>
+            </div>
+            <div class="page-content">
+                <!-- 预留日历内容 -->
+            </div>
+        </section>
+
+        <!-- 9. 设置视图 -->
+        <section id="view-settings" class="view">
+            <div class="nav-bar">
+                <button class="icon-btn back-btn" data-target="view-home">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+                <span class="nav-title">设置</span>
+                <div class="icon-btn-placeholder"></div>
+            </div>
+            <div class="page-content">
+                <!-- 预留设置选项 -->
+            </div>
+        </section>
+
     </main>
 
     <!-- 底部半透明 Dock 栏 -->
     <nav id="dock">
         <div class="dock-container">
-            <div class="dock-item"><i data-lucide="phone"></i></div>
-            <div class="dock-item"><i data-lucide="users"></i></div>
+            <div class="dock-item" data-target="view-home"><i data-lucide="phone"></i></div>
+            <div class="dock-item" data-target="view-home"><i data-lucide="users"></i></div>
             <div class="dock-item" data-target="view-chat"><i data-lucide="message-circle"></i></div>
-            <div class="dock-item"><i data-lucide="layout-grid"></i></div>
+            <div class="dock-item" data-target="view-theme"><i data-lucide="layout-grid"></i></div>
         </div>
     </nav>
 
