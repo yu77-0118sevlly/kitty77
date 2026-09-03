@@ -43,13 +43,20 @@ window.openApp = (appId) => {
         const script = document.createElement('script'); script.src = 'contacts/contacts.js'; document.body.appendChild(script);
         window.contactsLoaded = true;
     }
-        // 6. 动态加载记忆模块
+
+    // 6. 动态加载记忆模块
     if (appId === 'memory' && !window.memoryLoaded) {
         const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'memory/memory.css'; document.head.appendChild(link);
         const script = document.createElement('script'); script.src = 'memory/memory.js'; document.body.appendChild(script);
         window.memoryLoaded = true;
     }
 
+    // 7. 💥 动态加载日历模块
+    if (appId === 'calendar' && !window.calendarLoaded) {
+        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'calendar/calendar.css'; document.head.appendChild(link);
+        const script = document.createElement('script'); script.src = 'calendar/calendar.js'; document.body.appendChild(script);
+        window.calendarLoaded = true;
+    }
 };
 
 window.closeApp = (appId) => {
