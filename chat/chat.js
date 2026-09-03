@@ -2,7 +2,7 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：设置菜单中加入气泡样式、美化导入、背景图功能
+    // 1. 初始化 DOM：设置菜单中加入用户头像与 AI 头像的开关
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -54,7 +54,7 @@
             </div>
         </div>
 
-        <!-- 💥 气泡、恋爱与高级美化设置页面 -->
+        <!-- 💥 气泡、恋爱与高级美化设置页面 (加入头像显示开关) -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -87,8 +87,16 @@
                     </div>
                 </div>
 
-                <div style="padding: 0 16px 8px 24px; font-size:12px; color:#8E8E93;">气泡样式与背景图自定义</div>
+                <div style="padding: 0 16px 8px 24px; font-size:12px; color:#8E8E93;">气泡样式、背景与头像显隐开关</div>
                 <div class="settings-list-group">
+                    <div class="settings-list-item">
+                        <span>显示用户头像</span>
+                        <label class="ios-switch"><input type="checkbox" id="show-user-avatar-toggle" checked><span class="ios-slider"></span></label>
+                    </div>
+                    <div class="settings-list-item">
+                        <span>显示 AI 头像</span>
+                        <label class="ios-switch"><input type="checkbox" id="show-ai-avatar-toggle" checked><span class="ios-slider"></span></label>
+                    </div>
                     <div class="settings-list-item">
                         <span>气泡颜色</span>
                         <input type="color" id="bubble-color-picker" value="#FFFFFF" style="width:36px; height:24px; border:none; background:none; cursor:pointer;">
@@ -172,11 +180,12 @@
             bubbleBg: conf.bubbleBg || '#FFFFFF',
             bubbleFontSize: conf.bubbleFontSize || '14px',
             bubbleRadius: conf.bubbleRadius || '14px',
-            bgImg: tempEditableBgImg !== '' ? tempEditableBgImg : (conf.bgImg || '')
+            bgImg: tempEditableBgImg !== '' ? tempEditableBgImg : (conf.bgImg || ''),
+            showUserAvatar: conf.showUserAvatar !== undefined ? conf.showUserAvatar : true,
+            showAiAvatar: conf.showAiAvatar !== undefined ? conf.showAiAvatar : true
         };
     };
 
-    // 应用气泡样式变量到 DOM
     const applyChatStylesToDOM = () => {
         const styleConf = getChatStyleConfig();
         const msgListEl = document.getElementById('chat-message-list');
@@ -301,12 +310,24 @@
 
             const avDiv = document.createElement('div');
             avDiv.className = 'bubble-avatar';
+
+            // 根据开关控制头像显隐
             if (isUser) {
-                if (styleConf.userAvatar) { avDiv.style.backgroundImage = `url(${styleConf.userAvatar})`; }
-                else { avDiv.innerHTML = '<i data-lucide="user" style="width:18px;height:18px;"></i>'; }
+                if (!styleConf.showUserAvatar) {
+                    avDiv.classList.add('hidden');
+                } else if (styleConf.userAvatar) { 
+                    avDiv.style.backgroundImage = `url(${styleConf.userAvatar})`; 
+                } else { 
+                    avDiv.innerHTML = '<i data-lucide="user" style="width:18px;height:18px;"></i>'; 
+                }
             } else {
-                if (roleInfo.avatar) { avDiv.style.backgroundImage = `url(${roleInfo.avatar})`; }
-                else { avDiv.innerHTML = '<i data-lucide="bot" style="width:18px;height:18px;"></i>'; }
+                if (!styleConf.showAiAvatar) {
+                    avDiv.classList.add('hidden');
+                } else if (roleInfo.avatar) { 
+                    avDiv.style.backgroundImage = `url(${roleInfo.avatar})`; 
+                } else { 
+                    avDiv.innerHTML = '<i data-lucide="bot" style="width:18px;height:18px;"></i>'; 
+                }
             }
 
             const col = document.createElement('div');
@@ -355,7 +376,7 @@
         ctxMenu.classList.remove('show');
     });
 
-    // 打开设置菜单
+    // 打开设置菜单，回填各项数据
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
         const styleConf = getChatStyleConfig();
         const roleInfo = getCurrentRoleInfo();
@@ -363,6 +384,8 @@
         document.getElementById('bubble-color-picker').value = styleConf.bubbleBg;
         document.getElementById('bubble-fontsize-select').value = styleConf.bubbleFontSize;
         document.getElementById('bubble-radius-select').value = styleConf.bubbleRadius;
+        document.getElementById('show-user-avatar-toggle').checked = styleConf.showUserAvatar;
+        document.getElementById('show-ai-avatar-toggle').checked = styleConf.showAiAvatar;
         
         const pUser = document.getElementById('preview-user-av');
         if(styleConf.userAvatar) pUser.style.backgroundImage = `url(${styleConf.userAvatar})`; else pUser.style.backgroundImage = '';
@@ -380,12 +403,14 @@
         applyChatStylesToDOM();
     });
 
-    // 点击保存按钮：持久化写入所有气泡、头像、背景、签名配置
+    // 点击保存按钮：持久化写入所有配置
     document.getElementById('settings-save-btn').addEventListener('click', () => {
         const sig = document.getElementById('couple-sign-input').value;
         const bubbleBg = document.getElementById('bubble-color-picker').value;
         const fontSize = document.getElementById('bubble-fontsize-select').value;
         const radius = document.getElementById('bubble-radius-select').value;
+        const showUserAv = document.getElementById('show-user-avatar-toggle').checked;
+        const showAiAv = document.getElementById('show-ai-avatar-toggle').checked;
 
         let coupleConf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
         coupleConf.signature = sig;
@@ -396,6 +421,8 @@
         chatStyleConf.bubbleBg = bubbleBg;
         chatStyleConf.bubbleFontSize = fontSize;
         chatStyleConf.bubbleRadius = radius;
+        chatStyleConf.showUserAvatar = showUserAv;
+        chatStyleConf.showAiAvatar = showAiAv;
         if(tempEditableBgImg) chatStyleConf.bgImg = tempEditableBgImg;
         localStorage.setItem('wuyo_chat_style_config', JSON.stringify(chatStyleConf));
 
@@ -408,14 +435,13 @@
             }
         }
 
-        alert("美化设置保存成功！");
+        alert("美化与头像显隐设置保存成功！");
         document.getElementById('chat-page-settings').classList.remove('active');
         
         applyChatStylesToDOM();
         renderMessages();
     });
 
-    // 头像与背景图上传逻辑
     let activeUploadTarget = null;
     document.getElementById('set-user-avatar-btn').addEventListener('click', () => { activeUploadTarget = 'user'; document.getElementById('couple-avatar-uploader').click(); });
     document.getElementById('set-ai-avatar-btn').addEventListener('click', () => { activeUploadTarget = 'ai'; document.getElementById('couple-avatar-uploader').click(); });
@@ -451,7 +477,6 @@
         }
     });
 
-    // 导入美化预设
     document.getElementById('import-theme-preset').addEventListener('click', () => {
         const code = prompt("请粘贴或输入美化预设的 JSON 配置代码：");
         if(code) {
@@ -461,6 +486,8 @@
                 if(json.bubbleFontSize) document.getElementById('bubble-fontsize-select').value = json.bubbleFontSize;
                 if(json.bubbleRadius) document.getElementById('bubble-radius-select').value = json.bubbleRadius;
                 if(json.signature) document.getElementById('couple-sign-input').value = json.signature;
+                if(json.showUserAvatar !== undefined) document.getElementById('show-user-avatar-toggle').checked = json.showUserAvatar;
+                if(json.showAiAvatar !== undefined) document.getElementById('show-ai-avatar-toggle').checked = json.showAiAvatar;
                 alert("预设导入成功！请点击右上角「保存」生效。");
             } catch(err) {
                 alert("JSON 代码格式错误，导入失败！");
@@ -478,7 +505,7 @@
     document.getElementById('settings-btn-memory').addEventListener('click', () => {
         document.getElementById('chat-page-settings').classList.remove('active');
         container.style.display = 'none'; window.openApp('memory');
-        setTimeout(() => { if(window.openMemory) window.openMemory(currentChatId, document.getElementById('chat-char-name').textContent, 'chat'); }, 100);
+        setTimeout(() => { if(window.openMemory) window.openMemory(currentChatId, document.getElementById('chat-char-name')->textContent, 'chat'); }, 100);
     });
 
     document.getElementById('settings-btn-profile').addEventListener('click', () => {
