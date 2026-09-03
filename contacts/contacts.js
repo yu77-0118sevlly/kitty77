@@ -2,18 +2,18 @@
     const container = document.getElementById('contacts-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：加入锁脸功能，清空所有多余提示语，恢复硬核信息
+    // 1. 初始化 DOM：纯中文界面，纯英文底部 Tab
     container.innerHTML = `
         <div class="ct-page root active" id="ct-page-list">
             <header class="ct-header">
-                <button class="ct-icon-btn" onclick="window.closeApp('contacts')"><i data-lucide="chevron-left"></i></button>
-                <span class="ct-header-title">Contacts</span>
+                <div style="width:32px;"></div>
+                <span class="ct-header-title">通讯录</span>
                 <button class="ct-icon-btn" id="btn-goto-create"><i data-lucide="user-plus"></i></button>
             </header>
             <div class="ct-body">
                 <div class="ct-search-bar">
                     <i data-lucide="search" style="width:16px; height:16px; color:#8E8E93; margin-right:8px;"></i>
-                    <input type="text" class="ct-search-input" placeholder="Search">
+                    <input type="text" class="ct-search-input" placeholder="搜索">
                 </div>
                 <div id="ct-list-render-area"></div>
             </div>
@@ -21,8 +21,8 @@
             <div class="wechat-bottom-nav">
                 <div class="wechat-nav-item" id="nav-btn-chats"><i data-lucide="message-square"></i><span>Chats</span></div>
                 <div class="wechat-nav-item active"><i data-lucide="users"></i><span>Contacts</span></div>
-                <div class="wechat-nav-item"><i data-lucide="compass"></i><span>Moments</span></div>
-                <div class="wechat-nav-item"><i data-lucide="user"></i><span>Me</span></div>
+                <div class="wechat-nav-item" id="nav-btn-moments-ct"><i data-lucide="compass"></i><span>Moments</span></div>
+                <div class="wechat-nav-item" id="nav-btn-me-ct"><i data-lucide="user"></i><span>Me</span></div>
             </div>
         </div>
 
@@ -37,75 +37,75 @@
         <div class="ct-page" id="ct-page-editor">
             <header class="ct-header">
                 <button class="ct-icon-btn ct-back-btn"><i data-lucide="chevron-left"></i></button>
-                <span class="ct-header-title" id="editor-title">Profile Settings</span>
-                <button class="ct-text-btn" id="btn-save-role">Save</button>
+                <span class="ct-header-title" id="editor-title">编辑角色</span>
+                <button class="ct-text-btn" id="btn-save-role">保存</button>
             </header>
             <div class="ct-body">
                 <div class="ct-form-group">
                     <div class="ct-form-row">
-                        <span class="ct-form-label">Avatar (头像)</span>
+                        <span class="ct-form-label">头像</span>
                         <div class="ct-avatar-upload" id="role-avatar-preview" style="border-radius:50%;"><i data-lucide="camera" style="color:#8E8E93;"></i></div>
                     </div>
                     <div class="ct-form-row">
-                        <span class="ct-form-label">Face Lock (锁脸)</span>
+                        <span class="ct-form-label">锁脸</span>
                         <div class="ct-avatar-upload" id="role-face-preview" style="border-radius:8px;"><i data-lucide="scan-face" style="color:#8E8E93;"></i></div>
                     </div>
                     <div class="ct-form-row">
-                        <span class="ct-form-label">Name</span>
-                        <input type="text" class="ct-input" id="role-name" placeholder="Name">
+                        <span class="ct-form-label">昵称</span>
+                        <input type="text" class="ct-input" id="role-name" placeholder="昵称">
                     </div>
                     <div class="ct-form-row">
-                        <span class="ct-form-label">Remark</span>
-                        <input type="text" class="ct-input" id="role-remark" placeholder="Remark">
+                        <span class="ct-form-label">备注</span>
+                        <input type="text" class="ct-input" id="role-remark" placeholder="备注">
                     </div>
                     <div class="ct-form-row">
-                        <span class="ct-form-label">Relation</span>
+                        <span class="ct-form-label">当前关系</span>
                         <select class="ct-select" id="role-relation" dir="rtl">
-                            <option value="Stranger">Stranger</option>
-                            <option value="Friend" selected>Friend</option>
-                            <option value="Lover">Lover</option>
-                            <option value="Family">Family</option>
+                            <option value="陌生人">陌生人</option>
+                            <option value="普通朋友" selected>普通朋友</option>
+                            <option value="恋人">恋人</option>
+                            <option value="家人">家人</option>
                         </select>
                     </div>
                     <div class="ct-form-row">
-                        <span class="ct-form-label">City</span>
-                        <input type="text" class="ct-input" id="role-city" placeholder="City">
+                        <span class="ct-form-label">所在地</span>
+                        <input type="text" class="ct-input" id="role-city" placeholder="所在地">
                     </div>
                 </div>
 
-                <div style="padding: 0 16px 8px 32px; font-size:12px; color:#8E8E93; text-transform:uppercase;">Private Info</div>
+                <div style="padding: 0 16px 8px 32px; font-size:12px; color:#8E8E93;">私密档案</div>
                 <div class="ct-form-group">
                     <div class="ct-form-row">
-                        <span class="ct-form-label">WeChat ID</span>
-                        <input type="text" class="ct-input" id="role-wechat" placeholder="WeChat ID">
+                        <span class="ct-form-label">微信号</span>
+                        <input type="text" class="ct-input" id="role-wechat" placeholder="微信号">
                     </div>
                     <div class="ct-form-row">
-                        <span class="ct-form-label">Phone</span>
-                        <input type="text" class="ct-input" id="role-phone" placeholder="Phone Number">
+                        <span class="ct-form-label">手机号</span>
+                        <input type="text" class="ct-input" id="role-phone" placeholder="手机号">
                     </div>
                     <div class="ct-form-row">
-                        <span class="ct-form-label">ID Card</span>
-                        <input type="text" class="ct-input" id="role-idcard" placeholder="ID Card Number">
+                        <span class="ct-form-label">身份证号</span>
+                        <input type="text" class="ct-input" id="role-idcard" placeholder="身份证号">
                     </div>
                     <div class="ct-form-row">
-                        <span class="ct-form-label">Bank Info</span>
-                        <input type="text" class="ct-input" id="role-bank" placeholder="Bank Account">
+                        <span class="ct-form-label">银行卡信息</span>
+                        <input type="text" class="ct-input" id="role-bank" placeholder="银行卡信息">
                     </div>
                 </div>
                 
-                <div style="padding: 0 16px 8px 32px; font-size:12px; color:#8E8E93; text-transform:uppercase;">AI Core Setup</div>
+                <div style="padding: 0 16px 8px 32px; font-size:12px; color:#8E8E93;">核心设定 (供 AI 读取)</div>
                 <div class="ct-form-group">
                     <div class="ct-form-row vertical">
-                        <span class="ct-form-label">Personality</span>
-                        <textarea class="ct-textarea" id="role-personality" placeholder="Personality & Tone..."></textarea>
+                        <span class="ct-form-label">性格与说话方式</span>
+                        <textarea class="ct-textarea" id="role-personality" placeholder="例如：高冷、毒舌，但内心柔软..."></textarea>
                     </div>
                     <div class="ct-form-row vertical">
-                        <span class="ct-form-label">Background</span>
-                        <textarea class="ct-textarea" id="role-bgstory" placeholder="Background Story..."></textarea>
+                        <span class="ct-form-label">背景故事/职业</span>
+                        <textarea class="ct-textarea" id="role-bgstory" placeholder="例如：跨国集团的CEO..."></textarea>
                     </div>
                 </div>
                 
-                <button class="ct-btn-large" id="btn-delete-role" style="display:none; margin: 16px; color:#FF3B30;">Delete Contact</button>
+                <button class="ct-btn-large" id="btn-delete-role" style="display:none; margin: 16px; color:#1C1C1E; font-weight: 700;">删除角色</button>
             </div>
             
             <input type="file" id="ct-avatar-uploader" accept="image/*" style="display:none;">
@@ -116,6 +116,8 @@
 
     // 2. 底栏跳转
     document.getElementById('nav-btn-chats').addEventListener('click', () => { container.style.display = 'none'; window.openApp('chat'); });
+    document.getElementById('nav-btn-moments-ct').addEventListener('click', () => alert('朋友圈功能开发中'));
+    document.getElementById('nav-btn-me-ct').addEventListener('click', () => alert('个人中心功能开发中'));
 
     // 3. 数据管理
     let wuyoRoles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
@@ -123,7 +125,7 @@
 
     const renderContactList = () => {
         const listArea = document.getElementById('ct-list-render-area');
-        if (wuyoRoles.length === 0) { listArea.innerHTML = `<div style="text-align:center; padding:60px 16px; color:#8E8E93; font-size:14px;">No contacts yet.<br>Click the plus icon to add your first AI.</div>`; return; }
+        if (wuyoRoles.length === 0) { listArea.innerHTML = `<div style="text-align:center; padding:60px 16px; color:#8E8E93; font-size:14px;">暂无角色。<br>点击右上角添加您的第一个专属 AI 角色。</div>`; return; }
         let html = '';
         wuyoRoles.forEach(role => {
             const avatarStyle = role.avatar ? `background-image: url(${role.avatar});` : '';
@@ -141,7 +143,7 @@
         
         const avatarStyle = role.avatar ? `background-image: url(${role.avatar});` : '';
         const displayName = role.remark || role.name;
-        const realNameHtml = role.remark ? `<div class="ct-profile-remark">Name: ${role.name}</div>` : '';
+        const realNameHtml = role.remark ? `<div class="ct-profile-remark">昵称：${role.name}</div>` : '';
         
         const profileArea = document.getElementById('ct-profile-render-area');
         profileArea.innerHTML = `
@@ -151,27 +153,26 @@
                     <div class="ct-profile-name">${displayName}</div>
                     ${realNameHtml}
                     <div class="ct-tag-row">
-                        <span class="ct-tag">${role.relationship || 'Friend'}</span>
+                        <span class="ct-tag">${role.relationship || '朋友'}</span>
                         ${role.city ? `<span class="ct-tag">${role.city}</span>` : ''}
                     </div>
                 </div>
             </div>
             
             <div class="ct-group">
-                ${role.wechat ? `<div class="ct-row"><div class="ct-row-label">WeChat</div><div class="ct-row-value">${role.wechat}</div></div>` : ''}
-                ${role.phone ? `<div class="ct-row"><div class="ct-row-label">Phone</div><div class="ct-row-value">${role.phone}</div></div>` : ''}
-                ${role.idcard ? `<div class="ct-row"><div class="ct-row-label">ID Card</div><div class="ct-row-value">${role.idcard}</div></div>` : ''}
-                ${role.bank ? `<div class="ct-row"><div class="ct-row-label">Bank Info</div><div class="ct-row-value">${role.bank}</div></div>` : ''}
+                ${role.wechat ? `<div class="ct-row"><div class="ct-row-label">微信号</div><div class="ct-row-value">${role.wechat}</div></div>` : ''}
+                ${role.phone ? `<div class="ct-row"><div class="ct-row-label">手机号</div><div class="ct-row-value">${role.phone}</div></div>` : ''}
+                ${role.idcard ? `<div class="ct-row"><div class="ct-row-label">身份证号</div><div class="ct-row-value">${role.idcard}</div></div>` : ''}
+                ${role.bank ? `<div class="ct-row"><div class="ct-row-label">银行卡</div><div class="ct-row-value">${role.bank}</div></div>` : ''}
             </div>
 
             <div class="ct-group">
-                <div class="ct-row"><div class="ct-row-label">Personality</div><div class="ct-row-value">${role.personality || 'Not set'}</div></div>
-                <div class="ct-row"><div class="ct-row-label">Background</div><div class="ct-row-value">${role.bgStory || 'Not set'}</div></div>
+                <div class="ct-row"><div class="ct-row-label">性格设定</div><div class="ct-row-value">${role.personality || '未设置'}</div></div>
+                <div class="ct-row"><div class="ct-row-label">背景故事</div><div class="ct-row-value">${role.bgStory || '未设置'}</div></div>
             </div>
             
-            <button class="ct-btn-large" onclick="window.chatWithRole('${role.id}')" style="margin-top:24px;"><i data-lucide="message-square"></i> Send Message</button>
-            <!-- 💥 修复点：传递路由 source 'contacts' -->
-            <button class="ct-btn-large" onclick="window.openMemoryFromProfile('${role.id}', '${role.name}')"><i data-lucide="brain-circuit"></i> AI Memory</button>
+            <button class="ct-btn-large" onclick="window.chatWithRole('${role.id}')" style="margin-top:24px;"><i data-lucide="message-square"></i> 发消息</button>
+            <button class="ct-btn-large" onclick="window.openMemoryFromProfile('${role.id}', '${role.name}')"><i data-lucide="brain-circuit"></i> AI 长期记忆</button>
         `;
         lucide.createIcons({ root: profileArea });
         document.getElementById('ct-page-profile').classList.add('active');
@@ -179,7 +180,6 @@
 
     window.chatWithRole = (roleId) => { container.style.display = 'none'; document.getElementById('home-screen').style.display = 'none'; window.openApp('chat'); if(window.openChatDetail) window.openChatDetail(roleId); };
     
-    // 💥 修复点：明确告诉 Memory 它是从 Contacts 跳过去的
     window.openMemoryFromProfile = (roleId, roleName) => { 
         container.style.display = 'none'; 
         window.openApp('memory'); 
@@ -191,12 +191,12 @@
         const preview = document.getElementById('role-avatar-preview'); const facePreview = document.getElementById('role-face-preview');
         
         if (roleId) {
-            const role = wuyoRoles.find(r => r.id === roleId); titleEl.textContent = 'Edit Profile'; delBtn.style.display = 'block';
+            const role = wuyoRoles.find(r => r.id === roleId); titleEl.textContent = '编辑角色'; delBtn.style.display = 'block';
             if(role.avatar) preview.style.backgroundImage = `url(${role.avatar})`; else preview.style.backgroundImage = '';
             if(role.faceImg) facePreview.style.backgroundImage = `url(${role.faceImg})`; else facePreview.style.backgroundImage = '';
             document.getElementById('role-name').value = role.name || '';
             document.getElementById('role-remark').value = role.remark || '';
-            document.getElementById('role-relation').value = role.relationship || 'Friend';
+            document.getElementById('role-relation').value = role.relationship || '普通朋友';
             document.getElementById('role-city').value = role.city || '';
             document.getElementById('role-wechat').value = role.wechat || '';
             document.getElementById('role-phone').value = role.phone || '';
@@ -205,9 +205,9 @@
             document.getElementById('role-personality').value = role.personality || '';
             document.getElementById('role-bgstory').value = role.bgStory || '';
         } else {
-            titleEl.textContent = 'New Contact'; delBtn.style.display = 'none'; preview.style.backgroundImage = ''; facePreview.style.backgroundImage = '';
+            titleEl.textContent = '新建角色'; delBtn.style.display = 'none'; preview.style.backgroundImage = ''; facePreview.style.backgroundImage = '';
             document.querySelectorAll('.ct-input, .ct-textarea').forEach(el => el.value = '');
-            document.getElementById('role-relation').value = 'Friend';
+            document.getElementById('role-relation').value = '普通朋友';
         }
         document.getElementById('ct-page-editor').classList.add('active');
     };
@@ -229,7 +229,7 @@
     });
 
     document.getElementById('btn-save-role').addEventListener('click', () => {
-        const name = document.getElementById('role-name').value.trim(); if(!name) return alert("Name is required!");
+        const name = document.getElementById('role-name').value.trim(); if(!name) return alert("昵称不能为空哦！");
 
         const roleData = {
             id: currentEditRoleId || 'char_' + Date.now().toString(36),
@@ -249,7 +249,7 @@
     });
 
     document.getElementById('btn-delete-role').addEventListener('click', () => {
-        if(confirm("Delete this contact? All chat history will be lost.")) {
+        if(confirm("确定要删除这个角色吗？聊天记录和回忆也将一同清除！")) {
             wuyoRoles = wuyoRoles.filter(r => r.id !== currentEditRoleId); localStorage.setItem('wuyo_roles', JSON.stringify(wuyoRoles));
             const globalChat = JSON.parse(localStorage.getItem('wuyo_global_chat_data')) || {}; delete globalChat[currentEditRoleId]; localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChat));
             renderContactList(); document.getElementById('ct-page-editor').classList.remove('active'); document.getElementById('ct-page-profile').classList.remove('active');
