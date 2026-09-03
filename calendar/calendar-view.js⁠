@@ -3,7 +3,7 @@ window.CalendarViewTemplate = `
         <!-- 顶部导航 -->
         <header class="cal-header">
             <div class="cal-header-left">
-                <button class="cal-icon-btn" id="cal-back-btn"><i data-lucide="chevron-left"></i></button>
+                <button class="cal-icon-btn" id="cal-back-btn" onclick="window.closeApp('calendar')"><i data-lucide="chevron-left"></i></button>
                 <span class="cal-title" id="cal-header-month-title">2026年9月</span>
             </div>
             <div class="cal-header-right">
@@ -55,8 +55,8 @@ window.CalendarViewTemplate = `
             </div>
         </div>
 
-        <!-- 新建/编辑日程弹窗 -->
-        <div class="cal-modal" id="cal-event-modal">
+        <!-- 新建/编辑日程弹窗 (加了 style="display: none !important;" 默认彻底隐藏) -->
+        <div class="cal-modal" id="cal-event-modal" style="display: none !important;">
             <div class="cal-modal-box">
                 <div class="cal-modal-header">
                     <span class="cal-modal-title" id="cal-modal-title">新建日程</span>
@@ -119,8 +119,8 @@ window.CalendarViewTemplate = `
             </div>
         </div>
 
-        <!-- Todo 待办事项管理弹窗 -->
-        <div class="cal-modal" id="cal-todo-modal">
+        <!-- Todo 待办事项管理弹窗 (加了 style="display: none !important;" 默认彻底隐藏) -->
+        <div class="cal-modal" id="cal-todo-modal" style="display: none !important;">
             <div class="cal-modal-box" style="height: 70vh;">
                 <div class="cal-modal-header">
                     <span class="cal-modal-title">待办事项 (Todo)</span>
@@ -134,8 +134,8 @@ window.CalendarViewTemplate = `
             </div>
         </div>
 
-        <!-- 搜索弹窗 -->
-        <div class="cal-modal" id="cal-search-modal">
+        <!-- 搜索弹窗 (加了 style="display: none !important;" 默认彻底隐藏) -->
+        <div class="cal-modal" id="cal-search-modal" style="display: none !important;">
             <div class="cal-modal-box" style="height: 70vh;">
                 <div class="cal-modal-header">
                     <span class="cal-modal-title">搜索日程</span>
