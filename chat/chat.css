@@ -279,3 +279,296 @@
     -webkit-box-shadow: 0 0 0 1000px #F7F7F9 inset !important;
     -webkit-text-fill-color: #1C1C1E !important;
 }
+/* =========================================================
+   Chat Room 修复版
+   修复：输入框位置、底部距离、返回按钮点击
+========================================================= */
+
+#chat-app {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+/* 聊天房间本身 */
+#chat-app #chat-room-page {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+
+    display: none;
+    flex-direction: column;
+
+    background: #FFFFFF;
+
+    z-index: 20000 !important;
+}
+
+/* 顶部聊天栏 */
+#chat-app .chat-room-header {
+    position: relative !important;
+
+    width: 100% !important;
+    height: calc(env(safe-area-inset-top, 0px) + 52px) !important;
+
+    min-height: calc(env(safe-area-inset-top, 0px) + 52px) !important;
+
+    padding-top: env(safe-area-inset-top, 0px) !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    background: #FFFFFF !important;
+
+    border-bottom: 0.5px solid #F2F2F7;
+
+    flex-shrink: 0 !important;
+
+    z-index: 20002 !important;
+}
+
+/* 返回按钮 */
+#chat-app .chat-room-back {
+    position: relative !important;
+
+    width: 44px !important;
+    height: 44px !important;
+
+    margin-left: 2px !important;
+
+    padding: 8px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: transparent !important;
+    border: none !important;
+
+    color: #1C1C1E !important;
+
+    z-index: 20010 !important;
+
+    pointer-events: auto !important;
+
+    cursor: pointer !important;
+}
+
+#chat-app .chat-room-back i {
+    width: 24px !important;
+    height: 24px !important;
+
+    pointer-events: none !important;
+
+    color: #1C1C1E !important;
+}
+
+/* 中间名字 */
+#chat-app .chat-room-title-area {
+    flex: 1 !important;
+
+    height: 100% !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    pointer-events: none !important;
+}
+
+#chat-app .chat-room-name {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #1C1C1E !important;
+}
+
+/* 右侧占位 */
+#chat-app .chat-room-placeholder {
+    width: 44px !important;
+    height: 44px !important;
+    flex-shrink: 0 !important;
+}
+
+
+/* =========================================================
+   消息区域
+========================================================= */
+
+#chat-app .chat-room-body {
+    position: relative !important;
+
+    width: 100% !important;
+
+    flex: 1 1 auto !important;
+
+    min-height: 0 !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    -webkit-overflow-scrolling: touch !important;
+
+    background: #FAFAFC !important;
+
+    padding: 20px 16px 16px 16px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+
+    touch-action: pan-y !important;
+}
+
+
+/* =========================================================
+   底部输入区域
+========================================================= */
+
+#chat-app .chat-room-footer {
+    position: relative !important;
+
+    width: 100% !important;
+
+    height: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+
+    min-height: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+
+    padding-top: 8px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+
+    background: #FFFFFF !important;
+
+    border-top: 0.5px solid #F2F2F7 !important;
+
+    display: flex !important;
+    align-items: flex-start !important;
+
+    gap: 8px !important;
+
+    flex-shrink: 0 !important;
+
+    z-index: 20003 !important;
+}
+
+
+/* 输入框 */
+#chat-app .chat-room-input-box {
+    flex: 1 1 auto !important;
+
+    width: auto !important;
+
+    height: 40px !important;
+    min-height: 40px !important;
+
+    margin: 0 !important;
+
+    background: #F7F7F9 !important;
+
+    border-radius: 20px !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    padding: 0 16px !important;
+
+    pointer-events: auto !important;
+
+    z-index: 20004 !important;
+}
+
+
+/* 真正的 input */
+#chat-app .chat-room-input-box input {
+    width: 100% !important;
+    height: 40px !important;
+
+    min-width: 0 !important;
+
+    border: none !important;
+    outline: none !important;
+
+    background: transparent !important;
+
+    color: #1C1C1E !important;
+
+    font-size: 14px !important;
+
+    pointer-events: auto !important;
+
+    touch-action: auto !important;
+
+    user-select: text !important;
+    -webkit-user-select: text !important;
+
+    z-index: 20005 !important;
+}
+
+
+/* 发送按钮 */
+#chat-app .chat-room-send-btn,
+#chat-app .chat-room-ai-btn {
+    position: relative !important;
+
+    width: 40px !important;
+    height: 40px !important;
+
+    min-width: 40px !important;
+    min-height: 40px !important;
+
+    margin: 0 !important;
+
+    flex: 0 0 40px !important;
+
+    pointer-events: auto !important;
+
+    z-index: 20005 !important;
+}
+
+
+/* =========================================================
+   防止隐藏页面盖住聊天房间
+========================================================= */
+
+#chat-app #chat-main-tabs {
+    z-index: 100 !important;
+}
+
+#chat-app #chat-main-tabs .chat-bottom-bar {
+    z-index: 101 !important;
+}
+
+
+/* =========================================================
+   消息文字可以正常选择/复制
+========================================================= */
+
+#chat-app .msg-bubble {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    pointer-events: auto !important;
+}
+
+
+/* =========================================================
+   iPhone 键盘弹出时，输入框仍然可操作
+========================================================= */
+
+#chat-app .chat-room-input-box input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+
+/* =========================================================
+   Thinking 状态
+========================================================= */
+
+#chat-app #chat-ai-thinking {
+    pointer-events: none !important;
+}
