@@ -51,7 +51,6 @@
                 <button class="chat-send-btn" id="chat-send-btn">发送</button>
             </div>
             
-            <!-- 精致防溢出小浮窗菜单 -->
             <div class="chat-context-menu" id="chat-context-menu">
                 <div class="ctx-item" id="ctx-btn-quote">引用</div>
                 <div class="ctx-item" id="ctx-btn-copy">复制</div>
@@ -355,20 +354,35 @@
             }
 
             const isUser = msg.role === 'user';
-            const row = document.createElement('div');
-            row.className = `chat-bubble-row ${isUser ? 'user' : 'ai'}`;
+            
+            // 💥 完美修复：外层包裹 div，保证复选框永远固定在屏幕最左侧
+            const outerWrapper = document.createElement('div');
+            outerWrapper.style.cssText = 'display: flex; align-items: flex-start; width: 100%; margin-bottom: 0;';
 
             if(isMultiSelectMode) {
+                const checkContainer = document.createElement('div');
+                checkContainer.style.cssText = 'padding: 0 12px 0 16px; display: flex; align-items: center; justify-content: center; height: 34px;';
+                
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
-                checkbox.style.cssText = 'margin: auto 8px; width: 18px; height: 18px; accent-color: #1C1C1E; cursor: pointer;';
+                checkbox.style.cssText = 'width: 20px; height: 20px; accent-color: #1C1C1E; cursor: pointer; pointer-events: none;';
                 checkbox.checked = selectedIndices.has(index);
-                checkbox.addEventListener('change', () => {
+                
+                checkContainer.appendChild(checkbox);
+                outerWrapper.appendChild(checkContainer);
+
+                // 点击整行随意选中，手感拉满
+                outerWrapper.style.cursor = 'pointer';
+                outerWrapper.addEventListener('click', (e) => {
+                    checkbox.checked = !checkbox.checked;
                     if(checkbox.checked) selectedIndices.add(index);
                     else selectedIndices.delete(index);
                 });
-                row.appendChild(checkbox);
             }
+
+            const row = document.createElement('div');
+            row.className = `chat-bubble-row ${isUser ? 'user' : 'ai'}`;
+            row.style.flex = '1';
 
             const avDiv = document.createElement('div');
             avDiv.className = 'bubble-avatar';
@@ -400,26 +414,24 @@
             timeSub.className = 'bubble-time-sub';
             timeSub.textContent = formatTime(msg.time);
 
-            // 💥 最强安全防溢出计算：绝对定位基于屏幕物理视口，绝不被切断
+            // 双击弹出浮窗
             bubble.addEventListener('dblclick', (e) => {
                 if(isMultiSelectMode) return;
                 selectedMsgIndex = index; 
-                
                 const rect = bubble.getBoundingClientRect();
-                const menuWidth = 175; // 与 CSS 宽度严格对齐
+                const containerRect = msgList.getBoundingClientRect();
                 
-                // 初步计算水平居中位置
-                let safeLeft = rect.left + (rect.width / 2) - (menuWidth / 2);
+                let leftPos = rect.left + rect.width / 2 - containerRect.left;
+                const menuWidth = 175; 
                 
-                // 强制视口碰撞检查：左右至少留 16px 安全边距
-                if (safeLeft < 16) {
-                    safeLeft = 16;
-                } else if (safeLeft + menuWidth > window.innerWidth - 16) {
-                    safeLeft = window.innerWidth - menuWidth - 16;
+                if (leftPos + menuWidth / 2 > containerRect.width - 12) {
+                    leftPos = containerRect.width - menuWidth / 2 - 12;
+                } else if (leftPos - menuWidth / 2 < 12) {
+                    leftPos = menuWidth / 2 + 12;
                 }
 
-                ctxMenu.style.left = `${safeLeft}px`; 
-                ctxMenu.style.top = `${rect.bottom + 8}px`; // 稳稳贴在气泡正下方
+                ctxMenu.style.left = `${leftPos - menuWidth / 2}px`; 
+                ctxMenu.style.top = `${rect.bottom - containerRect.top + msgList.scrollTop + 6}px`; 
                 ctxMenu.classList.add('show');
             });
 
@@ -428,7 +440,10 @@
 
             row.appendChild(avDiv);
             row.appendChild(col);
-            msgList.appendChild(row);
+            
+            // 把 row 装进外层防挤压的 wrapper 里
+            outerWrapper.appendChild(row);
+            msgList.appendChild(outerWrapper);
         });
         lucide.createIcons({ root: msgList });
         scrollToBottom();
