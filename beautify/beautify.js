@@ -25,7 +25,6 @@
                 <div class="beautify-setting-item vertical"><span>AI 伴侣标题</span><input type="text" id="text-ai-title" value="AI 伙伴"></div>
                 <div class="beautify-setting-item vertical"><span>AI 伴侣副标题</span><input type="text" id="text-ai-subtitle" value="随时准备与你交流…"></div>
                 
-                <!-- 🟢 自定义 AI 头像设置区域 -->
                 <div class="beautify-setting-item">
                     <span>AI 头像</span>
                     <div class="beautify-avatar-preview" id="ai-avatar-preview"></div>
@@ -79,7 +78,6 @@
 
     const defaultConfig = {
         style: { bgColor: '#f4f4f7', bgImage: '', cardRadius: '24', cardOpacity: '55' },
-        // 🟢 初始化 aiAvatar 字段
         texts: { brand: 'WUYO', aiTitle: 'AI 伙伴', aiSubtitle: '随时准备与你交流…', aiAvatar: '' },
         profile: { nickname: '锁骨痣', avatar: '' },
         widgets: {
@@ -92,7 +90,6 @@
 
     let wuyoConfig = JSON.parse(localStorage.getItem('wuyo_config')) || defaultConfig;
     
-    // 生成动态列表
     const appsList = ['世界书', '美化', '相册', '备忘录', '音乐', '日历', '设置', '情侣空间', '查手机', '小手机', '短信', '阅读', '时钟', '地图', '记忆总结', '小游戏'];
     const appSettingsContainer = document.getElementById('app-icon-settings');
     appsList.forEach(app => {
@@ -115,7 +112,6 @@
         document.getElementById('text-ai-title').value = wuyoConfig.texts.aiTitle;
         document.getElementById('text-ai-subtitle').value = wuyoConfig.texts.aiSubtitle;
         
-        // 🟢 渲染已保存的 AI 头像预览
         if(wuyoConfig.texts.aiAvatar) {
             document.getElementById('ai-avatar-preview').style.backgroundImage = `url(${wuyoConfig.texts.aiAvatar})`;
         }
@@ -156,14 +152,12 @@
             reader.onload = (event) => {
                 const base64 = event.target.result;
                 
-                // 处理所有图片上传
                 if (currentTarget === 'bg-image') wuyoConfig.style.bgImage = base64;
                 if (currentTarget === 'profile-avatar') {
                     wuyoConfig.profile.avatar = base64;
                     document.getElementById('profile-avatar-preview').style.backgroundImage = `url(${base64})`;
                 }
                 
-                // 🟢 捕获 AI 头像上传并更新预览
                 if (currentTarget === 'ai-avatar') {
                     wuyoConfig.texts.aiAvatar = base64;
                     document.getElementById('ai-avatar-preview').style.backgroundImage = `url(${base64})`;
@@ -182,7 +176,40 @@
         uploader.value = '';
     });
 
-    // 🟢 保存设置逻辑
+    // =====================================
+    // 🟢 高级弹窗显示逻辑
+    // =====================================
+    const showSuccessModal = () => {
+        const overlay = document.createElement('div');
+        overlay.className = 'beautify-modal-overlay';
+        overlay.innerHTML = `
+            <div class="beautify-modal-box">
+                <div class="beautify-modal-text">保存成功ovo</div>
+                <button class="beautify-modal-btn">关闭</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        // 使用 requestAnimationFrame 触发弹窗动画
+        requestAnimationFrame(() => {
+            overlay.style.opacity = '1';
+            overlay.querySelector('.beautify-modal-box').style.transform = 'scale(1)';
+        });
+
+        // 绑定关闭事件
+        overlay.querySelector('.beautify-modal-btn').addEventListener('click', () => {
+            overlay.style.opacity = '0';
+            overlay.querySelector('.beautify-modal-box').style.transform = 'scale(0.9)';
+            
+            // 动画结束后移除 DOM 并返回主页
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+                if (typeof window.applyConfig === 'function') window.applyConfig();
+                window.closeApp('beautify'); 
+            }, 250);
+        });
+    };
+
     document.getElementById('beautify-save-btn').addEventListener('click', () => {
         wuyoConfig.style.bgColor = document.getElementById('bg-color').value;
         wuyoConfig.style.cardRadius = document.getElementById('card-radius').value;
@@ -207,15 +234,10 @@
             }
         });
 
-        // 真实长久保存到 localStorage
         localStorage.setItem('wuyo_config', JSON.stringify(wuyoConfig));
         
-        // 弹出你要求的可爱提示
-        alert('保存成功ovo');
-        
-        // 应用并退回主页
-        if (typeof window.applyConfig === 'function') window.applyConfig();
-        window.closeApp('beautify'); 
+        // 🟢 调用自定义的高级弹窗
+        showSuccessModal();
     });
 
     document.getElementById('beautify-reset-btn').addEventListener('click', () => {
