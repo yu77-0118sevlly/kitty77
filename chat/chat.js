@@ -147,7 +147,6 @@
 
                 <div class="chat-contacts-special">
 
-
                     <div class="chat-list-item">
 
                         <div class="chat-avatar-small flex-center">
@@ -184,7 +183,6 @@
                         </div>
 
                     </div>
-
 
                 </div>
 
@@ -345,7 +343,6 @@
 
             <nav class="chat-bottom-bar">
 
-
                 <div
                     class="chat-nav-item active"
                     data-target="chat-tab-chats"
@@ -401,7 +398,6 @@
 
                 </div>
 
-
             </nav>
 
         </div>
@@ -416,10 +412,7 @@
         >
 
 
-            <!-- 顶部 -->
-
             <header class="chat-room-header">
-
 
                 <button
                     class="chat-room-back"
@@ -445,7 +438,6 @@
 
                 <div class="chat-room-placeholder"></div>
 
-
             </header>
 
 
@@ -462,7 +454,6 @@
             <!-- 输入区域 -->
 
             <div class="chat-room-footer">
-
 
                 <div class="chat-room-input-box">
 
@@ -483,7 +474,7 @@
                     class="chat-room-send-btn"
                     id="room-send-btn"
                     disabled
-                    title="发送"
+                    title="发送消息"
                 >
 
                     <i data-lucide="arrow-up"></i>
@@ -491,19 +482,17 @@
                 </button>
 
 
-                <!-- AI 回复 -->
+                <!-- AI 主动回复 -->
 
                 <button
                     class="chat-room-ai-btn"
                     id="room-ai-btn"
-                    disabled
-                    title="发送并请求 AI 回复"
+                    title="让 AI 回复"
                 >
 
                     <i data-lucide="sparkles"></i>
 
                 </button>
-
 
             </div>
 
@@ -567,10 +556,15 @@
     const STORAGE_KEY =
         'wuyo_chat_messages';
 
-
     let currentContact = null;
 
+    let aiRequesting = false;
 
+
+
+    /* =====================================================
+       默认聊天
+    ===================================================== */
 
     const defaultMessages = {
 
@@ -609,7 +603,7 @@
 
 
     /* =====================================================
-       读取全部聊天
+       读取聊天
     ===================================================== */
 
     function loadAllMessages() {
@@ -639,7 +633,7 @@
 
 
     /* =====================================================
-       保存全部聊天
+       保存聊天
     ===================================================== */
 
     function saveAllMessages(all) {
@@ -665,7 +659,7 @@
 
 
     /* =====================================================
-       获取某个角色的聊天
+       获取聊天
     ===================================================== */
 
     function getMessages(name) {
@@ -696,7 +690,10 @@
        添加消息
     ===================================================== */
 
-    function addMessage(name, message) {
+    function addMessage(
+        name,
+        message
+    ) {
 
         const all =
             loadAllMessages();
@@ -719,7 +716,7 @@
 
 
     /* =====================================================
-       删除 AI 思考提示
+       删除思考状态
     ===================================================== */
 
     function removeThinkingMessage(name) {
@@ -745,7 +742,7 @@
 
 
     /* =====================================================
-       HTML 安全处理
+       HTML 安全
     ===================================================== */
 
     function escapeHTML(text) {
@@ -754,7 +751,9 @@
             document.createElement('div');
 
         div.textContent =
-            text == null ? '' : String(text);
+            text == null
+                ? ''
+                : String(text);
 
         return div.innerHTML;
 
@@ -775,9 +774,6 @@
         roomBody.innerHTML =
             list.map(message => {
 
-
-                /* 系统消息 */
-
                 if (
                     message.from === 'system'
                 ) {
@@ -791,21 +787,21 @@
                 }
 
 
-                /* 正常消息 */
-
                 return `
 
                     <div
                         class="msg-row ${
                             message.from === 'me'
-                            ? 'me'
-                            : 'them'
+                                ? 'me'
+                                : 'them'
                         }"
                     >
 
                         <div class="msg-bubble">
 
-                            ${escapeHTML(message.text)}
+                            ${escapeHTML(
+                                message.text
+                            )}
 
                         </div>
 
@@ -834,7 +830,7 @@
 
 
     /* =====================================================
-       更新 Chats 列表最后一条消息
+       更新聊天列表
     ===================================================== */
 
     function updateChatPreview(
@@ -893,8 +889,7 @@
 
 
     /* =====================================================
-       API 配置读取
-       兼容多个可能的保存结构
+       API 配置
     ===================================================== */
 
     function getApiConfig() {
@@ -949,8 +944,8 @@
 
                 temperature:
                     typeof api.temperature === 'number'
-                    ? api.temperature
-                    : 0.8
+                        ? api.temperature
+                        : 0.8
 
             };
 
@@ -1007,7 +1002,9 @@
         );
 
 
-        clearInputState();
+        roomInput.value = '';
+
+        updateInputButtons();
 
     }
 
@@ -1015,40 +1012,52 @@
 
     /* =====================================================
        AI 回复
+       ★ 现在允许输入框为空
     ===================================================== */
 
     async function sendAiMessage() {
+
+        if (
+            !currentContact ||
+            aiRequesting
+        ) return;
+
 
         const text =
             roomInput.value.trim();
 
 
-        if (
-            !text ||
-            !currentContact
-        ) return;
+        /*
+         * 如果输入框有文字
+         * 先把文字作为用户消息发送
+         *
+         * 如果没有文字
+         * 什么都不发送
+         * 直接让 AI 主动回复
+         */
+
+        if (text) {
+
+            addMessage(
+                currentContact,
+                {
+                    from: 'me',
+                    text: text,
+                    time: getNowTime()
+                }
+            );
+
+        }
 
 
-        /* -----------------------------------------
-           先保存 User 消息
-        ----------------------------------------- */
+        roomInput.value = '';
 
-        addMessage(
-            currentContact,
-            {
-                from: 'me',
-                text: text,
-                time: getNowTime()
-            }
-        );
+        updateInputButtons();
 
 
-        clearInputState();
-
-
-        /* -----------------------------------------
+        /* =================================================
            检查 API
-        ----------------------------------------- */
+        ================================================= */
 
         const api =
             getApiConfig();
@@ -1080,9 +1089,14 @@
 
 
 
-        /* -----------------------------------------
-           显示思考
-        ----------------------------------------- */
+        /* =================================================
+           AI 开始请求
+        ================================================= */
+
+        aiRequesting = true;
+
+        aiBtn.disabled = true;
+
 
         addMessage(
             currentContact,
@@ -1102,10 +1116,9 @@
 
         try {
 
-
-            /* -----------------------------------------
-               获取聊天历史
-            ----------------------------------------- */
+            /* =================================================
+               获取历史
+            ================================================= */
 
             const history =
                 getMessages(
@@ -1113,20 +1126,23 @@
                 )
                 .filter(
                     message =>
+
                         (
                             message.from === 'me' ||
                             message.from === 'them'
                         )
+
                         &&
                         !message.thinking
+
                 )
                 .map(
                     message => ({
 
                         role:
                             message.from === 'me'
-                            ? 'user'
-                            : 'assistant',
+                                ? 'user'
+                                : 'assistant',
 
                         content:
                             message.text
@@ -1136,9 +1152,39 @@
 
 
 
-            /* -----------------------------------------
+            /* =================================================
+               ★ 空输入时给 AI 一个“主动说话”提示
+            ================================================= */
+
+            if (history.length === 0) {
+
+                history.push({
+
+                    role: 'user',
+
+                    content:
+                        '请主动开始聊天，说一句自然的话。'
+
+                });
+
+            } else if (!text) {
+
+                history.push({
+
+                    role: 'user',
+
+                    content:
+                        '请主动继续聊天，自然地说一句话。'
+
+                });
+
+            }
+
+
+
+            /* =================================================
                模型
-            ----------------------------------------- */
+            ================================================= */
 
             const model =
                 api.model ||
@@ -1146,21 +1192,15 @@
 
 
 
-            /* -----------------------------------------
-               URL
-            ----------------------------------------- */
+            /* =================================================
+               API URL
+            ================================================= */
 
             let apiUrl =
                 String(api.url)
                     .trim()
                     .replace(/\/+$/, '');
 
-
-            /*
-             * 如果用户填写的是完整
-             * /chat/completions
-             * 就不要重复添加
-             */
 
             if (
                 !apiUrl.endsWith(
@@ -1175,9 +1215,9 @@
 
 
 
-            /* -----------------------------------------
-               请求 API
-            ----------------------------------------- */
+            /* =================================================
+               请求
+            ================================================= */
 
             const response =
                 await fetch(
@@ -1218,18 +1258,16 @@
 
                             })
 
-                        }
-
-                    );
-
+                    }
+                );
 
 
-            /* -----------------------------------------
+
+            /* =================================================
                API 错误
-            ----------------------------------------- */
+            ================================================= */
 
             if (!response.ok) {
-
 
                 let errorMessage =
                     `HTTP ${response.status}`;
@@ -1248,7 +1286,7 @@
 
                 } catch (error) {
 
-                    /* 无 JSON 错误信息 */
+                    /* 忽略 JSON 解析错误 */
 
                 }
 
@@ -1279,9 +1317,9 @@
 
 
 
-            /* -----------------------------------------
-               读取结果
-            ----------------------------------------- */
+            /* =================================================
+               读取 AI 回复
+            ================================================= */
 
             const data =
                 await response.json();
@@ -1292,9 +1330,9 @@
 
 
 
-            /* -----------------------------------------
+            /* =================================================
                没有回复
-            ----------------------------------------- */
+            ================================================= */
 
             if (!reply) {
 
@@ -1324,9 +1362,9 @@
 
 
 
-            /* -----------------------------------------
+            /* =================================================
                保存 AI 回复
-            ----------------------------------------- */
+            ================================================= */
 
             removeThinkingMessage(
                 currentContact
@@ -1352,7 +1390,6 @@
 
         } catch (error) {
 
-
             console.error(
                 'AI 请求错误:',
                 error
@@ -1364,27 +1401,15 @@
             );
 
 
-            let message =
-                '无法连接 API';
-
-
-            if (
-                error &&
-                error.message
-            ) {
-
-                message =
-                    error.message;
-
-            }
-
-
             addMessage(
                 currentContact,
                 {
                     from: 'system',
                     text:
-                        `AI 请求失败：${message}`
+                        `AI 请求失败：${
+                            error?.message ||
+                            '无法连接 API'
+                        }`
                 }
             );
 
@@ -1393,6 +1418,19 @@
                 currentContact
             );
 
+        } finally {
+
+            aiRequesting = false;
+
+            /*
+             * ★ AI 按钮重新恢复可点击
+             * 即使输入框是空的也可以
+             */
+
+            aiBtn.disabled = false;
+
+            updateInputButtons();
+
         }
 
     }
@@ -1400,7 +1438,7 @@
 
 
     /* =====================================================
-       输入框状态
+       输入框按钮状态
     ===================================================== */
 
     function updateInputButtons() {
@@ -1409,22 +1447,24 @@
             roomInput.value.trim().length > 0;
 
 
+        /*
+         * 普通发送：
+         * 没有文字不能发送
+         */
+
         sendBtn.disabled =
             !hasText;
 
 
+        /*
+         * AI：
+         * ★ 永远不因为输入框为空而禁用
+         *
+         * 只有正在请求的时候禁用
+         */
+
         aiBtn.disabled =
-            !hasText;
-
-    }
-
-
-
-    function clearInputState() {
-
-        roomInput.value = '';
-
-        updateInputButtons();
+            aiRequesting;
 
     }
 
@@ -1467,7 +1507,7 @@
 
 
     /* =====================================================
-       发送按钮
+       普通发送按钮
     ===================================================== */
 
     sendBtn.addEventListener(
@@ -1492,6 +1532,8 @@
         function (event) {
 
             event.preventDefault();
+
+            event.stopPropagation();
 
             sendAiMessage();
 
@@ -1522,7 +1564,6 @@
             item.addEventListener(
                 'click',
                 function () {
-
 
                     navItems.forEach(
                         nav =>
@@ -1590,7 +1631,6 @@
                 'click',
                 function () {
 
-
                     const contactName =
                         item.getAttribute(
                             'data-name'
@@ -1618,9 +1658,8 @@
                         'flex';
 
 
-                    /*
-                     * 让输入框自动获得焦点
-                     */
+                    updateInputButtons();
+
 
                     setTimeout(
                         function () {
@@ -1664,7 +1703,11 @@
                 null;
 
 
-            clearInputState();
+            roomInput.value = '';
+
+            aiRequesting = false;
+
+            updateInputButtons();
 
         }
     );
@@ -1706,10 +1749,6 @@
 
     updateInputButtons();
 
-
-    /*
-     * 初始化 Chats 预览
-     */
 
     updateChatPreview(
         'Test User',
