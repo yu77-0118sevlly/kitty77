@@ -182,23 +182,39 @@ body {
 /* App 视图容器 */
 .app-view { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 999; }
 /* ==========================================
-   💥 终极精准修复：把第一行的“世界书”和“美化”左右拉开对齐 4 列
+   💥 终极 4 列大一统：无视原HTML结构，强行将所有应用图标融合成完美的 4 列矩阵
 ========================================== */
-/* 寻找包含世界书和美化的那一层父容器 */
-.desktop-page div:has(> .app-item:nth-child(2):last-child) {
+
+/* 1. 先把桌面页面的所有直属子容器（除了头部、Bento错落卡片、AI卡片外）全部变成统一的网格流 */
+.desktop-page > div:not(.top-header):not(.widget-row-main):not(.ai-card):not(.bento-grid) {
+    display: contents !important; /* 让内部的图标直接暴露给外层排列 */
+}
+
+/* 2. 把所有应用图标（不管你原先在哪个 div 里）全部当成网格大军的一员，强制 4 列排列 */
+.desktop-page .app-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+/* 3. 在桌面页面的主体滚动区直接启用全局 4 列网格，让所有图标自动按 4 个一行排好 */
+.desktop-page {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px 0 !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    justify-items: center !important;
+}
+
+/* 4. 让顶部的 Header、大组件、AI卡片等跨满整行（占满全部 4 列），不被网格压扁 */
+.desktop-page > .top-header,
+.desktop-page > .widget-row-main,
+.desktop-page > .ai-card,
+.desktop-page > .bento-grid,
+.desktop-page > style,
+.desktop-page > div:has(.widget) {
+    grid-column: span 4 !important;
     width: 100% !important;
-    padding: 0 16px !important;
 }
-
-/* 让“世界书”占据第 1 列，“美化”占据第 4 列，中间自动空开 */
-.desktop-page div:has(> .app-item:nth-child(2):last-child) > .app-item:nth-child(1) {
-    grid-column: 1 !important;
-    justify-self: center !important;
-}
-.desktop-page div:has(> .app-item:nth-child(2):last-child) > .app-item:nth-child(2) {
-    grid-column: 4 !important;
-    justify-self: center !important;
-}
-
