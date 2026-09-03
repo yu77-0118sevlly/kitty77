@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- 全屏锁定与添加到桌面 (PWA) 配置 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="无忧机">
@@ -17,33 +16,44 @@
 </head>
 <body>
     
-    <!-- 视图容器 (用于页面切换) -->
+    <!-- 视图容器 -->
     <main id="view-container">
         
-        <!-- 1. 首页视图 -->
+        <!-- 1. 首页视图 (完全锁定，不上下滑动) -->
         <section id="view-home" class="view active">
-            <div class="home-scroll-area">
+            <div class="home-fixed-area">
                 
-                <!-- 顶部左上角 WU YO 标志与头像 -->
-                <div class="top-brand-bar">
-                    <div class="brand-name-large">WU YO</div>
-                    <div class="user-avatar-card">
-                        <i data-lucide="user" class="avatar-icon"></i>
+                <!-- 头部：WU YO、头像、日期 (紧凑排版) -->
+                <div class="header-section">
+                    <div class="header-top">
+                        <div class="brand-name-large">WU YO</div>
+                        <div class="user-avatar-card">
+                            <i data-lucide="user" class="avatar-icon"></i>
+                        </div>
+                    </div>
+                    <div class="date-display">
+                        <span class="day" id="current-day">星期三</span>
+                        <span class="date" id="current-date">10月25日</span>
                     </div>
                 </div>
 
-                <!-- 日期显示 -->
-                <div class="date-display">
-                    <span class="day" id="current-day">星期三</span>
-                    <span class="date" id="current-date">10月25日</span>
-                </div>
-
-                <!-- 拍立得风格装饰卡片 -->
-                <div class="polaroid-decoration">
-                    <div class="polaroid-photo">
-                        <i data-lucide="image" class="placeholder-icon"></i>
+                <!-- 小组件区域 (左右排列) -->
+                <div class="widgets-row">
+                    <!-- 左侧：照片/拍立得 -->
+                    <div class="polaroid-widget">
+                        <div class="polaroid-photo">
+                            <i data-lucide="image" class="placeholder-icon"></i>
+                        </div>
+                        <div class="polaroid-text">Memory</div>
                     </div>
-                    <div class="polaroid-text">Memory</div>
+                    
+                    <!-- 右侧：24小时时间组件 -->
+                    <div class="time-widget">
+                        <div class="time-widget-inner">
+                            <i data-lucide="clock" class="time-icon"></i>
+                            <div class="time-display" id="widget-time">09:41</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- AI 角色信息卡 -->
@@ -57,9 +67,10 @@
                     </div>
                 </div>
 
-                <!-- App 桌面网格 (支持横向左右滑动) -->
-                <div class="app-grid-wrapper">
-                    <div class="app-grid">
+                <!-- App 桌面分页容器 (支持左右分页滑动) -->
+                <div class="app-swiper">
+                    <!-- 第 1 页 App -->
+                    <div class="app-page">
                         <div class="app-item" data-target="view-chat">
                             <div class="app-icon"><i data-lucide="message-square"></i></div>
                             <span>聊天</span>
@@ -93,113 +104,54 @@
                             <span>设置</span>
                         </div>
                     </div>
+                    
+                    <!-- 第 2 页 App -->
+                    <div class="app-page">
+                        <div class="app-item" data-target="view-couple">
+                            <div class="app-icon"><i data-lucide="heart"></i></div>
+                            <span>情侣空间</span>
+                        </div>
+                        <div class="app-item" data-target="view-check">
+                            <div class="app-icon"><i data-lucide="scan-search"></i></div>
+                            <span>查手机</span>
+                        </div>
+                        <div class="app-item" data-target="view-mini">
+                            <div class="app-icon"><i data-lucide="smartphone"></i></div>
+                            <span>小手机</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- 2. 聊天视图 -->
+        <!-- 聊天视图 -->
         <section id="view-chat" class="view">
             <div class="nav-bar">
-                <button class="icon-btn back-btn" data-target="view-home">
-                    <i data-lucide="chevron-left"></i>
-                </button>
+                <button class="icon-btn back-btn" data-target="view-home"><i data-lucide="chevron-left"></i></button>
                 <span class="nav-title">聊天</span>
                 <button class="icon-btn"><i data-lucide="more-horizontal"></i></button>
             </div>
             <div class="page-content">
-                <div class="message received">
-                    <div class="msg-bubble">你好，今天过得怎么样？</div>
-                </div>
+                <div class="message received"><div class="msg-bubble">你好，今天过得怎么样？</div></div>
             </div>
         </section>
 
-        <!-- 3. 世界书视图 -->
-        <section id="view-worldbook" class="view">
-            <div class="nav-bar">
-                <button class="icon-btn back-btn" data-target="view-home">
-                    <i data-lucide="chevron-left"></i>
-                </button>
-                <span class="nav-title">世界书</span>
-                <button class="icon-btn"><i data-lucide="plus"></i></button>
-            </div>
-            <div class="page-content"></div>
-        </section>
-
-        <!-- 4. 个性美化视图 -->
-        <section id="view-theme" class="view">
-            <div class="nav-bar">
-                <button class="icon-btn back-btn" data-target="view-home">
-                    <i data-lucide="chevron-left"></i>
-                </button>
-                <span class="nav-title">个性美化</span>
-                <div class="icon-btn-placeholder"></div>
-            </div>
-            <div class="page-content"></div>
-        </section>
-
-        <!-- 5. 相册视图 -->
-        <section id="view-photos" class="view">
-            <div class="nav-bar">
-                <button class="icon-btn back-btn" data-target="view-home">
-                    <i data-lucide="chevron-left"></i>
-                </button>
-                <span class="nav-title">相册</span>
-                <button class="icon-btn"><i data-lucide="search"></i></button>
-            </div>
-            <div class="page-content"></div>
-        </section>
-
-        <!-- 6. 备忘录视图 -->
-        <section id="view-notes" class="view">
-            <div class="nav-bar">
-                <button class="icon-btn back-btn" data-target="view-home">
-                    <i data-lucide="chevron-left"></i>
-                </button>
-                <span class="nav-title">备忘录</span>
-                <button class="icon-btn"><i data-lucide="edit"></i></button>
-            </div>
-            <div class="page-content"></div>
-        </section>
-
-        <!-- 7. 音乐视图 -->
-        <section id="view-music" class="view">
-            <div class="nav-bar">
-                <button class="icon-btn back-btn" data-target="view-home">
-                    <i data-lucide="chevron-left"></i>
-                </button>
-                <span class="nav-title">音乐</span>
-                <button class="icon-btn"><i data-lucide="play-circle"></i></button>
-            </div>
-            <div class="page-content"></div>
-        </section>
-
-        <!-- 8. 日历视图 -->
-        <section id="view-calendar" class="view">
-            <div class="nav-bar">
-                <button class="icon-btn back-btn" data-target="view-home">
-                    <i data-lucide="chevron-left"></i>
-                </button>
-                <span class="nav-title">日历</span>
-                <button class="icon-btn"><i data-lucide="calendar-plus"></i></button>
-            </div>
-            <div class="page-content"></div>
-        </section>
-
-        <!-- 9. 设置视图 -->
-        <section id="view-settings" class="view">
-            <div class="nav-bar">
-                <button class="icon-btn back-btn" data-target="view-home">
-                    <i data-lucide="chevron-left"></i>
-                </button>
-                <span class="nav-title">设置</span>
-                <div class="icon-btn-placeholder"></div>
-            </div>
-            <div class="page-content"></div>
-        </section>
-
+        <!-- 其他视图预留位 -->
+        <section id="view-worldbook" class="view"><div class="nav-bar"><button class="icon-btn back-btn" data-target="view-home"><i data-lucide="chevron-left"></i></button><span class="nav-title">世界书</span></div></section>
+        <section id="view-theme" class="view"><div class="nav-bar"><button class="icon-btn back-btn" data-target="view-home"><i data-lucide="chevron-left"></i></button><span class="nav-title">美化</span></div></section>
+        <section id="view-photos" class="view"><div class="nav-bar"><button class="icon-btn back-btn" data-target="view-home"><i data-lucide="chevron-left"></i></button><span class="nav-title">相册</span></div></section>
+        <section id="view-notes" class="view"><div class="nav-bar"><button class="icon-btn back-btn" data-target="view-home"><i data-lucide="chevron-left"></i></button><span class="nav-title">备忘录</span></div></section>
+        <section id="view-music" class="view"><div class="nav-bar"><button class="icon-btn back-btn" data-target="view-home"><i data-lucide="chevron-left"></i></button><span class="nav-title">音乐</span></div></section>
+        <section id="view-calendar" class="view"><div class="nav-bar"><button class="icon-btn back-btn" data-target="view-home"><i data-lucide="chevron-left"></i></button><span class="nav-title">日历</span></div></section>
+        <section id="view-settings" class="view"><div class="nav-bar"><button class="icon-btn back-btn" data-target="view-home"><i data-lucide="chevron-left"></i></button><span class="nav-title">设置</span></div></section>
+        
+        <!-- 新增的第 2 页视图预留 -->
+        <section id="view-couple" class="view"><div class="nav-bar"><button class="icon-btn back-btn" data-target="view-home"><i data-lucide="chevron-left"></i></button><span class="nav-title">情侣空间</span></div></section>
+        <section id="view-check" class="view"><div class="nav-bar"><button class="icon-btn back-btn" data-target="view-home"><i data-lucide="chevron-left"></i></button><span class="nav-title">查手机</span></div></section>
+        <section id="view-mini" class="view"><div class="nav-bar"><button class="icon-btn back-btn" data-target="view-home"><i data-lucide="chevron-left"></i></button><span class="nav-title">小手机</span></div></section>
     </main>
 
-    <!-- 底部半透明 Dock 栏 -->
+    <!-- 底部 Dock 栏 (沉在最底) -->
     <nav id="dock">
         <div class="dock-container">
             <div class="dock-item" data-target="view-home"><i data-lucide="phone"></i></div>
