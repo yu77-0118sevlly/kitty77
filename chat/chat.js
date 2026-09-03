@@ -1792,6 +1792,159 @@
         'Test User',
         getMessages('Test User')
     );
+/* ===== 角色/联系人系统 ===== */
+(function(){
+const KEY='wuyo_characters';
+const getChars=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}};
+const saveChars=a=>localStorage.setItem(KEY,JSON.stringify(a));
+const esc=s=>{const d=document.createElement('div');d.textContent=s||'';return d.innerHTML};
 
+const style=document.createElement('style');
+style.textContent=`
+.character-mask{position:absolute;inset:0;background:rgba(0,0,0,.28);z-index:80;display:none;align-items:flex-end}
+.character-panel{width:100%;max-height:92%;background:#f7f7f7;border-radius:24px 24px 0 0;overflow:auto;padding:20px;box-sizing:border-box}
+.character-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.character-title{font-size:20px;font-weight:700;color:#222}
+.character-close{border:0;background:#e9e9e9;width:34px;height:34px;border-radius:50%;font-size:20px}
+.character-avatar-preview{width:82px;height:82px;border-radius:22px;background:#ddd;background-size:cover;background-position:center;margin:auto auto 18px}
+.character-upload{display:block;text-align:center;background:#fff;border-radius:14px;padding:10px;margin-bottom:16px;color:#555;font-size:14px}
+.character-field{margin-bottom:13px}
+.character-field label{display:block;font-size:13px;color:#777;margin:0 0 6px 4px}
+.character-field input,.character-field textarea{width:100%;box-sizing:border-box;border:0;background:#fff;border-radius:14px;padding:12px;font-size:15px;outline:none;color:#222}
+.character-field textarea{min-height:82px;resize:none}
+.character-save{width:100%;border:0;border-radius:15px;padding:13px;background:#222;color:#fff;font-size:15px;margin-top:5px}
+.character-delete{width:100%;border:0;border-radius:15px;padding:11px;background:#eee;color:#c44;font-size:14px;margin-top:8px}
+.character-item{display:flex;align-items:center;gap:12px;padding:12px 15px;background:#fff;margin:7px 12px;border-radius:17px}
+.character-item-avatar{width:52px;height:52px;border-radius:16px;background:#ddd;background-size:cover;background-position:center;flex:none}
+.character-item-info{flex:1;min-width:0}
+.character-item-name{font-size:15px;font-weight:600;color:#222}
+.character-item-note{font-size:12px;color:#999;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.character-edit{border:0;background:#f0f0f0;border-radius:11px;padding:8px 10px;color:#555}
+`;
+document.head.appendChild(style);
+
+const mask=document.createElement('div');
+mask.className='character-mask';
+mask.innerHTML=`
+<div class="character-panel">
+<div class="character-top"><div class="character-title">创建角色</div><button class="character-close">×</button></div>
+<div class="character-avatar-preview" id="char-avatar-preview"></div>
+<label class="character-upload">📷 选择头像<input id="char-avatar" type="file" accept="image/*" hidden></label>
+<div class="character-field"><label>姓名</label><input id="char-name" placeholder="角色姓名"></div>
+<div class="character-field"><label>备注</label><input id="char-note" placeholder="例如：我的朋友"></div>
+<div class="character-field"><label>身份</label><input id="char-identity" placeholder="例如：学生 / 医生 / 骑士"></div>
+<div class="character-field"><label>年龄</label><input id="char-age" placeholder="例如：22"></div>
+<div class="character-field"><label>人设</label><textarea id="char-persona" placeholder="角色的性格、说话方式、背景、习惯……"></textarea></div>
+<div class="character-field"><label>外观描述</label><textarea id="char-appearance" placeholder="发型、眼睛、身材、服装等……"></textarea></div>
+<div class="character-field"><label>锁脸照片</label><label class="character-upload">🔒 导入锁脸照片<input id="char-face" type="file" accept="image/*" hidden></label></div>
+<button class="character-save" id="char-save">保存角色</button>
+<button class="character-delete" id="char-delete">删除角色</button>
+</div>`;
+container.appendChild(mask);
+
+let editingId=null,avatarData='',faceData='';
+
+const $=id=>document.getElementById(id);
+const openEditor=id=>{
+editingId=id||null;
+const c=id?getChars().find(x=>x.id===id):null;
+$('char-name').value=c?.name||'';
+$('char-note').value=c?.note||'';
+$('char-identity').value=c?.identity||'';
+$('char-age').value=c?.age||'';
+$('char-persona').value=c?.persona||'';
+$('char-appearance').value=c?.appearance||'';
+avatarData=c?.avatar||'';
+faceData=c?.face||'';
+$('char-avatar-preview').style.backgroundImage=avatarData?`url("${avatarData}")`:'';
+document.querySelector('.character-title').textContent=c?'编辑角色':'创建角色';
+$('char-delete').style.display=c?'block':'none';
+mask.style.display='flex';
+};
+
+$('char-avatar').onchange=e=>{
+const f=e.target.files[0];if(!f)return;
+const r=new FileReader();r.onload=()=>{avatarData=r.result;$('char-avatar-preview').style.backgroundImage=`url("${avatarData}")`};r.readAsDataURL(f);
+};
+$('char-face').onchange=e=>{
+const f=e.target.files[0];if(!f)return;
+const r=new FileReader();r.onload=()=>faceData=r.result;r.readAsDataURL(f);
+};
+document.querySelector('.character-close').onclick=()=>mask.style.display='none';
+
+$('char-save').onclick=()=>{
+const name=$('char-name').value.trim();
+if(!name){alert('请先填写角色姓名');return}
+let all=getChars();
+const data={
+id:editingId||('char_'+Date.now()),
+name,
+note:$('char-note').value.trim(),
+identity:$('char-identity').value.trim(),
+age:$('char-age').value.trim(),
+persona:$('char-persona').value.trim(),
+appearance:$('char-appearance').value.trim(),
+avatar:avatarData,
+face:faceData
+};
+if(editingId)all=all.map(x=>x.id===editingId?data:x);
+else all.push(data);
+saveChars(all);
+mask.style.display='none';
+renderContacts();
+};
+
+$('char-delete').onclick=()=>{
+if(!editingId)return;
+if(confirm('确定删除这个角色吗？')){
+saveChars(getChars().filter(x=>x.id!==editingId));
+mask.style.display='none';
+renderContacts();
+}
+};
+
+function renderContacts(){
+const list=container.querySelector('.chat-contacts-list');
+if(!list)return;
+const chars=getChars();
+let html='<div class="chat-letter-divider">Characters</div>';
+html+=chars.map(c=>`
+<div class="character-item" data-char-id="${c.id}">
+<div class="character-item-avatar" style="background-image:${c.avatar?`url("${c.avatar}")`:'none'}"></div>
+<div class="character-item-info">
+<div class="character-item-name">${esc(c.name)}</div>
+<div class="character-item-note">${esc(c.note||c.identity||'暂无备注')}</div>
+</div>
+<button class="character-edit" data-edit="${c.id}">编辑</button>
+</div>`).join('');
+list.innerHTML=html+`<div class="chat-list-item" id="character-add-item"><div class="chat-avatar-small flex-center">＋</div><div class="chat-item-content"><span class="chat-name">创建新角色</span></div></div>`;
+
+list.querySelector('#character-add-item').onclick=()=>openEditor();
+list.querySelectorAll('[data-edit]').forEach(b=>b.onclick=e=>{
+e.stopPropagation();openEditor(b.dataset.edit);
+});
+list.querySelectorAll('[data-char-id]').forEach(item=>{
+item.onclick=e=>{
+if(e.target.closest('[data-edit]'))return;
+const c=getChars().find(x=>x.id===item.dataset.charId);
+if(!c)return;
+currentContact=c.name;
+roomNameEl.textContent=c.name;
+renderMessages(c.name);
+mainTabs.style.display='none';
+roomPage.style.display='flex';
+aiBtn.disabled=false;
+};
+});
+}
+
+const addBtn=$('chat-add-btn');
+if(addBtn)addBtn.onclick=()=>openEditor();
+
+const contactPlus=container.querySelector('#chat-tab-contacts .chat-icon-btn');
+if(contactPlus)contactPlus.onclick=()=>openEditor();
+
+renderContacts();
+})();
 
 })();
