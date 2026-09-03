@@ -175,7 +175,6 @@
 }
 .chat-room-back i { width: 24px; height: 24px; }
 .chat-room-title-area { display: flex; align-items: center; gap: 10px; }
-.chat-room-avatar-mini { width: 28px; height: 28px; border-radius: 8px; background: #F2F2F7; }
 .chat-room-name { font-size: 15px; font-weight: 600; color: #1C1C1E; }
 .chat-room-placeholder { width: 32px; }
 
@@ -188,7 +187,7 @@
     padding-bottom: env(safe-area-inset-bottom, 34px);
     padding-left: 16px; padding-right: 16px;
     background: #FFFFFF; border-top: 0.5px solid #F2F2F7;
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; gap: 8px;
     flex-shrink: 0;
 }
 .chat-room-input-box {
@@ -210,6 +209,16 @@
 .chat-room-send-btn i { width: 18px; height: 18px; color: #FFFFFF; }
 .chat-room-send-btn:disabled { opacity: 0.3; cursor: default; }
 
+/* AI 回复按钮 —— 灰色，与黑色的普通发送按钮区分 */
+.chat-room-ai-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #F2F2F7; border: none;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; cursor: pointer; transition: opacity 0.2s;
+}
+.chat-room-ai-btn i { width: 18px; height: 18px; color: #1C1C1E; }
+.chat-room-ai-btn:disabled { opacity: 0.3; cursor: default; }
+
 /* 消息气泡 */
 .msg-row { display: flex; max-width: 80%; }
 .msg-row.me { align-self: flex-end; justify-content: flex-end; }
@@ -223,4 +232,11 @@
 }
 .msg-row.them .msg-bubble {
     background: #F2F2F7; color: #1C1C1E; border-bottom-left-radius: 4px;
+}
+
+/* 系统提示气泡（例如：API 未配置） */
+.msg-system {
+    align-self: center; max-width: 90%;
+    font-size: 12px; color: #8E8E93; text-align: center;
+    background: #F7F7F9; padding: 6px 14px; border-radius: 12px;
 }
