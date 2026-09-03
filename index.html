@@ -176,7 +176,7 @@
     <section id="contacts-app" class="app-view" style="display: none;"></section>
     <section id="memory-app" class="app-view" style="display: none;"></section>
     
-    <!-- 💥 直接把日历 HTML 内嵌到容器中，彻底根除白屏 -->
+    <!-- 💥 日历模块独立容器 (自带行内强制隐藏属性，彻底杜绝弹窗外露) -->
     <section id="calendar-app" class="app-view" style="display: none;">
         <div class="calendar-app active" id="calendar-app-main">
             <!-- 顶部导航 -->
@@ -232,8 +232,8 @@
                 </div>
             </div>
 
-            <!-- 新建/编辑日程弹窗 -->
-            <div class="cal-modal" id="cal-event-modal">
+            <!-- 新建/编辑日程弹窗 (加了 style="display: none;" 彻底隐形) -->
+            <div class="cal-modal" id="cal-event-modal" style="display: none;">
                 <div class="cal-modal-box">
                     <div class="cal-modal-header">
                         <span class="cal-modal-title" id="cal-modal-title">新建日程</span>
@@ -296,8 +296,8 @@
                 </div>
             </div>
 
-            <!-- Todo 待办事项管理弹窗 -->
-            <div class="cal-modal" id="cal-todo-modal">
+            <!-- Todo 待办事项管理弹窗 (加了 style="display: none;" 彻底隐形) -->
+            <div class="cal-modal" id="cal-todo-modal" style="display: none;">
                 <div class="cal-modal-box" style="height: 70vh;">
                     <div class="cal-modal-header">
                         <span class="cal-modal-title">待办事项 (Todo)</span>
@@ -311,8 +311,8 @@
                 </div>
             </div>
 
-            <!-- 搜索弹窗 -->
-            <div class="cal-modal" id="cal-search-modal">
+            <!-- 搜索弹窗 (加了 style="display: none;" 彻底隐形) -->
+            <div class="cal-modal" id="cal-search-modal" style="display: none;">
                 <div class="cal-modal-box" style="height: 70vh;">
                     <div class="cal-modal-header">
                         <span class="cal-modal-title">搜索日程</span>
