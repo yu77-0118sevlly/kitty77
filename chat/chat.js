@@ -53,7 +53,7 @@
                 <button class="chat-send-btn" id="chat-send-btn">发送</button>
             </div>
             
-            <!-- 💥 精致两排式纯文本小浮窗菜单 (无任何图标/emoji) -->
+            <!-- 💥 精致两排式纯文本小浮窗菜单 -->
             <div class="chat-context-menu" id="chat-context-menu">
                 <div class="ctx-item" id="ctx-btn-quote">引用</div>
                 <div class="ctx-item" id="ctx-btn-copy">复制</div>
@@ -401,14 +401,23 @@
             timeSub.className = 'bubble-time-sub';
             timeSub.textContent = formatTime(msg.time);
 
-            // 💥 完美替代：双击气泡下方弹出两排式纯文本小浮窗
+            // 💥 双击触发浮窗，并加入智能边界防溢出计算（绝不被屏幕切掉）
             bubble.addEventListener('dblclick', (e) => {
                 if(isMultiSelectMode) return;
                 selectedMsgIndex = index; 
                 const rect = bubble.getBoundingClientRect();
                 const containerRect = msgList.getBoundingClientRect();
                 
-                ctxMenu.style.left = `${rect.left + rect.width / 2}px`; 
+                let leftPos = rect.left + rect.width / 2 - containerRect.left;
+                // 防溢出保护：如果靠右太近，向左偏移；如果靠左太近，向右偏移
+                const menuWidth = 170;
+                if (leftPos + menuWidth / 2 > containerRect.width - 10) {
+                    leftPos = containerRect.width - menuWidth / 2 - 10;
+                } else if (leftPos - menuWidth / 2 < 10) {
+                    leftPos = menuWidth / 2 + 10;
+                }
+
+                ctxMenu.style.left = `${leftPos}px`; 
                 ctxMenu.style.top = `${rect.bottom - containerRect.top + msgList.scrollTop + 6}px`; 
                 ctxMenu.classList.add('show');
             });
