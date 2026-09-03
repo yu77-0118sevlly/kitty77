@@ -24,7 +24,6 @@
             { id: 'td_3', text: '回复消息', completed: true }
         ];
 
-        // 🔧 修复：JSON.parse 加 try/catch，避免损坏数据导致整段脚本中断
         let events;
         try {
             const raw = localStorage.getItem('wuyo_calendar_events');
@@ -67,13 +66,25 @@
             return `${year}-${month}-${day}`;
         }
 
-        // 每次打开日历时触发渲染
+        // 💥 完美联动 WUYO OS 的 openApp：当打开 calendar 时触发渲染并激活平移动画
         const originalOpenApp = window.openApp;
         window.openApp = function(appId) {
             if (typeof originalOpenApp === 'function') originalOpenApp(appId);
             if (appId === 'calendar') {
+                const mainAppBox = document.getElementById('calendar-app-main');
+                if (mainAppBox) mainAppBox.classList.add('active');
                 renderCalendar();
             }
+        };
+
+        // 💥 完美联动 WUYO OS 的 closeApp：点击返回时收起动画
+        const originalCloseApp = window.closeApp;
+        window.closeApp = function(appId) {
+            if (appId === 'calendar') {
+                const mainAppBox = document.getElementById('calendar-app-main');
+                if (mainAppBox) mainAppBox.classList.remove('active');
+            }
+            if (typeof originalCloseApp === 'function') originalCloseApp(appId);
         };
 
         // 视图切换与日期导航事件绑定
@@ -491,9 +502,6 @@
             }, 200);
         };
 
-        // 🔧 修复：脚本加载完成后立即渲染一次日历，
-        // 不要只依赖 openApp 的包装函数（如果日历是内嵌在 HTML 里而不是
-        // 通过 openApp 动态加载的，之前的写法会导致月视图永远不渲染）。
         renderCalendar();
     });
 })();
