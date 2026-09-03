@@ -158,7 +158,6 @@
     const aiBtn = document.getElementById('room-ai-btn');
     let currentContact = null;
 
-    // 默认预置消息（只保留 Test User 一个联系人）
     const defaultMessages = {
         'Test User': [
             { from: 'them', text: '这是测试联系人，可以在这里试发送消息。', time: '10:24' }
@@ -174,7 +173,6 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
     }
 
-    // 每个联系人独立取自己的消息数组
     function getMessages(name) {
         const all = loadAllMessages();
         if (!all[name]) {
@@ -211,9 +209,6 @@
         return `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     }
 
-    // 检测 API Key（目前项目还没有配置入口，所以默认一定是 null，
-    // 会走"未配置"提示；等你以后做了 API 设置页，把 key 存进
-    // wuyo_config.api.key 里，这里就会自动读取到）
     function getApiKey() {
         try {
             const raw = localStorage.getItem('wuyo_config');
@@ -231,7 +226,6 @@
         aiBtn.disabled = true;
     }
 
-    // 【纯发送】只显示用户消息，AI 不回复
     function sendPlainMessage() {
         const text = roomInput.value.trim();
         if (!text || !currentContact) return;
@@ -241,7 +235,6 @@
         clearInputState();
     }
 
-    // 【AI 发送】显示用户消息 + 检测 API，未配置则显示系统提示
     function sendAiMessage() {
         const text = roomInput.value.trim();
         if (!text || !currentContact) return;
@@ -252,7 +245,6 @@
         if (!apiKey) {
             addMessage(currentContact, { from: 'system', text: '⚠️ 尚未配置 API，无法获取 AI 回复' });
         } else {
-            // 预留：以后在这里接入真正的 API 请求
             addMessage(currentContact, { from: 'system', text: 'AI 接口已配置，但回复逻辑尚未开发' });
         }
 
@@ -266,7 +258,6 @@
         aiBtn.disabled = !hasText;
     });
 
-    // 回车 = 纯发送（不触发 AI）
     roomInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -278,7 +269,7 @@
     aiBtn.addEventListener('click', sendAiMessage);
 
     // ============================================
-    // 3. 点击联系人进入私聊页面（Chats 和 Contacts 两个列表都能点）
+    // 3. 点击联系人进入私聊页面
     // ============================================
     const mainTabs = document.getElementById('chat-main-tabs');
     const roomPage = document.getElementById('chat-room-page');
