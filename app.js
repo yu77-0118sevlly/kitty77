@@ -40,6 +40,7 @@ window.applyConfig = () => {
     const config = JSON.parse(configStr);
     const root = document.documentElement;
 
+    // 1. 总体视觉
     if (config.style) {
         if (config.style.bgImage) {
             document.body.style.backgroundImage = `url(${config.style.bgImage})`;
@@ -54,6 +55,7 @@ window.applyConfig = () => {
         root.style.setProperty('--glass-bg', `rgba(255, 255, 255, ${alpha})`);
     }
 
+    // 2. 主页文字 & AI 伴侣头像同步
     if (config.texts) {
         const brandEl = document.querySelector('.brand-name');
         if(brandEl) brandEl.textContent = config.texts.brand;
@@ -64,16 +66,16 @@ window.applyConfig = () => {
         const aiSubEl = document.querySelector('.ai-info p');
         if(aiSubEl) aiSubEl.textContent = config.texts.aiSubtitle;
 
-        // 🟢 新增：AI 伙伴自定义头像应用
+        // 🟢 核心：应用用户自定义的 AI 头像
         const aiAvatarEl = document.querySelector('.ai-avatar');
         if (aiAvatarEl) {
             if (config.texts.aiAvatar) {
-                aiAvatarEl.innerHTML = ''; // 清除原本的机器人图标
+                aiAvatarEl.innerHTML = ''; // 清除默认的机器人 icon
                 aiAvatarEl.style.backgroundImage = `url(${config.texts.aiAvatar})`;
                 aiAvatarEl.style.backgroundSize = 'cover';
                 aiAvatarEl.style.backgroundPosition = 'center';
             } else {
-                // 如果没有自定义头像，恢复默认机器人图标
+                // 如果没有自定义，恢复默认机器人 icon
                 aiAvatarEl.style.backgroundImage = 'none';
                 aiAvatarEl.innerHTML = '<i data-lucide="bot"></i>';
                 lucide.createIcons({ root: aiAvatarEl });
@@ -81,6 +83,7 @@ window.applyConfig = () => {
         }
     }
 
+    // 3. 个人资料 (右上角头像与昵称)
     if (config.profile) {
         if (config.profile.nickname) {
             const nicknameEl = document.getElementById('user-nickname');
@@ -95,6 +98,7 @@ window.applyConfig = () => {
         }
     }
 
+    // 4. 组件同步
     if (config.widgets) {
         const memoryTag = document.querySelector('.polaroid-tag');
         const memoryDesc = document.querySelector('.polaroid-desc');
@@ -120,6 +124,7 @@ window.applyConfig = () => {
         }
     }
 
+    // 5. App 图标同步
     if (config.apps) {
         const appSpans = document.querySelectorAll('.app-item span');
         appSpans.forEach(span => {
