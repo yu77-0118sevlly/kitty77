@@ -130,10 +130,11 @@ body {
 .listen-bottom span:first-child { color: #8E8E93; }
 
 /* ==========================================
-   💥 暴力归位：把散落的图标强行抓回 4 列网格
+   💥 修复：桌面应用图标 (严格锁定 4 列)
 ========================================== */
-/* 如果你的图标是用行内或者其他奇怪的 flex 布局排列的，直接强行把它们转成 grid */
-.desktop-page > div:not(.top-header):not(.widget-row-main):not(.ai-card) {
+.desktop-page .app-grid,
+.desktop-page .apps-grid,
+.desktop-page [class*="grid"]:not(.bento-grid) {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 20px 0 !important;
@@ -141,14 +142,42 @@ body {
     width: 100% !important;
     justify-items: center !important;
 }
-
-/* 针对你截图中散落的单个图标项，强制让它们变成网格直属子元素并居中 */
 .desktop-page .app-item {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     width: 100% !important;
-    grid-column: auto !important;
 }
+.app-icon {
+    width: 56px; height: 56px; background: var(--card-bg); border-radius: 18px;
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+}
+.app-icon i { width: 24px; height: 24px; color: var(--text-main); }
+.app-item span { font-size: 11px; font-weight: 500; color: var(--text-main); text-align: center; }
 
+/* ==========================================
+   绝对底部 Dock & 圆点
+========================================== */
+.pagination-dots {
+    position: fixed !important; bottom: calc(var(--safe-bottom) + 85px) !important;
+    left: 0; width: 100%; display: flex; justify-content: center; gap: 8px;
+    z-index: 99; pointer-events: none;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #d1d1d6; transition: 0.3s; }
+.dot.active { background: #1c1c1e; width: 14px; border-radius: 4px; }
 
+#dock {
+    position: fixed !important; bottom: calc(var(--safe-bottom) + 15px) !important;
+    left: 0; width: 100%; display: flex; justify-content: center; z-index: 100;
+}
+.dock-container {
+    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-radius: 30px; display: flex; padding: 12px 24px; gap: 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06); border: 0.5px solid rgba(0,0,0,0.05);
+}
+.dock-item { width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+.dock-icon i { width: 24px; height: 24px; color: var(--text-main); }
+
+/* App 视图容器 */
+.app-view { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 999; }
