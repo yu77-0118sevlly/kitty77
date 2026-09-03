@@ -3,68 +3,43 @@
         const calApp = document.getElementById('calendar-app');
         if (!calApp) return;
 
-        // 状态管理
         let currentDate = new Date();
         let selectedDateStr = formatDateKey(currentDate);
 
+        const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+
         function formatDateKey(d) {
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         }
 
-        // 联动 WUYO OS 的打开与关闭
-        const originalOpenApp = window.openApp;
-        window.openApp = function(appId) {
-            if (typeof originalOpenApp === 'function') originalOpenApp(appId);
-            if (appId === 'calendar') {
-                calApp.style.display = 'block';
-                setTimeout(() => {
-                    calApp.classList.add('active');
-                    renderCalendar();
-                }, 10);
-            }
+        window.renderCalendarInstance = function() {
+            renderCalendar();
+            if (window.lucide) lucide.createIcons();
         };
 
         window.closeCalendar = function() {
-            calApp.classList.remove('active');
-            setTimeout(() => {
-                calApp.style.display = 'none';
-                const homeScreen = document.getElementById('home-screen');
-                if (homeScreen) homeScreen.style.display = 'flex';
-            }, 300);
+            calApp.style.display = 'none';
+            const homeScreen = document.getElementById('home-screen');
+            if (homeScreen) homeScreen.style.display = 'flex';
         };
 
-        // 按钮事件绑定
-        const prevBtn = document.getElementById('cal-prev-btn');
-        const nextBtn = document.getElementById('cal-next-btn');
-        const todayBtn = document.getElementById('cal-today-jump');
-
-        if (prevBtn) prevBtn.addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        });
-
-        if (nextBtn) nextBtn.addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        });
-
-        if (todayBtn) todayBtn.addEventListener('click', () => {
-            currentDate = new Date();
-            selectedDateStr = formatDateKey(currentDate);
-            renderCalendar();
-        });
+        const todayBtn = document.getElementById('cal-today-btn');
+        if (todayBtn) {
+            todayBtn.addEventListener('click', () => {
+                currentDate = new Date();
+                selectedDateStr = formatDateKey(currentDate);
+                renderCalendar();
+            });
+        }
 
         function renderCalendar() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            const titleEl = document.getElementById('cal-header-month-title');
-            if (titleEl) titleEl.textContent = `${year}年${month + 1}月`;
+            
+            document.getElementById('cal-year-title').textContent = `${year}年`;
+            document.getElementById('cal-month-large-title').textContent = monthNames[month];
 
             renderMonthView(year, month);
-            renderAgendaInfo(selectedDateStr);
         }
 
         function renderMonthView(year, month) {
@@ -77,18 +52,16 @@
             const prevTotalDays = new Date(year, month, 0).getDate();
             const todayKey = formatDateKey(new Date());
 
-            // 上个月补白
+            // 1. 上月留白
             for (let i = firstDayIndex - 1; i >= 0; i--) {
                 grid.appendChild(createCell(prevTotalDays - i, true, null));
             }
-
-            // 当月天数
+            // 2. 当月日期
             for (let d = 1; d <= totalDays; d++) {
                 const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                 grid.appendChild(createCell(d, false, dateKey, dateKey === todayKey));
             }
-
-            // 下个月补白凑满 42 格
+            // 3. 下月留白
             const totalCells = firstDayIndex + totalDays;
             const nextDays = totalCells <= 35 ? 35 - totalCells : 42 - totalCells;
             for (let d = 1; d <= nextDays; d++) {
@@ -103,24 +76,70 @@
             if (dateKey) {
                 cell.addEventListener('click', () => {
                     selectedDateStr = dateKey;
-                    currentDate = new Date(dateKey);
-                    renderCalendar();
+                    renderCalendar(); // 重新渲染高亮
                 });
             }
-
-            cell.innerHTML = `<span class="cal-day-num">${dayNum}</span>`;
+            cell.innerHTML = `<div class="cal-day-num">${dayNum}</div>`;
             return cell;
         }
 
-        function renderAgendaInfo(dateKey) {
-            const labelEl = document.getElementById('cal-selected-date-label');
-            const boxEl = document.getElementById('cal-agenda-box');
-            if (!labelEl || !boxEl) return;
+        // ==========================================
+        // 💥 丝滑的上下滑动切换月份逻辑
+        // ==========================================
+        const scrollArea = document.getElementById('cal-scroll-area');
+        const grid = document.getElementById('cal-days-grid');
+        let startY = 0;
 
-            const d = new Date(dateKey);
-            const weekdays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
-            labelEl.textContent = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${weekdays[d.getDay()]}`;
-            boxEl.textContent = `这一天暂无其他安排，点击上方格子可自由切换查看。`;
-        }
+        scrollArea.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+            grid.style.transition = 'none'; // 触摸时取消动画
+        }, {passive: true});
+
+        scrollArea.addEventListener('touchend', (e) => {
+            let endY = e.changedTouches[0].clientY;
+            let diff = startY - endY;
+
+            if (diff > 60) {
+                // 向上滑动 -> 下个月
+                grid.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                grid.style.transform = 'translateY(-40px)';
+                grid.style.opacity = '0';
+                
+                setTimeout(() => {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                    renderCalendar();
+                    
+                    grid.style.transition = 'none';
+                    grid.style.transform = 'translateY(40px)';
+                    
+                    setTimeout(() => {
+                        grid.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                        grid.style.transform = 'translateY(0)';
+                        grid.style.opacity = '1';
+                    }, 20);
+                }, 300);
+            } 
+            else if (diff < -60) {
+                // 向下滑动 -> 上个月
+                grid.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                grid.style.transform = 'translateY(40px)';
+                grid.style.opacity = '0';
+                
+                setTimeout(() => {
+                    currentDate.setMonth(currentDate.getMonth() - 1);
+                    renderCalendar();
+                    
+                    grid.style.transition = 'none';
+                    grid.style.transform = 'translateY(-40px)';
+                    
+                    setTimeout(() => {
+                        grid.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                        grid.style.transform = 'translateY(0)';
+                        grid.style.opacity = '1';
+                    }, 20);
+                }, 300);
+            }
+        });
+
     });
 })();
