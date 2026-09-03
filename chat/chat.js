@@ -2,7 +2,7 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：在设置菜单中加入“置顶聊天”与“消息免打扰”开关
+    // 1. 初始化 DOM：加入引用预览条、多选操作底部工具栏
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -39,6 +39,14 @@
             
             <div class="chat-messages" id="chat-message-list"></div>
 
+            <!-- 引用预览条 (默认隐藏) -->
+            <div class="chat-quote-bar" id="chat-quote-bar" style="display:none;">
+                <div class="quote-bar-content">
+                    <span id="quote-bar-text">引用内容...</span>
+                </div>
+                <button class="quote-close-btn" id="quote-close-btn"><i data-lucide="x" style="width:14px;height:14px;"></i></button>
+            </div>
+
             <div class="chat-input-area">
                 <button class="chat-ext-btn"><i data-lucide="mic"></i></button>
                 <textarea class="chat-input" id="chat-textarea" placeholder="发消息..." rows="1"></textarea>
@@ -47,14 +55,24 @@
                 <button class="chat-send-btn" id="chat-send-btn">发送</button>
             </div>
             
+            <!-- 💥 升级的长按气泡菜单：完美支持引用、删除、彻底删除、撤回、多选 -->
             <div class="chat-context-menu" id="chat-context-menu">
+                <div class="ctx-item" id="ctx-btn-quote"><i data-lucide="quote"></i>引用</div>
                 <div class="ctx-item" id="ctx-btn-copy"><i data-lucide="copy"></i>复制</div>
-                <div class="ctx-item" id="ctx-btn-reply"><i data-lucide="reply"></i>回复</div>
+                <div class="ctx-item" id="ctx-btn-recall"><i data-lucide="rotate-ccw"></i>撤回</div>
                 <div class="ctx-item" id="ctx-btn-delete"><i data-lucide="trash-2"></i>删除</div>
+                <div class="ctx-item" id="ctx-btn-purge" style="color:#FF3B30;"><i data-lucide="ban" style="color:#FF3B30;"></i>彻底删除</div>
+                <div class="ctx-item" id="ctx-btn-multiselect"><i data-lucide="check-square"></i>多选</div>
+            </div>
+
+            <!-- 多选模式底部操作栏 -->
+            <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none;">
+                <button class="ms-action-btn" id="ms-btn-delete-all"><i data-lucide="trash-2"></i>删除所选</button>
+                <button class="ms-action-btn cancel" id="ms-btn-cancel">取消</button>
             </div>
         </div>
 
-        <!-- 聊天与气泡美化设置页面 (加入置顶与免打扰开关) -->
+        <!-- 聊天与气泡美化设置页面 -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -155,6 +173,9 @@
     let currentChatId = null; 
     let globalChatData = JSON.parse(localStorage.getItem('wuyo_global_chat_data')) || {};
     let selectedMsgIndex = null;
+    let quoteMessage = null; // 当前引用的消息内容
+    let isMultiSelectMode = false; // 是否处于多选模式
+    let selectedIndices = new Set(); // 多选选中的索引集合
     
     let tempEditableUserAvatar = '';
     let tempEditableAiAvatar = '';
@@ -217,7 +238,6 @@
 
     const formatTime = (ts) => { const d = new Date(ts); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
 
-    // 💥 渲染聊天列表（支持「置顶聊天」排序置顶）
     const renderChatList = () => {
         const listArea = document.getElementById('chat-list-render-area');
         let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
@@ -226,7 +246,6 @@
             localStorage.setItem('wuyo_roles', JSON.stringify(roles));
         }
 
-        // 排序规则：置顶的排在最前面
         roles.sort((a, b) => {
             if (a.pinned && !b.pinned) return -1;
             if (!a.pinned && b.pinned) return 1;
@@ -268,6 +287,10 @@
         tempEditableUserAvatar = ''; 
         tempEditableAiAvatar = '';
         tempEditableBgImg = '';
+        isMultiSelectMode = false;
+        selectedIndices.clear();
+        document.getElementById('chat-multiselect-bar').style.display = 'none';
+
         const roleInfo = getCurrentRoleInfo();
         document.getElementById('chat-char-name').textContent = roleInfo.name;
         document.getElementById('chat-status-text').textContent = roleInfo.sub;
@@ -296,6 +319,9 @@
     msgList.addEventListener('click', () => ctxMenu.classList.remove('show'));
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
+    // ==========================================
+    // 💥 渲染消息流与多选复选框、引用样式
+    // ==========================================
     const renderMessages = () => {
         if(!currentChatId) return; 
         msgList.innerHTML = '';
@@ -329,29 +355,43 @@
         }
 
         history.forEach((msg, index) => {
+            if(msg.recalled) {
+                // 撤回提示
+                const recallEl = document.createElement('div');
+                recallEl.style.cssText = 'text-align:center; font-size:11px; color:#8E8E93; margin:8px 0;';
+                recallEl.textContent = msg.role === 'user' ? '你撤回了一条消息' : '对方撤回了一条消息';
+                msgList.appendChild(recallEl);
+                return;
+            }
+
             const isUser = msg.role === 'user';
             const row = document.createElement('div');
             row.className = `chat-bubble-row ${isUser ? 'user' : 'ai'}`;
+
+            // 多选模式下显示复选框
+            if(isMultiSelectMode) {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.style.cssText = 'margin: auto 8px; width: 18px; height: 18px; accent-color: #1C1C1E; cursor: pointer;';
+                checkbox.checked = selectedIndices.has(index);
+                checkbox.addEventListener('change', () => {
+                    if(checkbox.checked) selectedIndices.add(index);
+                    else selectedIndices.delete(index);
+                });
+                row.appendChild(checkbox);
+            }
 
             const avDiv = document.createElement('div');
             avDiv.className = 'bubble-avatar';
 
             if (isUser) {
-                if (!styleConf.showUserAvatar) {
-                    avDiv.classList.add('hidden');
-                } else if (styleConf.userAvatar) { 
-                    avDiv.style.backgroundImage = `url(${styleConf.userAvatar})`; 
-                } else { 
-                    avDiv.innerHTML = '<i data-lucide="user" style="width:18px;height:18px;"></i>'; 
-                }
+                if (!styleConf.showUserAvatar) avDiv.classList.add('hidden');
+                else if (styleConf.userAvatar) avDiv.style.backgroundImage = `url(${styleConf.userAvatar})`; 
+                else avDiv.innerHTML = '<i data-lucide="user" style="width:18px;height:18px;"></i>'; 
             } else {
-                if (!styleConf.showAiAvatar) {
-                    avDiv.classList.add('hidden');
-                } else if (roleInfo.avatar) { 
-                    avDiv.style.backgroundImage = `url(${roleInfo.avatar})`; 
-                } else { 
-                    avDiv.innerHTML = '<i data-lucide="bot" style="width:18px;height:18px;"></i>'; 
-                }
+                if (!styleConf.showAiAvatar) avDiv.classList.add('hidden');
+                else if (roleInfo.avatar) avDiv.style.backgroundImage = `url(${roleInfo.avatar})`; 
+                else avDiv.innerHTML = '<i data-lucide="bot" style="width:18px;height:18px;"></i>'; 
             }
 
             const col = document.createElement('div');
@@ -359,13 +399,22 @@
 
             const bubble = document.createElement('div');
             bubble.className = `chat-bubble`;
-            bubble.innerHTML = msg.content.replace(/\n/g, '<br>');
+            
+            // 如果有引用内容，先渲染引用小卡片
+            let contentHtml = '';
+            if(msg.quote) {
+                contentHtml += `<div class="bubble-quote-box">${msg.quote}</div>`;
+            }
+            contentHtml += msg.content.replace(/\n/g, '<br>');
+            bubble.innerHTML = contentHtml;
 
             const timeSub = document.createElement('div');
             timeSub.className = 'bubble-time-sub';
             timeSub.textContent = formatTime(msg.time);
 
+            // 长按事件：呼出高级菜单
             bubble.addEventListener('touchstart', (e) => {
+                if(isMultiSelectMode) return;
                 pressTimer = setTimeout(() => {
                     selectedMsgIndex = index; const touch = e.touches[0];
                     ctxMenu.style.left = `${Math.max(60, Math.min(touch.clientX, window.innerWidth - 60))}px`; 
@@ -387,20 +436,115 @@
         scrollToBottom();
     };
 
+    // ==========================================
+    // 💥 长按菜单核心功能绑定
+    // ==========================================
+
+    // 1. 复制
     document.getElementById('ctx-btn-copy').addEventListener('click', (e) => {
         e.stopPropagation(); 
-        if(selectedMsgIndex !== null && currentChatId) navigator.clipboard.writeText(globalChatData[currentChatId][selectedMsgIndex].content).then(() => alert('已复制'));
-        ctxMenu.classList.remove('show');
-    });
-    document.getElementById('ctx-btn-delete').addEventListener('click', (e) => {
-        e.stopPropagation();
-        if(selectedMsgIndex !== null && currentChatId) { 
-            if(confirm('确定删除这条消息？')) { globalChatData[currentChatId].splice(selectedMsgIndex, 1); localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData)); renderMessages(); } 
+        if(selectedMsgIndex !== null && currentChatId) {
+            navigator.clipboard.writeText(globalChatData[currentChatId][selectedMsgIndex].content).then(() => alert('已复制'));
         }
         ctxMenu.classList.remove('show');
     });
 
-    // 打开设置菜单：回填置顶与免打扰状态
+    // 2. 引用 / 回复
+    document.getElementById('ctx-btn-quote').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if(selectedMsgIndex !== null && currentChatId) {
+            const msg = globalChatData[currentChatId][selectedMsgIndex];
+            quoteMessage = msg.content;
+            document.getElementById('quote-bar-text').textContent = `引用: ${msg.content}`;
+            document.getElementById('chat-quote-bar').style.display = 'flex';
+            inputArea.focus();
+        }
+        ctxMenu.classList.remove('show');
+    });
+
+    document.getElementById('quote-close-btn').addEventListener('click', () => {
+        quoteMessage = null;
+        document.getElementById('chat-quote-bar').style.display = 'none';
+    });
+
+    // 3. 撤回消息
+    document.getElementById('ctx-btn-recall').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if(selectedMsgIndex !== null && currentChatId) {
+            globalChatData[currentChatId][selectedMsgIndex].recalled = true;
+            localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
+            renderMessages();
+        }
+        ctxMenu.classList.remove('show');
+    });
+
+    // 4. 删除消息（不删除记忆）
+    document.getElementById('ctx-btn-delete').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if(selectedMsgIndex !== null && currentChatId) {
+            globalChatData[currentChatId].splice(selectedMsgIndex, 1);
+            localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
+            renderMessages();
+        }
+        ctxMenu.classList.remove('show');
+    });
+
+    // 5. 彻底删除（同时删除对应的 AI 长期记忆）
+    document.getElementById('ctx-btn-purge').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if(selectedMsgIndex !== null && currentChatId) {
+            const msgText = globalChatData[currentChatId][selectedMsgIndex].content;
+            // 从聊天记录移除
+            globalChatData[currentChatId].splice(selectedMsgIndex, 1);
+            localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
+
+            // 从 AI 记忆库中精准匹配并删除相关记忆
+            let memories = JSON.parse(localStorage.getItem('wuyo_memories')) || {};
+            if(memories[currentRole]) {
+                memories[currentRole] = memories[currentRole].filter(m => !m.text.includes(msgText));
+                localStorage.setItem('wuyo_memories', JSON.stringify(memories));
+            }
+            alert("已彻底删除该消息及相关关联记忆。");
+            renderMessages();
+        }
+        ctxMenu.classList.remove('show');
+    });
+
+    // 6. 多选消息
+    document.getElementById('ctx-btn-multiselect').addEventListener('click', (e) => {
+        e.stopPropagation();
+        isMultiSelectMode = true;
+        selectedIndices.clear();
+        if(selectedMsgIndex !== null) selectedIndices.add(selectedMsgIndex);
+        document.getElementById('chat-multiselect-bar').style.display = 'flex';
+        ctxMenu.classList.remove('show');
+        renderMessages();
+    });
+
+    document.getElementById('ms-btn-cancel').addEventListener('click', () => {
+        isMultiSelectMode = false;
+        selectedIndices.clear();
+        document.getElementById('chat-multiselect-bar').style.display = 'none';
+        renderMessages();
+    });
+
+    document.getElementById('ms-btn-delete-all').addEventListener('click', () => {
+        if(selectedIndices.size === 0) return alert("请先勾选要删除的消息！");
+        if(confirm(`确定删除选中的 ${selectedIndices.size} 条消息吗？`)) {
+            // 倒序删除防止索引错位
+            const sortedIndices = Array.from(selectedIndices).sort((a, b) => b - a);
+            sortedIndices.forEach(idx => {
+                globalChatData[currentChatId].splice(idx, 1);
+            });
+            localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
+            isMultiSelectMode = false;
+            selectedIndices.clear();
+            document.getElementById('chat-multiselect-bar').style.display = 'none';
+            renderMessages();
+        }
+    });
+
+    // 打开设置菜单
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
         const styleConf = getChatStyleConfig();
         const roleInfo = getCurrentRoleInfo();
@@ -429,7 +573,6 @@
         applyChatStylesToDOM();
     });
 
-    // 💥 点击保存按钮：持久化写入置顶、免打扰、头像、气泡与背景设置
     document.getElementById('settings-save-btn').addEventListener('click', () => {
         const sig = document.getElementById('couple-sign-input').value;
         const bubbleBg = document.getElementById('bubble-color-picker').value;
@@ -440,7 +583,6 @@
         const isPinned = document.getElementById('chat-pinned-toggle').checked;
         const isMuted = document.getElementById('chat-mute-toggle').checked;
 
-        // 1. 保存角色专属的置顶与免打扰状态
         if(currentChatId) {
             let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
             let r = roles.find(item => item.id === currentChatId);
@@ -452,13 +594,11 @@
             }
         }
 
-        // 2. 保存全局恋爱标语与头像
         let coupleConf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
         coupleConf.signature = sig;
         if(tempEditableUserAvatar) coupleConf.userAvatar = tempEditableUserAvatar;
         localStorage.setItem('wuyo_couple_config', JSON.stringify(coupleConf));
 
-        // 3. 保存气泡与背景美化配置
         let chatStyleConf = JSON.parse(localStorage.getItem('wuyo_chat_style_config')) || {};
         chatStyleConf.bubbleBg = bubbleBg;
         chatStyleConf.bubbleFontSize = fontSize;
@@ -567,8 +707,6 @@
     const triggerAiReply = async () => {
         if(!currentChatId) return;
         const roleInfo = getCurrentRoleInfo();
-        
-        // 如果开启了免打扰(muted)，我们可以跳过气泡提示或静默处理，但这里依然正常让AI流式回复
         const apiConfigStr = localStorage.getItem('wuyo_settings_api');
         if(!apiConfigStr) return alert("请先在设置中配置 API！");
         const apiConfig = JSON.parse(apiConfigStr);
@@ -623,7 +761,15 @@
     const sendUserMessage = () => {
         const text = inputArea.value.trim(); if(!text || !currentChatId) return;
         if(!globalChatData[currentChatId]) globalChatData[currentChatId] = [];
-        globalChatData[currentChatId].push({ role: 'user', content: text, time: Date.now() }); 
+        
+        let finalContent = text;
+        if(quoteMessage) {
+            finalContent = `<span style="font-size:12px; opacity:0.75; border-left:2px solid rgba(0,0,0,0.2); padding-left:6px; display:block; margin-bottom:4px;">引用: ${quoteMessage}</span>${text}`;
+            quoteMessage = null;
+            document.getElementById('chat-quote-bar').style.display = 'none';
+        }
+
+        globalChatData[currentChatId].push({ role: 'user', content: finalContent, time: Date.now() }); 
         localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
         
         inputArea.value = ''; inputArea.style.height = 'auto'; 
