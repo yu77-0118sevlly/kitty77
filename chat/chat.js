@@ -2,6 +2,7 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
+    // 1. 初始化 DOM：在设置页面顶部加上“保存”按钮
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -53,11 +54,13 @@
             </div>
         </div>
 
+        <!-- 💥 气泡与恋爱设置页面 (加入顶部保存按钮) -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
                 <span class="chat-header-title">气泡与恋爱设置</span>
-                <div style="width:32px;"></div>
+                <!-- 顶部的独立保存按钮 -->
+                <button class="ct-text-btn" id="settings-save-btn" style="font-size:16px; font-weight:600; color:#1C1C1E; background:none; border:none; cursor:pointer;">保存</button>
             </header>
             <div style="flex:1; overflow-y:auto; padding-top:16px;">
                 <div class="settings-list-group">
@@ -73,11 +76,11 @@
                 <div class="settings-list-group">
                     <div class="settings-list-item" id="set-user-avatar-btn">
                         <span>我的头像框</span>
-                        <div style="width:32px; height:32px; border-radius:8px; background:#E5E5EA; background-size:cover;" id="preview-user-av"></div>
+                        <div style="width:32px; height:32px; border-radius:8px; background:#E5E5EA; background-size:cover; background-position:center;" id="preview-user-av"></div>
                     </div>
                     <div class="settings-list-item" id="set-ai-avatar-btn">
                         <span>AI 头像框</span>
-                        <div style="width:32px; height:32px; border-radius:8px; background:#E5E5EA; background-size:cover;" id="preview-ai-av"></div>
+                        <div style="width:32px; height:32px; border-radius:8px; background:#E5E5EA; background-size:cover; background-position:center;" id="preview-ai-av"></div>
                     </div>
                     <div style="padding: 16px; display:flex; flex-direction:column; gap:8px;">
                         <span style="font-size:14px; color:#8E8E93;">浪漫标语</span>
@@ -102,30 +105,43 @@
     let globalChatData = JSON.parse(localStorage.getItem('wuyo_global_chat_data')) || {};
     let selectedMsgIndex = null;
     
+    // 临时缓存待保存的头像数据
+    let tempEditableUserAvatar = '';
+    let tempEditableAiAvatar = '';
+
     const getCurrentRoleInfo = () => {
-        const roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
-        const role = roles.find(r => r.id === currentChatId) || roles[0];
-        if(role) return { id: role.id, name: role.remark ? `${role.remark}` : role.name, sub: role.personality ? role.personality.substring(0, 20) : '在线', avatar: role.faceImg || role.avatar || '' };
-        
-        const configStr = localStorage.getItem('wuyo_config');
-        let name = 'AI 伙伴'; let sub = '在线'; let avatar = '';
-        if(configStr) {
-            const config = JSON.parse(configStr);
-            if(config.texts) { if(config.texts.aiTitle) name = config.texts.aiTitle; if(config.texts.aiSubtitle) sub = config.texts.aiSubtitle; if(config.texts.aiAvatar) avatar = config.texts.aiAvatar; }
+        let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
+        if(roles.length === 0) {
+            roles.push({ id: 'char_default', name: 'AI 伙伴', avatar: '' });
+            localStorage.setItem('wuyo_roles', JSON.stringify(roles));
         }
-        return { id: 'char_default', name, sub, avatar };
+        const role = roles.find(r => r.id === currentChatId) || roles[0];
+        
+        // 优先取内存中的临时修改，其次取数据库
+        let finalAiAv = tempEditableAiAvatar !== '' ? tempEditableAiAvatar : (role.faceImg || role.avatar || '');
+
+        return { 
+            id: role.id, 
+            name: role.remark ? `${role.remark}` : role.name, 
+            sub: role.personality ? role.personality.substring(0, 20) : '在线', 
+            avatar: finalAiAv 
+        };
     };
 
     const getCoupleConfig = () => {
         let conf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
-        const configStr = localStorage.getItem('wuyo_config');
-        let defaultUserAvatar = '';
-        if(configStr) {
-            const cfg = JSON.parse(configStr);
-            if(cfg.profile && cfg.profile.avatar) defaultUserAvatar = cfg.profile.avatar;
+        let finalUserAv = tempEditableUserAvatar !== '' ? tempEditableUserAvatar : (conf.userAvatar || '');
+        
+        if(!finalUserAv) {
+            const configStr = localStorage.getItem('wuyo_config');
+            if(configStr) {
+                const cfg = JSON.parse(configStr);
+                if(cfg.profile && cfg.profile.avatar) finalUserAv = cfg.profile.avatar;
+            }
         }
+
         return {
-            userAvatar: conf.userAvatar || defaultUserAvatar,
+            userAvatar: finalUserAv,
             signature: conf.signature !== undefined ? conf.signature : '我会爱你很久很久'
         };
     };
@@ -144,8 +160,9 @@
             let lastMsg = '准备好开始对话了...'; let lastTime = '';
             if(history.length > 0) { const lastObj = history[history.length - 1]; lastMsg = lastObj.content; lastTime = formatTime(lastObj.time); }
 
-            const avatarStyle = role.avatar || role.faceImg ? `background-image: url(${role.faceImg || role.avatar});` : ``;
-            const avatarInner = role.avatar || role.faceImg ? '' : `<i data-lucide="bot"></i>`;
+            const activeAiAv = role.faceImg || role.avatar || '';
+            const avatarStyle = activeAiAv ? `background-image: url(${activeAiAv});` : ``;
+            const avatarInner = activeAiAv ? '' : `<i data-lucide="bot"></i>`;
             const displayName = role.remark ? `${role.remark} (${role.name})` : role.name;
 
             html += `
@@ -167,6 +184,8 @@
 
     window.openChatDetail = (charId) => {
         currentChatId = charId; 
+        tempEditableUserAvatar = ''; // 重置临时缓存
+        tempEditableAiAvatar = '';
         const roleInfo = getCurrentRoleInfo();
         document.getElementById('chat-char-name').textContent = roleInfo.name;
         document.getElementById('chat-status-text').textContent = roleInfo.sub;
@@ -195,7 +214,7 @@
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
     // ==========================================
-    // 💥 完美渲染：双头像无爱心紧贴 + 气泡下时间戳 + 灰白色细气泡
+    // 渲染聊天气泡与顶部双头像
     // ==========================================
     const renderMessages = () => {
         if(!currentChatId) return; 
@@ -205,7 +224,7 @@
         const roleInfo = getCurrentRoleInfo();
         const coupleConf = getCoupleConfig();
 
-        // 顶部双头像：去掉爱心，紧密挨在一起
+        // 顶部双头像横幅
         const bannerEl = document.createElement('div');
         bannerEl.className = 'chat-couple-banner';
         
@@ -249,7 +268,7 @@
             col.className = 'bubble-column';
 
             const bubble = document.createElement('div');
-            bubble.className = `chat-bubble`; // 统一为灰白色
+            bubble.className = `chat-bubble`;
             bubble.innerHTML = msg.content.replace(/\n/g, '<br>');
 
             const timeSub = document.createElement('div');
@@ -291,6 +310,7 @@
         ctxMenu.classList.remove('show');
     });
 
+    // 打开设置页面
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
         const conf = getCoupleConfig();
         const roleInfo = getCurrentRoleInfo();
@@ -304,9 +324,40 @@
 
         document.getElementById('chat-page-settings').classList.add('active');
     });
+    
     document.getElementById('chat-settings-back').addEventListener('click', () => {
         document.getElementById('chat-page-settings').classList.remove('active');
         renderMessages(); 
+    });
+
+    // 💥 核心：点击“保存”按钮，将更改持久化写入 localStorage
+    document.getElementById('settings-save-btn').addEventListener('click', () => {
+        // 1. 保存签名
+        const sig = document.getElementById('couple-sign-input').value;
+        let conf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
+        conf.signature = sig;
+        if(tempEditableUserAvatar) conf.userAvatar = tempEditableUserAvatar;
+        localStorage.setItem('wuyo_couple_config', JSON.stringify(conf));
+
+        // 2. 保存 AI 锁脸头像到角色数据库
+        if(tempEditableAiAvatar && currentChatId) {
+            let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
+            let r = roles.find(item => item.id === currentChatId);
+            if(r) {
+                r.faceImg = tempEditableAiAvatar;
+                localStorage.setItem('wuyo_roles', JSON.stringify(roles));
+            }
+        }
+
+        alert("保存成功！数据已永久生效。");
+        document.getElementById('chat-page-settings').classList.remove('active');
+        
+        // 刷新详情页左上角头像
+        const roleInfo = getCurrentRoleInfo();
+        const headerAv = document.getElementById('header-ai-avatar');
+        if(roleInfo.avatar) { headerAv.style.backgroundImage = `url(${roleInfo.avatar})`; headerAv.innerHTML = ''; }
+        
+        renderMessages();
     });
 
     let activeUploadTarget = null;
@@ -320,25 +371,15 @@
             reader.onload = (event) => {
                 const res = event.target.result;
                 if(activeUploadTarget === 'user') {
-                    let conf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
-                    conf.userAvatar = res;
-                    localStorage.setItem('wuyo_couple_config', JSON.stringify(conf));
+                    tempEditableUserAvatar = res;
                     document.getElementById('preview-user-av').style.backgroundImage = `url(${res})`;
                 } else if(activeUploadTarget === 'ai') {
-                    let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
-                    let r = roles.find(item => item.id === currentChatId);
-                    if(r) { r.faceImg = res; localStorage.setItem('wuyo_roles', JSON.stringify(roles)); }
+                    tempEditableAiAvatar = res;
                     document.getElementById('preview-ai-av').style.backgroundImage = `url(${res})`;
                 }
             };
             reader.readAsDataURL(file);
         }
-    });
-
-    document.getElementById('couple-sign-input').addEventListener('input', function() {
-        let conf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
-        conf.signature = this.value;
-        localStorage.setItem('wuyo_couple_config', JSON.stringify(conf));
     });
 
     document.getElementById('settings-btn-clear').addEventListener('click', () => {
