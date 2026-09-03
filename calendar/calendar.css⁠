@@ -352,3 +352,55 @@
     background: #1C1C1E;
     color: #FFF;
 }
+/* ==========================================
+   💥 修复弹窗默认隐藏与定位补丁
+========================================== */
+.calendar-app {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    width: 100vw !important; height: 100vh !important;
+    background: #FFFFFF !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+}
+
+/* 强制让所有弹窗默认隐藏，只有带 active 时才弹出 */
+.cal-modal {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    background: rgba(0,0,0,0.4) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+    z-index: 10000 !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.3s ease !important;
+}
+
+.cal-modal.active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.cal-modal-box {
+    background: #FFFFFF !important;
+    width: 100% !important;
+    max-height: 85vh !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    transform: translateY(100%) !important;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    overflow-y: auto !important;
+}
+
+.cal-modal.active .cal-modal-box {
+    transform: translateY(0) !important;
+}
+
