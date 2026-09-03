@@ -2,9 +2,7 @@
     const container = document.getElementById('settings-app');
     if (!container) return;
 
-    // ==========================================
-    // 1. 初始化 DOM 结构 (主页 + 子页面)
-    // ==========================================
+    // 1. 初始化 DOM 结构 (主页 + 4个独立子页面)
     container.innerHTML = `
         <!-- 主界面 -->
         <div class="settings-page root active" id="st-page-main">
@@ -232,17 +230,13 @@
                     </div>
                 </div>
                 <div class="st-section-title">本地数据明细</div>
-                <div class="st-group" id="mem-details-list">
-                    <!-- 动态生成 -->
-                </div>
+                <div class="st-group" id="mem-details-list"></div>
             </div>
         </div>
     `;
     lucide.createIcons({ root: container });
 
-    // ==========================================
     // 2. 页面导航系统
-    // ==========================================
     const navItems = container.querySelectorAll('.st-nav');
     const backBtns = container.querySelectorAll('.st-back-btn');
     
@@ -256,12 +250,9 @@
         });
     });
     backBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.target.closest('.settings-page').classList.remove('active');
-        });
+        btn.addEventListener('click', (e) => { e.target.closest('.settings-page').classList.remove('active'); });
     });
 
-    // 密码显示切换
     container.querySelectorAll('.st-toggle-pwd').forEach(btn => {
         btn.addEventListener('click', () => {
             const input = document.getElementById(btn.getAttribute('data-target'));
@@ -270,9 +261,7 @@
         });
     });
 
-    // ==========================================
     // 3. 数据绑定与保存引擎
-    // ==========================================
     // --- User 面具 ---
     let userPersona = JSON.parse(localStorage.getItem('wuyo_settings_persona')) || { avatar: '', name: '', info: '' };
     if(userPersona.avatar) document.getElementById('st-user-avatar-preview').style.backgroundImage = `url(${userPersona.avatar})`;
@@ -304,7 +293,6 @@
         img: { enable: false, url: '', key: '', model: '' } 
     };
     
-    // 初始化 Chat API
     document.getElementById('api-chat-url').value = apiConfig.chat.url;
     document.getElementById('api-chat-key').value = apiConfig.chat.key;
     document.getElementById('api-chat-temp').value = apiConfig.chat.temp;
@@ -313,7 +301,6 @@
     
     document.getElementById('api-chat-temp').addEventListener('input', (e) => { document.getElementById('temp-val-display').textContent = e.target.value; });
 
-    // 初始化 Image API
     document.getElementById('api-image-enable').checked = apiConfig.img.enable;
     document.getElementById('image-api-details').style.display = apiConfig.img.enable ? 'block' : 'none';
     document.getElementById('api-img-url').value = apiConfig.img.url;
@@ -324,7 +311,6 @@
         document.getElementById('image-api-details').style.display = e.target.checked ? 'block' : 'none';
     });
 
-    // 真实的 API 请求逻辑
     const pullModels = async (urlStr, keyStr, selectId) => {
         const url = document.getElementById(urlStr).value.trim();
         const key = document.getElementById(keyStr).value.trim();
@@ -393,11 +379,9 @@
         document.getElementById('tts-details').style.display = e.target.checked ? 'block' : 'none';
     });
     document.getElementById('btn-pull-tts-model').addEventListener('click', () => {
-        // MiniMax 特殊处理占位，这里模拟拉取或填入默认语音模型
         const key = document.getElementById('tts-key').value;
         const groupId = document.getElementById('tts-group').value;
         if(!key || !groupId) return alert("请先填写 Key 和 Group ID");
-        // 这里可以直接写入官方已知的 TTS 模型，避免跨域报错
         document.getElementById('tts-model').innerHTML = `
             <option value="speech-01">speech-01 (女声/男声可选)</option>
             <option value="speech-01-turbo">speech-01-turbo</option>
@@ -422,7 +406,6 @@
     document.getElementById('st-ringtone-uploader').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
-            // 简单限制大小防止爆存储 (500kb)
             if(file.size > 500000) return alert("为了不占用过多内存，请上传 500KB 以内的短提示音音频！");
             const reader = new FileReader();
             reader.onload = (event) => {
@@ -441,16 +424,14 @@
         } catch(e) { alert("保存失败，可能是铃声音频文件太大导致内存不足！"); }
     });
 
-    // ==========================================
     // 4. 内存统计系统
-    // ==========================================
     const renderMemoryStats = () => {
         let stats = { 聊天记录: 0, 图片与壁纸: 0, 美化配置: 0, 角色与面具: 0, 其他本地数据: 0 };
         let totalBytes = 0;
 
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            const size = (localStorage.getItem(key).length + key.length) * 2; // JS UTF-16 字节计算
+            const size = (localStorage.getItem(key).length + key.length) * 2;
             totalBytes += size;
 
             if (key.includes('chat') || key.includes('msg')) stats['聊天记录'] += size;
@@ -464,13 +445,12 @@
         const totalMB = toMB(totalBytes);
         document.getElementById('mem-total-text').textContent = totalMB + ' MB';
 
-        // 颜色映射
         const colors = ['#1C1C1E', '#8E8E93', '#C7C7CC', '#E5E5EA', '#F2F2F7'];
         let listHtml = '';
         let conicStops = [];
         let currentPercent = 0;
-
         let colorIdx = 0;
+
         for (const [name, bytes] of Object.entries(stats)) {
             if(bytes > 0 || name === '其他本地数据') {
                 const mb = toMB(bytes);
@@ -483,7 +463,6 @@
                         <span class="st-value">${mb} MB</span>
                     </div>
                 `;
-                
                 if (totalBytes > 0 && percent > 0) {
                     conicStops.push(`${color} ${currentPercent}% ${currentPercent + percent}%`);
                     currentPercent += percent;
@@ -492,11 +471,7 @@
             }
         }
         document.getElementById('mem-details-list').innerHTML = listHtml;
-        
-        if(totalBytes > 0) {
-            document.getElementById('mem-chart-pie').style.background = `conic-gradient(${conicStops.join(', ')})`;
-        } else {
-            document.getElementById('mem-chart-pie').style.background = '#E5E5EA';
-        }
+        if(totalBytes > 0) document.getElementById('mem-chart-pie').style.background = `conic-gradient(${conicStops.join(', ')})`;
+        else document.getElementById('mem-chart-pie').style.background = '#E5E5EA';
     };
 })();
