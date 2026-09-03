@@ -2,7 +2,6 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：加入引用预览条、多选操作底部工具栏
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -39,7 +38,6 @@
             
             <div class="chat-messages" id="chat-message-list"></div>
 
-            <!-- 引用预览条 (默认隐藏) -->
             <div class="chat-quote-bar" id="chat-quote-bar" style="display:none;">
                 <div class="quote-bar-content">
                     <span id="quote-bar-text">引用内容...</span>
@@ -55,24 +53,22 @@
                 <button class="chat-send-btn" id="chat-send-btn">发送</button>
             </div>
             
-            <!-- 💥 升级的长按气泡菜单：完美支持引用、删除、彻底删除、撤回、多选 -->
             <div class="chat-context-menu" id="chat-context-menu">
                 <div class="ctx-item" id="ctx-btn-quote"><i data-lucide="quote"></i>引用</div>
                 <div class="ctx-item" id="ctx-btn-copy"><i data-lucide="copy"></i>复制</div>
                 <div class="ctx-item" id="ctx-btn-recall"><i data-lucide="rotate-ccw"></i>撤回</div>
                 <div class="ctx-item" id="ctx-btn-delete"><i data-lucide="trash-2"></i>删除</div>
-                <div class="ctx-item" id="ctx-btn-purge" style="color:#FF3B30;"><i data-lucide="ban" style="color:#FF3B30;"></i>彻底删除</div>
+                <div class="ctx-item" id="ctx-btn-purge" style="color:#FF6B6B;"><i data-lucide="ban" style="color:#FF6B6B;"></i>彻底删除</div>
                 <div class="ctx-item" id="ctx-btn-multiselect"><i data-lucide="check-square"></i>多选</div>
             </div>
 
-            <!-- 多选模式底部操作栏 -->
             <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none;">
                 <button class="ms-action-btn" id="ms-btn-delete-all"><i data-lucide="trash-2"></i>删除所选</button>
                 <button class="ms-action-btn cancel" id="ms-btn-cancel">取消</button>
             </div>
         </div>
 
-        <!-- 聊天与气泡美化设置页面 -->
+        <!-- 💥 完整的独立美化设置页面 (绝不丢失) -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -173,9 +169,9 @@
     let currentChatId = null; 
     let globalChatData = JSON.parse(localStorage.getItem('wuyo_global_chat_data')) || {};
     let selectedMsgIndex = null;
-    let quoteMessage = null; // 当前引用的消息内容
-    let isMultiSelectMode = false; // 是否处于多选模式
-    let selectedIndices = new Set(); // 多选选中的索引集合
+    let quoteMessage = null; 
+    let isMultiSelectMode = false; 
+    let selectedIndices = new Set(); 
     
     let tempEditableUserAvatar = '';
     let tempEditableAiAvatar = '';
@@ -314,14 +310,10 @@
     const statusText = document.getElementById('chat-status-text');
     const ctxMenu = document.getElementById('chat-context-menu');
     
-    let pressTimer = null;
     msgList.addEventListener('scroll', () => ctxMenu.classList.remove('show')); 
     msgList.addEventListener('click', () => ctxMenu.classList.remove('show'));
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
-    // ==========================================
-    // 💥 渲染消息流与多选复选框、引用样式
-    // ==========================================
     const renderMessages = () => {
         if(!currentChatId) return; 
         msgList.innerHTML = '';
@@ -356,7 +348,6 @@
 
         history.forEach((msg, index) => {
             if(msg.recalled) {
-                // 撤回提示
                 const recallEl = document.createElement('div');
                 recallEl.style.cssText = 'text-align:center; font-size:11px; color:#8E8E93; margin:8px 0;';
                 recallEl.textContent = msg.role === 'user' ? '你撤回了一条消息' : '对方撤回了一条消息';
@@ -368,7 +359,6 @@
             const row = document.createElement('div');
             row.className = `chat-bubble-row ${isUser ? 'user' : 'ai'}`;
 
-            // 多选模式下显示复选框
             if(isMultiSelectMode) {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
@@ -400,7 +390,6 @@
             const bubble = document.createElement('div');
             bubble.className = `chat-bubble`;
             
-            // 如果有引用内容，先渲染引用小卡片
             let contentHtml = '';
             if(msg.quote) {
                 contentHtml += `<div class="bubble-quote-box">${msg.quote}</div>`;
@@ -412,18 +401,17 @@
             timeSub.className = 'bubble-time-sub';
             timeSub.textContent = formatTime(msg.time);
 
-            // 长按事件：呼出高级菜单
-            bubble.addEventListener('touchstart', (e) => {
+            // 双击弹出精致浮窗菜单
+            bubble.addEventListener('dblclick', (e) => {
                 if(isMultiSelectMode) return;
-                pressTimer = setTimeout(() => {
-                    selectedMsgIndex = index; const touch = e.touches[0];
-                    ctxMenu.style.left = `${Math.max(60, Math.min(touch.clientX, window.innerWidth - 60))}px`; 
-                    ctxMenu.style.top = `${Math.max(50, touch.clientY - 60)}px`; 
-                    ctxMenu.classList.add('show');
-                }, 600);
+                selectedMsgIndex = index; 
+                const rect = bubble.getBoundingClientRect();
+                const containerRect = msgList.getBoundingClientRect();
+                
+                ctxMenu.style.left = `${rect.left + rect.width / 2}px`; 
+                ctxMenu.style.top = `${rect.top - containerRect.top + msgList.scrollTop - 8}px`; 
+                ctxMenu.classList.add('show');
             });
-            bubble.addEventListener('touchend', () => clearTimeout(pressTimer)); 
-            bubble.addEventListener('touchmove', () => clearTimeout(pressTimer));
 
             col.appendChild(bubble);
             col.appendChild(timeSub);
@@ -436,11 +424,6 @@
         scrollToBottom();
     };
 
-    // ==========================================
-    // 💥 长按菜单核心功能绑定
-    // ==========================================
-
-    // 1. 复制
     document.getElementById('ctx-btn-copy').addEventListener('click', (e) => {
         e.stopPropagation(); 
         if(selectedMsgIndex !== null && currentChatId) {
@@ -449,7 +432,6 @@
         ctxMenu.classList.remove('show');
     });
 
-    // 2. 引用 / 回复
     document.getElementById('ctx-btn-quote').addEventListener('click', (e) => {
         e.stopPropagation();
         if(selectedMsgIndex !== null && currentChatId) {
@@ -467,7 +449,6 @@
         document.getElementById('chat-quote-bar').style.display = 'none';
     });
 
-    // 3. 撤回消息
     document.getElementById('ctx-btn-recall').addEventListener('click', (e) => {
         e.stopPropagation();
         if(selectedMsgIndex !== null && currentChatId) {
@@ -478,7 +459,6 @@
         ctxMenu.classList.remove('show');
     });
 
-    // 4. 删除消息（不删除记忆）
     document.getElementById('ctx-btn-delete').addEventListener('click', (e) => {
         e.stopPropagation();
         if(selectedMsgIndex !== null && currentChatId) {
@@ -489,16 +469,13 @@
         ctxMenu.classList.remove('show');
     });
 
-    // 5. 彻底删除（同时删除对应的 AI 长期记忆）
     document.getElementById('ctx-btn-purge').addEventListener('click', (e) => {
         e.stopPropagation();
         if(selectedMsgIndex !== null && currentChatId) {
             const msgText = globalChatData[currentChatId][selectedMsgIndex].content;
-            // 从聊天记录移除
             globalChatData[currentChatId].splice(selectedMsgIndex, 1);
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
 
-            // 从 AI 记忆库中精准匹配并删除相关记忆
             let memories = JSON.parse(localStorage.getItem('wuyo_memories')) || {};
             if(memories[currentRole]) {
                 memories[currentRole] = memories[currentRole].filter(m => !m.text.includes(msgText));
@@ -510,7 +487,6 @@
         ctxMenu.classList.remove('show');
     });
 
-    // 6. 多选消息
     document.getElementById('ctx-btn-multiselect').addEventListener('click', (e) => {
         e.stopPropagation();
         isMultiSelectMode = true;
@@ -531,7 +507,6 @@
     document.getElementById('ms-btn-delete-all').addEventListener('click', () => {
         if(selectedIndices.size === 0) return alert("请先勾选要删除的消息！");
         if(confirm(`确定删除选中的 ${selectedIndices.size} 条消息吗？`)) {
-            // 倒序删除防止索引错位
             const sortedIndices = Array.from(selectedIndices).sort((a, b) => b - a);
             sortedIndices.forEach(idx => {
                 globalChatData[currentChatId].splice(idx, 1);
@@ -573,6 +548,7 @@
         applyChatStylesToDOM();
     });
 
+    // 保存设置按钮
     document.getElementById('settings-save-btn').addEventListener('click', () => {
         const sig = document.getElementById('couple-sign-input').value;
         const bubbleBg = document.getElementById('bubble-color-picker').value;
