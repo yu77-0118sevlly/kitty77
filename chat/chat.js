@@ -2,7 +2,7 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：在设置页面顶部加上“保存”按钮
+    // 1. 初始化 DOM：顶部强制带有“保存”按钮
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -54,13 +54,12 @@
             </div>
         </div>
 
-        <!-- 💥 气泡与恋爱设置页面 (加入顶部保存按钮) -->
+        <!-- 💥 气泡与恋爱设置页面：顶部带有一个清晰的“保存”文字按钮 -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
                 <span class="chat-header-title">气泡与恋爱设置</span>
-                <!-- 顶部的独立保存按钮 -->
-                <button class="ct-text-btn" id="settings-save-btn" style="font-size:16px; font-weight:600; color:#1C1C1E; background:none; border:none; cursor:pointer;">保存</button>
+                <button id="settings-save-btn" style="font-size:16px; font-weight:600; color:#1C1C1E; background:none; border:none; cursor:pointer; padding:4px;">保存</button>
             </header>
             <div style="flex:1; overflow-y:auto; padding-top:16px;">
                 <div class="settings-list-group">
@@ -105,7 +104,6 @@
     let globalChatData = JSON.parse(localStorage.getItem('wuyo_global_chat_data')) || {};
     let selectedMsgIndex = null;
     
-    // 临时缓存待保存的头像数据
     let tempEditableUserAvatar = '';
     let tempEditableAiAvatar = '';
 
@@ -116,8 +114,6 @@
             localStorage.setItem('wuyo_roles', JSON.stringify(roles));
         }
         const role = roles.find(r => r.id === currentChatId) || roles[0];
-        
-        // 优先取内存中的临时修改，其次取数据库
         let finalAiAv = tempEditableAiAvatar !== '' ? tempEditableAiAvatar : (role.faceImg || role.avatar || '');
 
         return { 
@@ -139,7 +135,6 @@
                 if(cfg.profile && cfg.profile.avatar) finalUserAv = cfg.profile.avatar;
             }
         }
-
         return {
             userAvatar: finalUserAv,
             signature: conf.signature !== undefined ? conf.signature : '我会爱你很久很久'
@@ -184,7 +179,7 @@
 
     window.openChatDetail = (charId) => {
         currentChatId = charId; 
-        tempEditableUserAvatar = ''; // 重置临时缓存
+        tempEditableUserAvatar = ''; 
         tempEditableAiAvatar = '';
         const roleInfo = getCurrentRoleInfo();
         document.getElementById('chat-char-name').textContent = roleInfo.name;
@@ -213,9 +208,6 @@
     msgList.addEventListener('click', () => ctxMenu.classList.remove('show'));
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
-    // ==========================================
-    // 渲染聊天气泡与顶部双头像
-    // ==========================================
     const renderMessages = () => {
         if(!currentChatId) return; 
         msgList.innerHTML = '';
@@ -310,7 +302,6 @@
         ctxMenu.classList.remove('show');
     });
 
-    // 打开设置页面
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
         const conf = getCoupleConfig();
         const roleInfo = getCurrentRoleInfo();
@@ -330,16 +321,14 @@
         renderMessages(); 
     });
 
-    // 💥 核心：点击“保存”按钮，将更改持久化写入 localStorage
+    // 点击保存按钮
     document.getElementById('settings-save-btn').addEventListener('click', () => {
-        // 1. 保存签名
         const sig = document.getElementById('couple-sign-input').value;
         let conf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
         conf.signature = sig;
         if(tempEditableUserAvatar) conf.userAvatar = tempEditableUserAvatar;
         localStorage.setItem('wuyo_couple_config', JSON.stringify(conf));
 
-        // 2. 保存 AI 锁脸头像到角色数据库
         if(tempEditableAiAvatar && currentChatId) {
             let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
             let r = roles.find(item => item.id === currentChatId);
@@ -349,10 +338,9 @@
             }
         }
 
-        alert("保存成功！数据已永久生效。");
+        alert("保存成功！");
         document.getElementById('chat-page-settings').classList.remove('active');
         
-        // 刷新详情页左上角头像
         const roleInfo = getCurrentRoleInfo();
         const headerAv = document.getElementById('header-ai-avatar');
         if(roleInfo.avatar) { headerAv.style.backgroundImage = `url(${roleInfo.avatar})`; headerAv.innerHTML = ''; }
