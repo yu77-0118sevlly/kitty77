@@ -1,0 +1,426 @@
+/* 基础变量定义 - 极简灰白配色 */
+:root {
+    --bg-color: #f7f7f9;
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --card-border: 1px solid rgba(255, 255, 255, 0.9);
+    --text-main: #1c1c1e;
+    --text-muted: #8e8e93;
+    
+    --shadow-soft: 0 12px 40px -12px rgba(0, 0, 0, 0.05);
+    --shadow-inner: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    
+    --radius-sm: 16px;
+    --radius-md: 24px;
+    --radius-lg: 32px;
+    
+    /* 自动适配 iPhone Safe Area */
+    --safe-top: env(safe-area-inset-top, 47px);
+    --safe-bottom: env(safe-area-inset-bottom, 34px);
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    overflow: hidden; /* 禁用原生滚动，防止整个屏幕拖拽 */
+    display: flex;
+    flex-direction: column;
+    
+    /* 桌面端预览时的最大宽度限制，手机端自动占满屏幕 */
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* 顶部状态栏 */
+#status-bar {
+    height: var(--safe-top);
+    min-height: 44px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 24px 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    z-index: 100;
+    flex-shrink: 0;
+}
+
+.status-icons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.status-icons .lucide {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.5;
+}
+
+/* 视图容器 (SPA结构) */
+#view-container {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform: scale(0.97) translateY(10px);
+    display: flex;
+    flex-direction: column;
+}
+
+.view.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1) translateY(0);
+    z-index: 10;
+}
+
+/* 首页内部滚动区 */
+.home-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 24px 140px 24px; /* 底部预留 Dock 空间 */
+    scrollbar-width: none;
+}
+.home-scroll-area::-webkit-scrollbar {
+    display: none;
+}
+
+/* 头部日期与头像区 */
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.date-display {
+    display: flex;
+    flex-direction: column;
+}
+
+.date-display .day {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.date-display .date {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.user-avatar-card {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: var(--card-border);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.avatar-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+}
+
+/* 拍立得装饰卡片 */
+.polaroid-decoration {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: var(--radius-sm);
+    padding: 14px 14px 24px 14px;
+    box-shadow: var(--shadow-soft);
+    transform: rotate(-3deg);
+    margin-bottom: 32px;
+    width: fit-content;
+    border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.polaroid-photo {
+    width: 130px;
+    height: 130px;
+    background: #eeeeF0;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.placeholder-icon {
+    color: #c7c7cc;
+    width: 32px;
+    height: 32px;
+}
+
+.polaroid-text {
+    text-align: center;
+    margin-top: 14px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+/* AI 角色卡片 */
+.ai-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 36px;
+}
+
+.ai-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-sm);
+    background: #e5e5ea;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-muted);
+}
+
+.ai-info h2 {
+    margin: 0 0 4px 0;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.ai-info p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* App 图标网格 */
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px 12px;
+}
+
+.app-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.app-icon {
+    width: 62px;
+    height: 62px;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: var(--card-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-main);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.app-item:active .app-icon {
+    transform: scale(0.92);
+    background: rgba(235, 235, 240, 0.7);
+}
+
+.app-icon .lucide {
+    width: 26px;
+    height: 26px;
+    stroke-width: 1.5;
+}
+
+.app-item span {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+/* 子页面导航栏 (聊天、世界书等通用) */
+.nav-bar {
+    height: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    background: rgba(247, 247, 249, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    z-index: 20;
+}
+
+.nav-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-main);
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.icon-btn:active {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.icon-btn-placeholder {
+    width: 40px;
+}
+
+/* 子页面内容区 */
+.page-content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+/* 聊天气泡简易样式 */
+.message {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.message.received {
+    justify-content: flex-start;
+}
+
+.msg-bubble {
+    background: var(--card-bg);
+    border: var(--card-border);
+    padding: 14px 18px;
+    border-radius: 20px;
+    border-top-left-radius: 4px;
+    box-shadow: var(--shadow-soft);
+    font-size: 15px;
+    line-height: 1.5;
+    max-width: 85%;
+}
+
+/* 底部 Dock */
+#dock {
+    position: absolute;
+    bottom: calc(var(--safe-bottom) + 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    height: 80px;
+    background: var(--card-bg);
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
+    border: var(--card-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.dock-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dock-item {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.dock-item:active {
+    transform: scale(0.88);
+    color: var(--text-main);
+}
+
+.dock-item .lucide {
+    width: 26px;
+    height: 26px;
+    stroke-width: 1.5;
+}
+
+/* 底部 Home Indicator (小白条/小黑条) */
+#home-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--safe-bottom) + 16px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 8px;
+    z-index: 200;
+}
+
+.indicator-bar {
+    width: 134px;
+    height: 5px;
+    border-radius: 100px;
+    background-color: rgba(0, 0, 0, 0.85);
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.indicator-bar:active {
+    transform: scaleX(0.95);
+    opacity: 0.6;
+}
