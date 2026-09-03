@@ -68,7 +68,6 @@ body {
 .flex-center { display: flex; justify-content: center; align-items: center; }
 .col-layout { flex-direction: column; }
 
-/* 2页/3页的错落网格 */
 .bento-grid {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 0 24px 24px 24px;
 }
@@ -78,7 +77,7 @@ body {
 .widget-2x2 { grid-column: span 2; aspect-ratio: 1 / 1; }
 
 /* ==========================================
-   专属组件样式 (Clock, Memory, Today, Weather 等)
+   专属组件样式
 ========================================== */
 .clock-time { font-size: 32px; font-weight: 400; letter-spacing: -1px; }
 .clock-date { font-size: 12px; color: var(--text-sub); margin-top: 4px; font-weight: 600;}
@@ -96,7 +95,6 @@ body {
 .weather-temp { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
 .weather-city { font-size: 10px; color: var(--text-sub); font-weight: 500; }
 
-/* AI Card */
 .ai-card {
     margin: 0 24px 24px 24px; background: var(--card-bg); padding: 16px 20px;
     border-radius: var(--radius-md); display: flex; align-items: center; gap: 16px;
@@ -109,7 +107,6 @@ body {
 .ai-info h2 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
 .ai-info p { font-size: 12px; color: var(--text-sub); font-weight: 500; }
 
-/* 情侣与听歌组件 */
 .couple-advanced-widget { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 0 20px; }
 .couple-avatars { display: flex; align-items: center; gap: 8px; }
 .c-avatar { width: 44px; height: 44px; border-radius: 50%; background: #F2F2F7; display: flex; justify-content: center; align-items: center; background-size: cover; }
@@ -130,31 +127,53 @@ body {
 .listen-bottom span:first-child { color: #8E8E93; }
 
 /* ==========================================
-   💥 修复：桌面应用图标 (严格锁定 4 列)
+   💥 终极强制矩阵：把所有散落的图标容器合并为统一的 4 列两行结构
 ========================================== */
-.desktop-page .app-grid,
-.desktop-page .apps-grid,
-.desktop-page [class*="grid"]:not(.bento-grid) {
+/* 让包含图标的所有父级块统一变成 4 列网格，强制拉通 */
+.desktop-page div:has(> .app-item),
+.app-grid,
+.apps-grid,
+.desktop-apps-grid {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 20px 0 !important;
     padding: 0 16px !important;
     width: 100% !important;
     justify-items: center !important;
+    margin-bottom: 16px !important;
 }
+
+/* 针对第一行少于 4 个、第二行错乱的情况：直接无视原容器阻碍，让所有 app-item 统一撑满 4 列流 */
 .desktop-page .app-item {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     width: 100% !important;
 }
+
+/* 图标基础样式 */
 .app-icon {
-    width: 56px; height: 56px; background: var(--card-bg); border-radius: 18px;
-    display: flex; justify-content: center; align-items: center;
+    width: 56px; 
+    height: 56px; 
+    background: var(--card-bg); 
+    border-radius: 18px;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
     box-shadow: 0 4px 14px rgba(0,0,0,0.04);
 }
-.app-icon i { width: 24px; height: 24px; color: var(--text-main); }
-.app-item span { font-size: 11px; font-weight: 500; color: var(--text-main); text-align: center; }
+.app-icon i { 
+    width: 24px; 
+    height: 24px; 
+    color: var(--text-main); 
+}
+.app-item span { 
+    font-size: 11px; 
+    font-weight: 500; 
+    color: var(--text-main); 
+    text-align: center; 
+    margin-top: 6px;
+}
 
 /* ==========================================
    绝对底部 Dock & 圆点
@@ -181,40 +200,3 @@ body {
 
 /* App 视图容器 */
 .app-view { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 999; }
-/* ==========================================
-   💥 终极 4 列大一统：无视原HTML结构，强行将所有应用图标融合成完美的 4 列矩阵
-========================================== */
-
-/* 1. 先把桌面页面的所有直属子容器（除了头部、Bento错落卡片、AI卡片外）全部变成统一的网格流 */
-.desktop-page > div:not(.top-header):not(.widget-row-main):not(.ai-card):not(.bento-grid) {
-    display: contents !important; /* 让内部的图标直接暴露给外层排列 */
-}
-
-/* 2. 把所有应用图标（不管你原先在哪个 div 里）全部当成网格大军的一员，强制 4 列排列 */
-.desktop-page .app-item {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    width: 100% !important;
-}
-
-/* 3. 在桌面页面的主体滚动区直接启用全局 4 列网格，让所有图标自动按 4 个一行排好 */
-.desktop-page {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 20px 0 !important;
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-    justify-items: center !important;
-}
-
-/* 4. 让顶部的 Header、大组件、AI卡片等跨满整行（占满全部 4 列），不被网格压扁 */
-.desktop-page > .top-header,
-.desktop-page > .widget-row-main,
-.desktop-page > .ai-card,
-.desktop-page > .bento-grid,
-.desktop-page > style,
-.desktop-page > div:has(.widget) {
-    grid-column: span 4 !important;
-    width: 100% !important;
-}
