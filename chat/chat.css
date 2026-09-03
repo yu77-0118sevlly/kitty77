@@ -572,3 +572,103 @@
 #chat-app #chat-ai-thinking {
     pointer-events: none !important;
 }
+/* =====================================================
+   聊天房间最终底部修复
+===================================================== */
+
+#chat-app #chat-room-page {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+/* 消息区域 */
+#chat-app #room-messages-body {
+    position: absolute !important;
+
+    top: calc(env(safe-area-inset-top, 0px) + 52px) !important;
+
+    left: 0 !important;
+    right: 0 !important;
+
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+
+    width: 100% !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    padding: 20px 16px 20px 16px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+
+    box-sizing: border-box !important;
+
+    touch-action: pan-y !important;
+}
+
+/* 底部输入栏：直接锁在最下面 */
+#chat-app #chat-room-page .chat-room-footer {
+    position: absolute !important;
+
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+
+    width: 100% !important;
+
+    height: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+
+    padding:
+        8px
+        12px
+        env(safe-area-inset-bottom, 0px)
+        12px !important;
+
+    margin: 0 !important;
+
+    background: #FFFFFF !important;
+
+    border-top: 0.5px solid #F2F2F7 !important;
+
+    display: flex !important;
+    align-items: flex-start !important;
+
+    box-sizing: border-box !important;
+
+    z-index: 30000 !important;
+}
+
+/* 输入框 */
+#chat-app #room-input {
+    pointer-events: auto !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+}
+
+/* 整个输入框容器 */
+#chat-app .chat-room-input-box {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 30001 !important;
+}
+
+/* 返回按钮放到最高层 */
+#chat-app #room-back-btn {
+    position: relative !important;
+    z-index: 30010 !important;
+    pointer-events: auto !important;
+}
+
+/* 按钮 */
+#chat-app #room-send-btn,
+#chat-app #room-ai-btn {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 30002 !important;
+}
