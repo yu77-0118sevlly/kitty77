@@ -25,18 +25,21 @@
         </div>
 
         <div class="chat-page" id="chat-page-detail">
+            <!-- 💥 借鉴第二张图：左上角带头像的顶部导航栏，下方显示个性签名 -->
             <header class="chat-header">
-                <button class="chat-icon-btn" id="chat-back-to-list"><i data-lucide="chevron-left"></i></button>
-                <div class="chat-title-area">
-                    <span class="chat-title" id="chat-char-name">AI</span>
-                    <span class="chat-status" id="chat-status-text">在线</span>
+                <div class="chat-header-left" id="chat-back-to-list">
+                    <button class="chat-icon-btn" style="padding:0;"><i data-lucide="chevron-left"></i></button>
+                    <div class="chat-header-avatar" id="header-ai-avatar"></div>
+                    <div class="chat-title-area">
+                        <span class="chat-title" id="chat-char-name">AI</span>
+                        <span class="chat-status" id="chat-status-text">在线</span>
+                    </div>
                 </div>
                 <button class="chat-icon-btn" id="chat-btn-settings"><i data-lucide="more-horizontal"></i></button>
             </header>
             
             <div class="chat-messages" id="chat-message-list"></div>
 
-            <!-- 💥 修复点：调整输入栏布局，发送键改为常驻可点 -->
             <div class="chat-input-area">
                 <button class="chat-ext-btn"><i data-lucide="mic"></i></button>
                 <textarea class="chat-input" id="chat-textarea" placeholder="发消息..." rows="1"></textarea>
@@ -52,7 +55,6 @@
             </div>
         </div>
 
-        <!-- 聊天气泡与恋爱标语设置页面 -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -80,7 +82,7 @@
                         <div style="width:32px; height:32px; border-radius:8px; background:#E5E5EA; background-size:cover;" id="preview-ai-av"></div>
                     </div>
                     <div style="padding: 16px; display:flex; flex-direction:column; gap:8px;">
-                        <span style="font-size:14px; color:#8E8E93;">浪漫标语 (默认: 我会爱你很久很久)</span>
+                        <span style="font-size:14px; color:#8E8E93;">浪漫标语</span>
                         <input type="text" id="couple-sign-input" style="padding:10px 14px; border-radius:10px; border:0.5px solid #E5E5EA; background:#F4F4F7; font-size:15px; outline:none;" placeholder="我会爱你很久很久">
                     </div>
                 </div>
@@ -96,7 +98,6 @@
     `;
     lucide.createIcons({ root: container });
 
-    // 底栏跳转
     document.getElementById('nav-btn-contacts').addEventListener('click', () => { container.style.display = 'none'; window.openApp('contacts'); });
 
     let currentChatId = null; 
@@ -105,17 +106,16 @@
     
     const getCurrentRoleInfo = () => {
         const roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
-        // 如果没有匹配到，默认返回第一个或者默认 AI
         const role = roles.find(r => r.id === currentChatId) || roles[0];
-        if(role) return { id: role.id, name: role.remark || role.name, avatar: role.faceImg || role.avatar || '' };
+        if(role) return { id: role.id, name: role.remark ? `${role.remark}` : role.name, sub: role.personality ? role.personality.substring(0, 20) : '在线', avatar: role.faceImg || role.avatar || '' };
         
         const configStr = localStorage.getItem('wuyo_config');
-        let name = 'AI'; let avatar = '';
+        let name = 'AI 伙伴'; let sub = '在线'; let avatar = '';
         if(configStr) {
             const config = JSON.parse(configStr);
-            if(config.texts) { if(config.texts.aiTitle) name = config.texts.aiTitle; if(config.texts.aiAvatar) avatar = config.texts.aiAvatar; }
+            if(config.texts) { if(config.texts.aiTitle) name = config.texts.aiTitle; if(config.texts.aiSubtitle) sub = config.texts.aiSubtitle; if(config.texts.aiAvatar) avatar = config.texts.aiAvatar; }
         }
-        return { id: 'char_default', name, avatar };
+        return { id: 'char_default', name, sub, avatar };
     };
 
     const getCoupleConfig = () => {
@@ -137,11 +137,7 @@
     const renderChatList = () => {
         const listArea = document.getElementById('chat-list-render-area');
         const roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
-        
-        if(roles.length === 0) {
-            // 如果通讯录没有角色，创建一个默认的
-            roles.push({ id: 'char_default', name: 'AI 伙伴', avatar: '' });
-        }
+        if(roles.length === 0) roles.push({ id: 'char_default', name: 'AI 伙伴', avatar: '' });
 
         let html = '';
         roles.forEach(role => {
@@ -175,6 +171,13 @@
         currentChatId = charId; 
         const roleInfo = getCurrentRoleInfo();
         document.getElementById('chat-char-name').textContent = roleInfo.name;
+        document.getElementById('chat-status-text').textContent = roleInfo.sub;
+        
+        // 渲染左上角小头像
+        const headerAv = document.getElementById('header-ai-avatar');
+        if(roleInfo.avatar) { headerAv.style.backgroundImage = `url(${roleInfo.avatar})`; headerAv.innerHTML = ''; }
+        else { headerAv.style.backgroundImage = ''; headerAv.innerHTML = '<i data-lucide="bot" style="width:18px;height:18px;"></i>'; lucide.createIcons({ root: headerAv }); }
+
         document.getElementById('chat-page-detail').classList.add('active'); 
         renderMessages();
     };
@@ -195,7 +198,7 @@
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
     // ==========================================
-    // 💥 强制渲染：双头像、浪漫标语与气泡列表
+    // 💥 完美渲染：双头像横幅 + 双方头像气泡 + 气泡下方时间戳
     // ==========================================
     const renderMessages = () => {
         if(!currentChatId) return; 
@@ -205,7 +208,7 @@
         const roleInfo = getCurrentRoleInfo();
         const coupleConf = getCoupleConfig();
 
-        // 1. 顶部双头像与浪漫签名横幅 (随消息上滑)
+        // 1. 顶部可随消息上滑的双头像横幅
         const bannerEl = document.createElement('div');
         bannerEl.className = 'chat-couple-banner';
         
@@ -231,20 +234,12 @@
             return;
         }
 
-        let lastTime = 0;
         history.forEach((msg, index) => {
-            if (msg.time - lastTime > 5 * 60 * 1000) {
-                const timeEl = document.createElement('div'); 
-                timeEl.className = 'chat-timestamp'; 
-                timeEl.textContent = formatTime(msg.time); 
-                msgList.appendChild(timeEl);
-            }
-            lastTime = msg.time;
-
             const isUser = msg.role === 'user';
             const row = document.createElement('div');
             row.className = `chat-bubble-row ${isUser ? 'user' : 'ai'}`;
 
+            // 头像
             const avDiv = document.createElement('div');
             avDiv.className = 'bubble-avatar';
             if (isUser) {
@@ -255,9 +250,18 @@
                 else { avDiv.innerHTML = '<i data-lucide="bot" style="width:18px;height:18px;"></i>'; }
             }
 
+            // 气泡与下方时间戳包装列
+            const col = document.createElement('div');
+            col.className = 'bubble-column';
+
             const bubble = document.createElement('div');
             bubble.className = `chat-bubble ${isUser ? 'user' : 'ai'}`;
             bubble.innerHTML = msg.content.replace(/\n/g, '<br>');
+
+            // 💥 气泡下方显示独立时间戳
+            const timeSub = document.createElement('div');
+            timeSub.className = 'bubble-time-sub';
+            timeSub.textContent = formatTime(msg.time);
 
             bubble.addEventListener('touchstart', (e) => {
                 pressTimer = setTimeout(() => {
@@ -270,8 +274,11 @@
             bubble.addEventListener('touchend', () => clearTimeout(pressTimer)); 
             bubble.addEventListener('touchmove', () => clearTimeout(pressTimer));
 
+            col.appendChild(bubble);
+            col.appendChild(timeSub);
+
             row.appendChild(avDiv);
-            row.appendChild(bubble);
+            row.appendChild(col);
             msgList.appendChild(row);
         });
         lucide.createIcons({ root: msgList });
@@ -360,14 +367,10 @@
         if(window.openRoleProfile) { container.style.display = 'none'; window.openApp('contacts'); window.openRoleProfile(currentChatId); }
     });
 
-    // 💥 修复点：只要输入框有字，发送按钮立刻呈现并可以任意点击
     inputArea.addEventListener('input', function() {
         this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        if(this.value.trim() !== '') { 
-            sendBtn.classList.add('active'); 
-        } else { 
-            sendBtn.classList.remove('active'); 
-        }
+        if(this.value.trim() !== '') { sendBtn.classList.add('active'); } 
+        else { sendBtn.classList.remove('active'); }
     });
 
     const buildSystemPrompt = () => {
