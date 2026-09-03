@@ -2,6 +2,7 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
+    // 1. 初始化 DOM：在设置菜单中加入“置顶聊天”与“消息免打扰”开关
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -53,6 +54,7 @@
             </div>
         </div>
 
+        <!-- 聊天与气泡美化设置页面 (加入置顶与免打扰开关) -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -66,6 +68,18 @@
                     </div>
                     <div class="settings-list-item" id="settings-btn-memory">
                         <span>AI 长期记忆</span><i data-lucide="chevron-right"></i>
+                    </div>
+                </div>
+
+                <div style="padding: 0 16px 8px 24px; font-size:12px; color:#8E8E93;">聊天常规设置 (置顶与免打扰)</div>
+                <div class="settings-list-group">
+                    <div class="settings-list-item">
+                        <span>置顶聊天</span>
+                        <label class="ios-switch"><input type="checkbox" id="chat-pinned-toggle"><span class="ios-slider"></span></label>
+                    </div>
+                    <div class="settings-list-item">
+                        <span>消息免打扰</span>
+                        <label class="ios-switch"><input type="checkbox" id="chat-mute-toggle"><span class="ios-slider"></span></label>
                     </div>
                 </div>
 
@@ -159,7 +173,9 @@
             id: role.id, 
             name: role.remark ? `${role.remark}` : role.name, 
             sub: role.personality ? role.personality.substring(0, 20) : '在线', 
-            avatar: finalAiAv 
+            avatar: finalAiAv,
+            pinned: role.pinned || false,
+            muted: role.muted || false
         };
     };
 
@@ -201,10 +217,21 @@
 
     const formatTime = (ts) => { const d = new Date(ts); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
 
+    // 💥 渲染聊天列表（支持「置顶聊天」排序置顶）
     const renderChatList = () => {
         const listArea = document.getElementById('chat-list-render-area');
-        const roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
-        if(roles.length === 0) roles.push({ id: 'char_default', name: 'AI 伙伴', avatar: '' });
+        let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
+        if(roles.length === 0) {
+            roles.push({ id: 'char_default', name: 'AI 伙伴', avatar: '' });
+            localStorage.setItem('wuyo_roles', JSON.stringify(roles));
+        }
+
+        // 排序规则：置顶的排在最前面
+        roles.sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return 0;
+        });
 
         let html = '';
         roles.forEach(role => {
@@ -217,13 +244,14 @@
             const avatarStyle = activeAiAv ? `background-image: url(${activeAiAv});` : ``;
             const avatarInner = activeAiAv ? '' : `<i data-lucide="bot"></i>`;
             const displayName = role.remark ? `${role.remark} (${role.name})` : role.name;
+            const pinnedBg = role.pinned ? 'background: #F9F9FB;' : '';
 
             html += `
-                <div class="chat-list-item" onclick="window.openChatDetail('${role.id}')">
+                <div class="chat-list-item" style="${pinnedBg}" onclick="window.openChatDetail('${role.id}')">
                     <div class="chat-list-avatar" style="${avatarStyle}">${avatarInner}</div>
                     <div class="chat-list-info">
                         <div class="chat-list-top">
-                            <span class="chat-list-name">${displayName}</span>
+                            <span class="chat-list-name">${displayName} ${role.pinned ? '<span style="font-size:11px; color:#8E8E93; font-weight:400; margin-left:4px;">[置顶]</span>' : ''}</span>
                             <span class="chat-list-time">${lastTime}</span>
                         </div>
                         <span class="chat-list-msg">${lastMsg}</span>
@@ -372,6 +400,7 @@
         ctxMenu.classList.remove('show');
     });
 
+    // 打开设置菜单：回填置顶与免打扰状态
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
         const styleConf = getChatStyleConfig();
         const roleInfo = getCurrentRoleInfo();
@@ -381,6 +410,8 @@
         document.getElementById('bubble-radius-select').value = styleConf.bubbleRadius;
         document.getElementById('show-user-avatar-toggle').checked = styleConf.showUserAvatar;
         document.getElementById('show-ai-avatar-toggle').checked = styleConf.showAiAvatar;
+        document.getElementById('chat-pinned-toggle').checked = roleInfo.pinned;
+        document.getElementById('chat-mute-toggle').checked = roleInfo.muted;
         
         const pUser = document.getElementById('preview-user-av');
         if(styleConf.userAvatar) pUser.style.backgroundImage = `url(${styleConf.userAvatar})`; else pUser.style.backgroundImage = '';
@@ -398,6 +429,7 @@
         applyChatStylesToDOM();
     });
 
+    // 💥 点击保存按钮：持久化写入置顶、免打扰、头像、气泡与背景设置
     document.getElementById('settings-save-btn').addEventListener('click', () => {
         const sig = document.getElementById('couple-sign-input').value;
         const bubbleBg = document.getElementById('bubble-color-picker').value;
@@ -405,12 +437,28 @@
         const radius = document.getElementById('bubble-radius-select').value;
         const showUserAv = document.getElementById('show-user-avatar-toggle').checked;
         const showAiAv = document.getElementById('show-ai-avatar-toggle').checked;
+        const isPinned = document.getElementById('chat-pinned-toggle').checked;
+        const isMuted = document.getElementById('chat-mute-toggle').checked;
 
+        // 1. 保存角色专属的置顶与免打扰状态
+        if(currentChatId) {
+            let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
+            let r = roles.find(item => item.id === currentChatId);
+            if(r) {
+                r.pinned = isPinned;
+                r.muted = isMuted;
+                if(tempEditableAiAvatar) r.faceImg = tempEditableAiAvatar;
+                localStorage.setItem('wuyo_roles', JSON.stringify(roles));
+            }
+        }
+
+        // 2. 保存全局恋爱标语与头像
         let coupleConf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
         coupleConf.signature = sig;
         if(tempEditableUserAvatar) coupleConf.userAvatar = tempEditableUserAvatar;
         localStorage.setItem('wuyo_couple_config', JSON.stringify(coupleConf));
 
+        // 3. 保存气泡与背景美化配置
         let chatStyleConf = JSON.parse(localStorage.getItem('wuyo_chat_style_config')) || {};
         chatStyleConf.bubbleBg = bubbleBg;
         chatStyleConf.bubbleFontSize = fontSize;
@@ -420,16 +468,7 @@
         if(tempEditableBgImg) chatStyleConf.bgImg = tempEditableBgImg;
         localStorage.setItem('wuyo_chat_style_config', JSON.stringify(chatStyleConf));
 
-        if(tempEditableAiAvatar && currentChatId) {
-            let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
-            let r = roles.find(item => item.id === currentChatId);
-            if(r) {
-                r.faceImg = tempEditableAiAvatar;
-                localStorage.setItem('wuyo_roles', JSON.stringify(roles));
-            }
-        }
-
-        alert("美化与头像显隐设置保存成功！");
+        alert("设置保存成功！");
         document.getElementById('chat-page-settings').classList.remove('active');
         
         applyChatStylesToDOM();
@@ -527,12 +566,17 @@
 
     const triggerAiReply = async () => {
         if(!currentChatId) return;
+        const roleInfo = getCurrentRoleInfo();
+        
+        // 如果开启了免打扰(muted)，我们可以跳过气泡提示或静默处理，但这里依然正常让AI流式回复
         const apiConfigStr = localStorage.getItem('wuyo_settings_api');
         if(!apiConfigStr) return alert("请先在设置中配置 API！");
         const apiConfig = JSON.parse(apiConfigStr);
         if(!apiConfig.chat || !apiConfig.chat.url || !apiConfig.chat.key) return alert("API 配置不完整！");
 
-        statusText.textContent = '对方正在输入...'; statusText.style.color = '#1C1C1E';
+        statusText.textContent = roleInfo.muted ? '对方正在输入 (免打扰)' : '对方正在输入...';
+        statusText.style.color = '#1C1C1E';
+        
         const aiMsgObj = { role: 'assistant', content: '', time: Date.now() };
         if(!globalChatData[currentChatId]) globalChatData[currentChatId] = [];
         globalChatData[currentChatId].push(aiMsgObj); 
@@ -567,7 +611,8 @@
                     }
                 }
             }
-            statusText.textContent = '在线'; statusText.style.color = '#8E8E93';
+            statusText.textContent = roleInfo.muted ? '在线 (免打扰)' : '在线';
+            statusText.style.color = '#8E8E93';
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData)); renderChatList(); 
         } catch (error) {
             statusText.textContent = '未连接'; aiMsgObj.content = `[错误: ${error.message}]`; currentBubble.innerHTML = aiMsgObj.content;
