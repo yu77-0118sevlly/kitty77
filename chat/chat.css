@@ -1,5 +1,5 @@
 /* ==========================================
-   Chat App - 纯黑白灰极简高级样式
+   Chat App - 纯黑白灰极简高级样式 (修复悬浮乱码)
 ========================================== */
 #chat-app {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -9,9 +9,7 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-/* 确保容器填满整个屏幕高度 */
-.chat-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; position: relative; }
-
+.chat-container { display: flex; flex-direction: column; height: 100%; position: relative; }
 .chat-page {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: #F4F4F7; display: flex; flex-direction: column;
@@ -39,14 +37,12 @@
 .chat-search-bar { padding: 12px 16px; display: flex; align-items: center; background: #E5E5EA; border-radius: 12px; margin: 12px 16px; }
 .chat-search-bar i { width: 16px; height: 16px; color: #8E8E93; margin-right: 8px; }
 .chat-search-input { flex: 1; background: transparent; border: none; font-size: 14px; outline: none; color: #1C1C1E; }
-.chat-search-input::placeholder { color: #8E8E93; }
 
-.chat-list-item { display: flex; align-items: center; padding: 12px 16px; background: #FFF; border-bottom: 0.5px solid #F2F2F7; cursor: pointer; transition: background 0.2s; }
-.chat-list-item:active { background: #F2F2F7; }
+.chat-list-item { display: flex; align-items: center; padding: 12px 16px; background: #FFF; border-bottom: 0.5px solid #F2F2F7; cursor: pointer; }
 .chat-list-avatar { width: 48px; height: 48px; border-radius: 12px; background: #E5E5EA; background-size: cover; background-position: center; margin-right: 12px; display: flex; justify-content: center; align-items: center; color: #8E8E93; }
 .chat-list-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
 .chat-list-top { display: flex; justify-content: space-between; align-items: center; }
-.chat-list-name { font-size: 16px; font-weight: 600; color: #1C1C1E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-list-name { font-size: 16px; font-weight: 600; color: #1C1C1E; }
 .chat-list-time { font-size: 12px; color: #8E8E93; }
 .chat-list-msg { font-size: 14px; color: #8E8E93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -79,7 +75,7 @@
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-/* 底部输入框：紧贴底部，取消颜色 */
+/* 底部输入框：极简黑白 */
 .chat-input-area {
     flex-shrink: 0; padding: 10px 12px calc(env(safe-area-inset-bottom, 20px) + 10px) 12px;
     background: #F4F4F7; border-top: 0.5px solid rgba(0,0,0,0.05);
@@ -92,7 +88,7 @@
     line-height: 1.4; margin: 0 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
 
-/* 独立的发送键：变成纯黑色 */
+/* 发送键：变成纯黑色 */
 .chat-send-btn {
     background: #1C1C1E; border: none; width: 60px; height: 36px; border-radius: 18px;
     display: flex; justify-content: center; align-items: center; color: #FFF; font-weight: 600; font-size: 14px;
@@ -101,19 +97,18 @@
 }
 .chat-send-btn.active { opacity: 1; width: 60px; pointer-events: auto; cursor: pointer; }
 
-/* 长按菜单：纯黑白灰 */
+/* 💥 核心修复：长按菜单强制隐藏，避免堆叠在底部 */
 .chat-context-menu {
     position: fixed; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); display: flex; flex-direction: row; overflow: hidden; z-index: 10000;
-    opacity: 0; pointer-events: none; transition: opacity 0.2s; transform: translate(-50%, -10px);
+    border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); display: flex; flex-direction: row; overflow: hidden; 
+    z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.2s; transform: translate(-50%, -10px);
 }
 .chat-context-menu.show { opacity: 1; pointer-events: auto; }
 .ctx-item { padding: 12px 18px; font-size: 14px; font-weight: 500; color: #1C1C1E; display: flex; flex-direction: column; align-items: center; gap: 4px; border-right: 0.5px solid rgba(0,0,0,0.05); cursor: pointer;}
 .ctx-item:last-child { border-right: none; }
 .ctx-item i { width: 18px; height: 18px; color: #1C1C1E; }
-.ctx-item:active { background: rgba(0,0,0,0.05); }
 
-/* 右上角设置面板：纯黑白灰 */
+/* 💥 核心修复：右上角面板强制隐藏到底部下方 */
 .chat-drawer-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4);
     z-index: 10001; opacity: 0; pointer-events: none; transition: opacity 0.3s;
@@ -129,5 +124,4 @@
     width: 100%; padding: 16px; background: #FFF; border: none; font-size: 16px; font-weight: 500; color: #1C1C1E;
     border-radius: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer;
 }
-.drawer-btn:active { background: #E5E5EA; }
 .drawer-btn.cancel { margin-top: 8px; font-weight: 600; }
