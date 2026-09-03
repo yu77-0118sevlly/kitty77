@@ -24,7 +24,6 @@
                 <div class="beautify-setting-item vertical"><span>品牌名称 (左上角)</span><input type="text" id="text-brand" value="WUYO"></div>
                 <div class="beautify-setting-item vertical"><span>AI 伴侣标题</span><input type="text" id="text-ai-title" value="AI 伙伴"></div>
                 <div class="beautify-setting-item vertical"><span>AI 伴侣副标题</span><input type="text" id="text-ai-subtitle" value="随时准备与你交流…"></div>
-                
                 <div class="beautify-setting-item">
                     <span>AI 头像</span>
                     <div class="beautify-avatar-preview" id="ai-avatar-preview"></div>
@@ -131,6 +130,31 @@
     };
     bindData();
 
+    // 🟢 核心功能：图片强力压缩引擎 (防止撑爆 5MB 的 localStorage 限制)
+    const compressImage = (base64Str, maxWidth, callback) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // 压缩为 jpeg 格式，质量设为 0.7，极大地缩小体积
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+            callback(compressedBase64);
+        };
+        img.src = base64Str;
+    };
+
     const uploader = document.createElement('input');
     uploader.type = 'file';
     uploader.accept = 'image/*';
@@ -150,35 +174,37 @@
         if (file && currentTarget) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                const base64 = event.target.result;
+                const originalBase64 = event.target.result;
                 
-                if (currentTarget === 'bg-image') wuyoConfig.style.bgImage = base64;
-                if (currentTarget === 'profile-avatar') {
-                    wuyoConfig.profile.avatar = base64;
-                    document.getElementById('profile-avatar-preview').style.backgroundImage = `url(${base64})`;
-                }
-                
-                if (currentTarget === 'ai-avatar') {
-                    wuyoConfig.texts.aiAvatar = base64;
-                    document.getElementById('ai-avatar-preview').style.backgroundImage = `url(${base64})`;
-                }
+                // 🟢 压缩图片 (限制最大宽度 800px)，然后再保存到内存
+                compressImage(originalBase64, 800, (compressedBase64) => {
+                    if (currentTarget === 'bg-image') wuyoConfig.style.bgImage = compressedBase64;
+                    
+                    if (currentTarget === 'profile-avatar') {
+                        wuyoConfig.profile.avatar = compressedBase64;
+                        document.getElementById('profile-avatar-preview').style.backgroundImage = `url(${compressedBase64})`;
+                    }
+                    
+                    if (currentTarget === 'ai-avatar') {
+                        wuyoConfig.texts.aiAvatar = compressedBase64;
+                        document.getElementById('ai-avatar-preview').style.backgroundImage = `url(${compressedBase64})`;
+                    }
 
-                if (currentTarget === 'w-memory-img') wuyoConfig.widgets.memory.img = base64;
-                if (currentTarget === 'w-couple-img') wuyoConfig.widgets.couple.img = base64;
-                if (currentTarget.startsWith('app-img-')) {
-                    const appName = currentTarget.replace('app-img-', '');
-                    if(!wuyoConfig.apps[appName]) wuyoConfig.apps[appName] = {};
-                    wuyoConfig.apps[appName].img = base64;
-                }
+                    if (currentTarget === 'w-memory-img') wuyoConfig.widgets.memory.img = compressedBase64;
+                    if (currentTarget === 'w-couple-img') wuyoConfig.widgets.couple.img = compressedBase64;
+                    
+                    if (currentTarget.startsWith('app-img-')) {
+                        const appName = currentTarget.replace('app-img-', '');
+                        if(!wuyoConfig.apps[appName]) wuyoConfig.apps[appName] = {};
+                        wuyoConfig.apps[appName].img = compressedBase64;
+                    }
+                });
             };
             reader.readAsDataURL(file);
         }
         uploader.value = '';
     });
 
-    // =====================================
-    // 🟢 高级弹窗显示逻辑
-    // =====================================
     const showSuccessModal = () => {
         const overlay = document.createElement('div');
         overlay.className = 'beautify-modal-overlay';
@@ -190,18 +216,15 @@
         `;
         document.body.appendChild(overlay);
 
-        // 使用 requestAnimationFrame 触发弹窗动画
         requestAnimationFrame(() => {
             overlay.style.opacity = '1';
             overlay.querySelector('.beautify-modal-box').style.transform = 'scale(1)';
         });
 
-        // 绑定关闭事件
         overlay.querySelector('.beautify-modal-btn').addEventListener('click', () => {
             overlay.style.opacity = '0';
             overlay.querySelector('.beautify-modal-box').style.transform = 'scale(0.9)';
             
-            // 动画结束后移除 DOM 并返回主页
             setTimeout(() => {
                 document.body.removeChild(overlay);
                 if (typeof window.applyConfig === 'function') window.applyConfig();
@@ -234,10 +257,13 @@
             }
         });
 
-        localStorage.setItem('wuyo_config', JSON.stringify(wuyoConfig));
-        
-        // 🟢 调用自定义的高级弹窗
-        showSuccessModal();
+        // 🟢 加入错误捕捉，防止存储空间仍然超标导致奔溃
+        try {
+            localStorage.setItem('wuyo_config', JSON.stringify(wuyoConfig));
+            showSuccessModal();
+        } catch (error) {
+            alert("手机存储空间不足！你可能上传了太多自定义图片，请恢复默认或减少图片数量后重试！");
+        }
     });
 
     document.getElementById('beautify-reset-btn').addEventListener('click', () => {
