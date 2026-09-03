@@ -2,397 +2,1412 @@
     --bg-color: #f4f4f7;
     --glass-bg: rgba(255, 255, 255, 0.55);
     --glass-border: 1px solid rgba(255, 255, 255, 0.7);
-    --glass-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
-    
+
+    --glass-shadow:
+        0 16px 40px -12px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+
     --text-dark: #1c1c1e;
     --text-muted: #8e8e93;
     --icon-color: #4a4a4c;
-    
+
     --radius-sm: 18px;
     --radius-md: 24px;
     --radius-lg: 32px;
-    
-    /* 适配刘海屏和底部黑条的安全距离 */
+
+    /* iPhone 安全区域 */
     --safe-top: env(safe-area-inset-top, 16px);
     --safe-bottom: env(safe-area-inset-bottom, 16px);
 }
+
+
+/* =========================================================
+   基础
+========================================================= */
 
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
-    margin: 0; padding: 0;
-    width: 100%; height: 100%;
+html,
+body {
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
+    height: 100%;
+
     background-color: var(--bg-color);
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "PingFang SC",
+        "Helvetica Neue",
+        sans-serif;
+
     color: var(--text-dark);
-    overflow: hidden; 
-    touch-action: none; 
-    -webkit-user-select: none; user-select: none;
+
+    overflow: hidden;
+
+    -webkit-user-select: none;
+    user-select: none;
+
     -webkit-touch-callout: none;
-    max-width: 430px; margin: 0 auto;
+
+    max-width: 430px;
+    margin-left: auto;
+    margin-right: auto;
 }
+
+
+/* =========================================================
+   主屏幕
+========================================================= */
 
 #home-screen {
-    width: 100%; height: 100%;
-    display: flex; flex-direction: column;
-    padding-top: max(var(--safe-top), 16px);
-}
-
-/* ================= 顶部 Header ================= */
-.top-header {/* 补充右上角头像和名字的排版 */
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.user-nickname {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-dark);
-}
-
-    display: flex; justify-content: space-between; align-items: flex-start;
-    padding: 0 24px 16px 24px;
-    flex-shrink: 0;
-}
-.brand-name {
-    font-size: 13px; font-weight: 800;
-    letter-spacing: 1px; color: var(--text-muted);
-    margin-bottom: 6px;
-}
-.date-display { display: flex; flex-direction: column; }
-.day { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 2px; }
-.date { font-size: 28px; font-weight: 600; color: var(--text-dark); letter-spacing: -0.5px; }
-
-.profile-widget {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    background: var(--glass-bg);
-    border: 2px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
-    display: flex; justify-content: center; align-items: center;
-    overflow: hidden;
-}
-
-/* ================= 桌面滑动区 ================= */
-.desktop-swiper {
-    flex: 1; display: flex;
-    overflow-x: auto; overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none; -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
-}
-.desktop-swiper::-webkit-scrollbar { display: none; }
-
-.desktop-page {
-    min-width: 100%; flex-shrink: 0;
-    scroll-snap-align: start;
-    padding: 0 24px;
-    display: flex; flex-direction: column;
-    /* 这里不再使用 gap 让它乱撑，而是给内部组件单独设置 margin 制造高级呼吸感 */
-}
-
-/* ================= 第一页: 主要 Widget ================= */
-.widget-row-main {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    height: 140px; /* 锁死 Widget 高度，杜绝上下乱伸缩 */
-    margin-bottom: 24px; /* 与下方 AI 伙伴之间的呼吸感留白 */
-    flex-shrink: 0;
-}
-
-.widget {
-    background: var(--glass-bg);
-    backdrop-filter: blur(25px) saturate(180%); -webkit-backdrop-filter: blur(25px) saturate(180%);
-    border: var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    border-radius: var(--radius-md);
-    overflow: hidden;
     position: relative;
-}
-.widget-square { height: 100%; }
 
-.flex-center { display: flex; justify-content: center; align-items: center; }
-.col-layout { flex-direction: column; }
-
-/* 内部细节 */
-.polaroid-inner { padding: 12px; height: 100%; display: flex; flex-direction: column; }
-.polaroid-img { 
-    flex: 1; background: #eaeaf0; border-radius: 12px; 
-    display: flex; justify-content: center; align-items: center; 
-}
-.polaroid-bottom { margin-top: 10px; display: flex; flex-direction: column; }
-.polaroid-tag { font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px; }
-.polaroid-desc { font-size: 12px; font-weight: 500; margin-top: 2px; }
-
-.clock-time { font-size: 40px; font-weight: 300; letter-spacing: -2px; color: var(--text-dark); }
-.clock-date { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-top: 4px; }
-
-/* ================= AI 伙伴卡片 (绝对锁死尺寸) ================= */
-.ai-card {
-    display: flex; align-items: center;
-    background: var(--glass-bg);
-    backdrop-filter: blur(25px) saturate(180%); -webkit-backdrop-filter: blur(25px) saturate(180%);
-    border: var(--glass-border);
-    border-radius: 20px;
-    padding: 16px 20px;
-    gap: 16px;
-    height: 90px; /* 严格锁死为小型横条！ */
-    box-shadow: var(--glass-shadow);
-    margin-bottom: 28px; /* 与下方 App 之间的舒适留白 */
-    flex-shrink: 0;
-}
-.ai-avatar {
-    width: 46px; height: 46px;
-    border-radius: 14px;
-    background: rgba(0, 0, 0, 0.04);
-    display: flex; justify-content: center; align-items: center;
-    color: var(--icon-color);
-    flex-shrink: 0;
-}
-.ai-info {
-    display: flex; flex-direction: column; justify-content: center;
-}
-.ai-info h2 {
-    margin: 0 0 4px 0;
-    font-size: 16px; font-weight: 600;
-}
-.ai-info p {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-/* ================= App 网格 ================= */
-.app-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px 14px; 
-    flex-shrink: 0;
-}
-.app-item {
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-}
-.app-icon {
-    width: 58px; height: 58px;
-    background: var(--glass-bg);
-    border: var(--glass-border); box-shadow: var(--glass-shadow);
-    border-radius: 20px;
-    display: flex; justify-content: center; align-items: center;
-    color: var(--icon-color);
-}
-.app-icon .lucide { width: 26px; height: 26px; stroke-width: 1.5; }
-.app-item span { font-size: 11px; font-weight: 500; color: var(--text-dark); }
-
-
-/* ================= 第二页专属 Widget 收纳 ================= */
-.widget-row-secondary {
-    margin-bottom: 14px; flex-shrink: 0;
-}
-.widget-wide { height: 90px; display: flex; align-items: center; padding: 14px; }
-.widget-grid-compact {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
-    height: 180px; margin-bottom: 24px; flex-shrink: 0;
-}
-.music-cover { 
-    width: 60px; height: 60px; border-radius: 14px; 
-    background: #eaeaf0; display: flex; justify-content: center; align-items: center; 
-}
-.music-info { flex: 1; margin-left: 16px; display: flex; flex-direction: column; justify-content: center; }
-.music-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-.music-artist { font-size: 12px; color: var(--text-muted); }
-.music-play { width: 34px; height: 34px; color: var(--icon-color); margin-right: 8px; }
-
-.couple-heart { font-size: 28px; color: var(--icon-color); margin-bottom: 8px; font-weight: 300; }
-.couple-days { font-size: 14px; font-weight: 600; }
-.photo-widget { display: flex; justify-content: center; align-items: center; background-color: #eaeaf0; }
-.today-title { font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 8px; }
-.today-text { font-size: 13px; font-weight: 500; line-height: 1.5; text-align: center; }
-.weather-icon { width: 28px; height: 28px; color: var(--icon-color); margin-bottom: 8px; }
-.weather-temp { font-size: 24px; font-weight: 500; letter-spacing: -1px; }
-.weather-city { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-
-
-/* ================= 指示点 & Dock ================= */
-.pagination-dots {
-    display: flex; justify-content: center; gap: 8px;
-    margin: 16px 0 20px 0; /* 控制指示点与 Dock 之间的稳定节奏 */
-    flex-shrink: 0;
-}
-.dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,0.1); transition: 0.3s; }
-.dot.active { background: rgba(0,0,0,0.5); }
-
-#dock {
-    width: calc(100% - 48px); height: 76px;
-    margin: 0 auto calc(var(--safe-bottom) + 12px) auto; /* 稳定落在底部并保持留白 */
-    background: var(--glass-bg);
-    backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%);
-    border: var(--glass-border); box-shadow: var(--glass-shadow);
-    border-radius: var(--radius-lg);
-    display: flex; align-items: center; padding: 0 16px;
-    flex-shrink: 0;
-}
-.dock-container {
-    width: 100%; display: flex; justify-content: space-around; align-items: center;
-}
-.dock-item {
-    display: flex; flex-direction: column; align-items: center;
-}
-.dock-icon {
-    width: 50px; height: 50px;
-    border-radius: 16px;
-    display: flex; justify-content: center; align-items: center;
-    color: var(--icon-color);
-}
-.dock-icon .lucide { width: 26px; height: 26px; stroke-width: 1.5; }
-
-/* 图片交互 */
-.uploadable { cursor: pointer; background-size: cover; background-position: center; }
-.uploadable.has-image .placeholder-icon { display: none; }
-.placeholder-icon { color: #c7c7cc; width: 24px; height: 24px; }
-/* ==========================================
-   桌面分页 & 错落式网格布局 (Bento Grid)
-========================================== */
-.desktop-page { padding-top: calc(env(safe-area-inset-top, 44px) + 20px); }
-.desktop-page .top-header { margin-top: -20px; margin-bottom: 24px; }
-
-.bento-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 16px; padding: 0 24px 24px 24px;
-}
-.bento-grid .widget { width: 100%; height: 100%; margin: 0; }
-.widget-1x1 { grid-column: span 1; aspect-ratio: 1 / 1; }
-.widget-2x1 { grid-column: span 2; aspect-ratio: 2 / 1; }
-.widget-2x2 { grid-column: span 2; aspect-ratio: 1 / 1; }
-
-/* ==========================================
-   新增 Widget 样式 (情侣高级版 & 一起听歌)
-========================================== */
-.couple-advanced-widget {
-    display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 0 20px;
-}
-.couple-avatars { display: flex; align-items: center; gap: 8px; }
-.c-avatar {
-    width: 44px; height: 44px; border-radius: 50%; background: #F2F2F7;
-    display: flex; justify-content: center; align-items: center; color: #8E8E93;
-    background-size: cover; background-position: center;
-}
-.c-heart { font-size: 16px; color: #1C1C1E; font-weight: 300; }
-.couple-text-area { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.c-title { font-size: 12px; font-weight: 600; color: #8E8E93; letter-spacing: 1px; }
-.c-days { font-size: 18px; font-weight: 700; color: #1C1C1E; }
-
-.listen-together-widget {
-    display: flex; flex-direction: row; align-items: center; padding: 16px; gap: 16px;
-}
-.listen-cover {
-    width: 64px; height: 64px; border-radius: 12px; background: #F2F2F7; flex-shrink: 0;
-    display: flex; justify-content: center; align-items: center; color: #8E8E93;
-    background-size: cover; background-position: center;
-}
-.listen-info { flex: 1; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
-.listen-avatars { display: flex; gap: -4px; margin-bottom: 6px; }
-.l-avatar {
-    width: 18px; height: 18px; border-radius: 50%; background: #E5E5EA;
-    border: 2px solid #FFFFFF; margin-right: -6px; z-index: 1;
-    background-size: cover; background-position: center;
-}
-.l-avatar:last-child { z-index: 0; }
-.listen-song { font-size: 14px; font-weight: 700; color: #1C1C1E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.listen-artist { font-size: 12px; font-weight: 500; color: #8E8E93; margin-bottom: 6px; }
-.listen-bottom { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; color: #1C1C1E; }
-.listen-bottom span:first-child { color: #8E8E93; }
-/* ==========================================
-   强制下移 Dock 栏与分页圆点 (贴近底部黑线)
-========================================== */
-#dock {
-    position: fixed !important;
-    bottom: env(safe-area-inset-bottom, 12px) !important; /* 紧贴底部黑线 */
-    left: 0;
     width: 100%;
+    height: 100%;
+
     display: flex;
-    justify-content: center;
-    z-index: 100;
+    flex-direction: column;
+
+    padding-top: max(var(--safe-top), 16px);
+
+    background-color: var(--bg-color);
+
+    overflow: hidden;
 }
 
-.dock-container {
-    margin-bottom: 0 !important; /* 清除原本多余的底部外边距 */
-}
 
-/* 同步下移分页圆点，避免悬浮在半空中遮挡 App */
-.pagination-dots {
-    position: fixed !important;
-    bottom: calc(env(safe-area-inset-bottom, 12px) + 80px) !important; 
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    z-index: 99;
-}
-/* ==========================================
-   强制顶部 Header 左侧排成一排，并与右侧居中对齐
-========================================== */
+/* =========================================================
+   顶部 Header
+========================================================= */
+
 .top-header {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important; /* 确保左右两边在同一条水平线上 */
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 24px 16px 24px;
+
+    flex-shrink: 0;
+
+    position: relative;
+    z-index: 10;
 }
+
+
+/* 左边 */
 
 .header-left {
-    display: flex !important;
-    align-items: center !important; /* 让左侧的文字全部垂直居中对齐 */
-    gap: 10px !important; /* 控制 WUYO 和日期之间的间距 */
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
 }
+
+
+/* WUYO */
 
 .brand-name {
-    font-size: 16px !important; /* 变成精致的小字号 */
-    font-weight: 800 !important;
-    color: #1c1c1e !important;
-    margin: 0 !important;
-    line-height: 1 !important;
+    font-size: 16px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    color: var(--text-dark);
+
+    margin: 0;
+
+    line-height: 1;
 }
 
+
+/* 星期 + 日期 */
+
 .date-display {
-    display: flex !important;
-    align-items: center !important;
-    gap: 6px !important; /* 星期和具体日期之间的间距 */
-    margin: 0 !important; 
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    margin: 0;
 }
 
 .date-display .day {
-    font-size: 13px !important;
-    color: #8E8E93 !important;
-    font-weight: 500 !important;
-    line-height: 1 !important;
+    font-size: 13px;
+
+    color: var(--text-muted);
+
+    font-weight: 500;
+
+    line-height: 1;
 }
 
 .date-display .date {
-    font-size: 15px !important; /* 缩小原本巨大的日期 */
-    font-weight: 700 !important;
-    color: #1C1C1E !important;
-    line-height: 1 !important;
-}
-/* ==========================================
-   💥 终极锁死：App 列表 4 列对齐（最高权重）
-========================================== */
-#home-screen .app-grid {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: flex-start !important;
-    gap: 16px 0 !important;
-    padding: 0 12px !important;
-    width: 100% !important;
+    font-size: 15px;
+
+    color: var(--text-dark);
+
+    font-weight: 700;
+
+    line-height: 1;
 }
 
-#home-screen .app-grid .app-item {
-    width: 25% !important; /* 强制每个图标精确占满屏幕的四分之一，4个一排，绝不换行 */
-    flex: 0 0 25% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    box-sizing: border-box !important;
+
+/* 右边 */
+
+.header-right {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    flex-shrink: 0;
+}
+
+
+/* 用户名字 */
+
+.user-nickname {
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: var(--text-dark);
+
+    white-space: nowrap;
+}
+
+
+/* 头像 */
+
+.profile-widget {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--glass-bg);
+
+    border: 2px solid rgba(255, 255, 255, 0.9);
+
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.05);
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   桌面横向分页
+========================================================= */
+
+.desktop-swiper {
+    width: 100%;
+
+    flex: 1;
+
+    min-height: 0;
+
+    display: flex;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    scroll-snap-type: x mandatory;
+
+    scrollbar-width: none;
+
+    -webkit-overflow-scrolling: touch;
+
+    touch-action: pan-x;
+
+    position: relative;
+}
+
+.desktop-swiper::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* =========================================================
+   每一页
+========================================================= */
+
+.desktop-page {
+    width: 100%;
+
+    min-width: 100%;
+
+    height: 100%;
+
+    flex-shrink: 0;
+
+    scroll-snap-align: start;
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    scrollbar-width: none;
+
+    padding: 0 24px 120px 24px;
+}
+
+.desktop-page::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* =========================================================
+   第一页：顶部两个 Widget
+========================================================= */
+
+.widget-row-main {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+
+    height: 140px;
+
+    margin-bottom: 24px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   Widget 基础
+========================================================= */
+
+.widget {
+    position: relative;
+
+    width: 100%;
+
+    background: var(--glass-bg);
+
+    backdrop-filter:
+        blur(25px)
+        saturate(180%);
+
+    -webkit-backdrop-filter:
+        blur(25px)
+        saturate(180%);
+
+    border: var(--glass-border);
+
+    box-shadow: var(--glass-shadow);
+
+    border-radius: var(--radius-md);
+
+    overflow: hidden;
+}
+
+.widget-square {
+    height: 100%;
+}
+
+
+/* =========================================================
+   Widget 居中
+========================================================= */
+
+.flex-center {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+}
+
+.col-layout {
+    flex-direction: column;
+}
+
+
+/* =========================================================
+   MEMORY Widget
+========================================================= */
+
+.polaroid-inner {
+    width: 100%;
+    height: 100%;
+
+    padding: 12px;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+.polaroid-img {
+    flex: 1;
+
+    min-height: 0;
+
+    background: #eaeaf0;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    background-size: cover;
+    background-position: center;
+
+    overflow: hidden;
+}
+
+.polaroid-bottom {
+    margin-top: 10px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    flex-shrink: 0;
+}
+
+.polaroid-tag {
+    font-size: 9px;
+
+    font-weight: 800;
+
+    color: var(--text-muted);
+
+    letter-spacing: 0.5px;
+}
+
+.polaroid-desc {
+    font-size: 12px;
+
+    font-weight: 500;
+
+    margin-top: 2px;
+
+    color: var(--text-dark);
+}
+
+
+/* =========================================================
+   时钟 Widget
+========================================================= */
+
+.clock-time {
+    font-size: 40px;
+
+    font-weight: 300;
+
+    letter-spacing: -2px;
+
+    color: var(--text-dark);
+
+    line-height: 1;
+}
+
+.clock-date {
+    font-size: 13px;
+
+    font-weight: 500;
+
+    color: var(--text-muted);
+
+    margin-top: 8px;
+}
+
+
+/* =========================================================
+   AI 伙伴
+========================================================= */
+
+.ai-card {
+    width: 100%;
+
+    height: 90px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    background: var(--glass-bg);
+
+    backdrop-filter:
+        blur(25px)
+        saturate(180%);
+
+    -webkit-backdrop-filter:
+        blur(25px)
+        saturate(180%);
+
+    border: var(--glass-border);
+
+    border-radius: 20px;
+
+    padding: 16px 20px;
+
+    gap: 16px;
+
+    box-shadow: var(--glass-shadow);
+
+    margin-bottom: 28px;
+}
+
+
+/* AI头像 */
+
+.ai-avatar {
+    width: 46px;
+    height: 46px;
+
+    border-radius: 14px;
+
+    background: rgba(0, 0, 0, 0.04);
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    color: var(--icon-color);
+
+    flex-shrink: 0;
+}
+
+
+/* AI文字 */
+
+.ai-info {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+.ai-info h2 {
+    margin: 0 0 4px 0;
+
+    font-size: 16px;
+
+    font-weight: 600;
+}
+
+.ai-info p {
+    margin: 0;
+
+    font-size: 12px;
+
+    color: var(--text-muted);
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   App 网格
+========================================================= */
+
+.app-grid {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    column-gap: 14px;
+
+    row-gap: 20px;
+
+    flex-shrink: 0;
+
+    padding: 0;
+}
+
+
+/* App */
+
+.app-item {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 8px;
+
+    cursor: pointer;
+}
+
+
+/* App 图标 */
+
+.app-icon {
+    width: 58px;
+    height: 58px;
+
+    max-width: 100%;
+
+    background: var(--glass-bg);
+
+    border: var(--glass-border);
+
+    box-shadow: var(--glass-shadow);
+
+    border-radius: 20px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    color: var(--icon-color);
+
+    background-size: cover;
+
+    background-position: center;
+
+    overflow: hidden;
+
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.app-item:active .app-icon {
+    transform: scale(0.92);
+
+    opacity: 0.7;
+}
+
+
+/* Lucide */
+
+.app-icon .lucide {
+    width: 26px;
+    height: 26px;
+
+    stroke-width: 1.5;
+}
+
+
+/* App 名字 */
+
+.app-item span {
+    width: 100%;
+
+    text-align: center;
+
+    font-size: 11px;
+
+    font-weight: 500;
+
+    color: var(--text-dark);
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   第二页：音乐 Widget
+========================================================= */
+
+.widget-row-secondary {
+    width: 100%;
+
+    margin-bottom: 14px;
+
+    flex-shrink: 0;
+}
+
+.widget-wide {
+    width: 100%;
+
+    height: 90px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 14px;
+}
+
+
+/* 音乐封面 */
+
+.music-cover {
+    width: 60px;
+    height: 60px;
+
+    border-radius: 14px;
+
+    background: #eaeaf0;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    background-size: cover;
+    background-position: center;
+
+    overflow: hidden;
+
+    flex-shrink: 0;
+}
+
+
+/* 音乐文字 */
+
+.music-info {
+    flex: 1;
+
+    min-width: 0;
+
+    margin-left: 16px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+.music-title {
+    font-size: 15px;
+
+    font-weight: 600;
+
+    margin-bottom: 4px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+.music-artist {
+    font-size: 12px;
+
+    color: var(--text-muted);
+}
+
+
+/* 播放 */
+
+.music-play {
+    width: 34px;
+    height: 34px;
+
+    color: var(--icon-color);
+
+    margin-right: 8px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   第二页：Widget 2x2
+========================================================= */
+
+.widget-grid-compact {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+
+    height: 180px;
+
+    margin-bottom: 24px;
+
+    flex-shrink: 0;
+}
+
+
+/* 情侣 */
+
+.couple-heart {
+    font-size: 28px;
+
+    color: var(--icon-color);
+
+    margin-bottom: 8px;
+
+    font-weight: 300;
+}
+
+.couple-days {
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: var(--text-dark);
+}
+
+
+/* 照片 */
+
+.photo-widget {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    background-color: #eaeaf0;
+
+    background-size: cover;
+
+    background-position: center;
+}
+
+
+/* TODAY */
+
+.today-title {
+    font-size: 11px;
+
+    font-weight: 800;
+
+    color: var(--text-muted);
+
+    letter-spacing: 1px;
+
+    margin-bottom: 8px;
+}
+
+.today-text {
+    font-size: 13px;
+
+    font-weight: 500;
+
+    line-height: 1.5;
+
+    text-align: center;
+}
+
+
+/* 天气 */
+
+.weather-icon {
+    width: 28px;
+    height: 28px;
+
+    color: var(--icon-color);
+
+    margin-bottom: 8px;
+}
+
+.weather-temp {
+    font-size: 24px;
+
+    font-weight: 500;
+
+    letter-spacing: -1px;
+}
+
+.weather-city {
+    font-size: 11px;
+
+    color: var(--text-muted);
+
+    margin-top: 4px;
+}
+
+
+/* =========================================================
+   Bento 错落 Widget
+========================================================= */
+
+.bento-grid {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+
+    padding: 0 0 24px 0;
+}
+
+.bento-grid .widget {
+    width: 100%;
+
+    height: 100%;
+
+    margin: 0;
+}
+
+.widget-1x1 {
+    grid-column: span 1;
+
+    aspect-ratio: 1 / 1;
+}
+
+.widget-2x1 {
+    grid-column: span 2;
+
+    aspect-ratio: 2 / 1;
+}
+
+.widget-2x2 {
+    grid-column: span 2;
+
+    aspect-ratio: 1 / 1;
+}
+
+
+/* =========================================================
+   高级情侣组件
+========================================================= */
+
+.couple-advanced-widget {
+    display: flex;
+
+    flex-direction: row;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 20px;
+}
+
+.couple-avatars {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.c-avatar {
+    width: 44px;
+    height: 44px;
+
+    border-radius: 50%;
+
+    background: #f2f2f7;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    color: #8e8e93;
+
+    background-size: cover;
+    background-position: center;
+}
+
+.c-heart {
+    font-size: 16px;
+
+    color: #1c1c1e;
+
+    font-weight: 300;
+}
+
+.couple-text-area {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 4px;
+}
+
+.c-title {
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: #8e8e93;
+
+    letter-spacing: 1px;
+}
+
+.c-days {
+    font-size: 18px;
+
+    font-weight: 700;
+
+    color: #1c1c1e;
+}
+
+
+/* =========================================================
+   一起听歌 Widget
+========================================================= */
+
+.listen-together-widget {
+    display: flex;
+
+    flex-direction: row;
+
+    align-items: center;
+
+    padding: 16px;
+
+    gap: 16px;
+}
+
+.listen-cover {
+    width: 64px;
+    height: 64px;
+
+    border-radius: 12px;
+
+    background: #f2f2f7;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    color: #8e8e93;
+
+    background-size: cover;
+
+    background-position: center;
+}
+
+.listen-info {
+    flex: 1;
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    overflow: hidden;
+}
+
+.listen-avatars {
+    display: flex;
+
+    align-items: center;
+
+    margin-bottom: 6px;
+}
+
+.l-avatar {
+    width: 18px;
+    height: 18px;
+
+    border-radius: 50%;
+
+    background: #e5e5ea;
+
+    border: 2px solid #ffffff;
+
+    margin-right: -6px;
+
+    z-index: 1;
+
+    background-size: cover;
+
+    background-position: center;
+}
+
+.l-avatar:last-child {
+    z-index: 0;
+}
+
+.listen-song {
+    font-size: 14px;
+
+    font-weight: 700;
+
+    color: #1c1c1e;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+.listen-artist {
+    font-size: 12px;
+
+    font-weight: 500;
+
+    color: #8e8e93;
+
+    margin-bottom: 6px;
+}
+
+.listen-bottom {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    color: #1c1c1e;
+}
+
+.listen-bottom span:first-child {
+    color: #8e8e93;
+}
+
+
+/* =========================================================
+   分页圆点
+========================================================= */
+
+.pagination-dots {
+    position: fixed;
+
+    left: 0;
+
+    bottom:
+        calc(
+            var(--safe-bottom) + 82px
+        );
+
+    width: 100%;
+
+    height: 12px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 8px;
+
+    z-index: 90;
+
+    pointer-events: none;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: rgba(0, 0, 0, 0.12);
+
+    transition: 0.3s ease;
+}
+
+.dot.active {
+    background: rgba(0, 0, 0, 0.5);
+
+    transform: scale(1.15);
+}
+
+
+/* =========================================================
+   Dock
+========================================================= */
+
+#dock {
+    position: fixed;
+
+    left: 24px;
+
+    right: 24px;
+
+    bottom:
+        calc(
+            var(--safe-bottom) + 10px
+        );
+
+    width: auto;
+
+    height: 68px;
+
+    background: var(--glass-bg);
+
+    backdrop-filter:
+        blur(30px)
+        saturate(180%);
+
+    -webkit-backdrop-filter:
+        blur(30px)
+        saturate(180%);
+
+    border: var(--glass-border);
+
+    box-shadow: var(--glass-shadow);
+
+    border-radius: var(--radius-lg);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 0 16px;
+
+    z-index: 100;
+
+    flex-shrink: 0;
+}
+
+
+/* Dock 内容 */
+
+.dock-container {
+    width: 100%;
+
+    height: 100%;
+
+    display: flex;
+
+    justify-content: space-around;
+
+    align-items: center;
+
+    margin: 0;
+}
+
+
+/* Dock Item */
+
+.dock-item {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    cursor: pointer;
+}
+
+
+/* Dock Icon */
+
+.dock-icon {
+    width: 50px;
+    height: 50px;
+
+    border-radius: 16px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    color: var(--icon-color);
+
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.dock-item:active .dock-icon {
+    transform: scale(0.9);
+
+    opacity: 0.65;
+}
+
+.dock-icon .lucide {
+    width: 26px;
+    height: 26px;
+
+    stroke-width: 1.5;
+}
+
+
+/* =========================================================
+   图片上传
+========================================================= */
+
+.uploadable {
+    cursor: pointer;
+
+    background-size: cover;
+
+    background-position: center;
+}
+
+.uploadable.has-image .placeholder-icon {
+    display: none;
+}
+
+.placeholder-icon {
+    color: #c7c7cc;
+
+    width: 24px;
+    height: 24px;
+}
+
+
+/* =========================================================
+   美化 App
+========================================================= */
+
+#beautify-app {
+    position: fixed;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    max-width: 430px;
+
+    margin: 0 auto;
+
+    background: var(--bg-color);
+
+    z-index: 1000;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   防止 App 页面影响主页
+========================================================= */
+
+.app-view {
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   小屏幕适配
+========================================================= */
+
+@media (max-width: 360px) {
+
+    .top-header {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .desktop-page {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .widget-row-main {
+        gap: 12px;
+    }
+
+    .app-grid {
+        column-gap: 8px;
+    }
+
+    .app-icon {
+        width: 54px;
+        height: 54px;
+    }
+
+    #dock {
+        left: 18px;
+        right: 18px;
+    }
+}
+
+
+/* =========================================================
+   防止系统点击高亮
+========================================================= */
+
+button,
+input,
+textarea,
+select {
+    -webkit-tap-highlight-color: transparent;
+    font-family: inherit;
+}
+
+
+/* =========================================================
+   美化模块滚动兼容
+========================================================= */
+
+.beautify-settings-container,
+.beautify-detail-content {
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* =========================================================
+   页面切换时避免横向溢出
+========================================================= */
+
+body {
+    overscroll-behavior: none;
+}
+
+#home-screen,
+#beautify-app {
+    overscroll-behavior: none;
 }
