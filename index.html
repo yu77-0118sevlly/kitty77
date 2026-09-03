@@ -121,21 +121,16 @@
                 </div>
             </div>
 
-            <!-- ====== 第三页：生活与工具桌面 ====== -->
+                <!-- ====== 第三页：生活与工具桌面 ====== -->
             <div class="desktop-page">
                 <div class="bento-grid">
-                    <!-- Today 小组件 2x2 大正方形 -->
-                    <div class="widget widget-2x2 flex-center col-layout today-widget">
-                        <div class="today-title">TODAY</div>
-                        <div class="today-text" style="font-size: 18px;">保持专注，<br>顺其自然。</div>
-                    </div>
-                    <!-- 天气 1x1 小正方形 -->
+                    <!-- 仅保留天气 1x1 小正方形 -->
                     <div class="widget widget-1x1 flex-center col-layout weather-widget">
                         <i data-lucide="cloud" class="weather-icon"></i>
                         <div class="weather-temp">18°</div>
                         <div class="weather-city">Tokyo / Cloudy</div>
                     </div>
-                    <!-- 留白占位 1x1 -->
+                    <!-- 留白占位 1x1 (让天气靠左排列，不破坏网格) -->
                     <div class="widget widget-1x1" style="background: transparent; box-shadow: none;"></div>
                 </div>
 
@@ -154,6 +149,7 @@
                     <div class="app-item"><div class="app-icon"><i data-lucide="map"></i></div><span>地图</span></div>
                 </div>
             </div>
+
 
         </div>
 
