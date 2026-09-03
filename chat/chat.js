@@ -2,7 +2,7 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：纯黑白灰，取消 emoji，加入 AI 独立回复键
+    // 1. 初始化 DOM：纯黑白灰，取消 emoji，加入 AI 独立回复键，菜单代码也规范化了
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -32,21 +32,20 @@
             <div class="chat-input-area">
                 <button class="chat-ext-btn"><i data-lucide="mic"></i></button>
                 <textarea class="chat-input" id="chat-textarea" placeholder="发消息..." rows="1"></textarea>
-                <!-- 💥 新增：取代表情的独立 AI 回复键 -->
+                <!-- 💥 独立 AI 强制回复键，取代了笑脸表情 -->
                 <button class="chat-ext-btn" id="chat-ext-ai" title="强制 AI 回复"><i data-lucide="bot"></i></button>
                 <button class="chat-ext-btn" id="chat-ext-plus"><i data-lucide="plus"></i></button>
-                <!-- 💥 独立的纯黑发送键 -->
                 <button class="chat-send-btn" id="chat-send-btn">发送</button>
             </div>
             
-            <!-- 悬浮长按菜单：纯黑白灰 -->
+            <!-- 悬浮长按菜单 -->
             <div class="chat-context-menu" id="chat-context-menu">
                 <div class="ctx-item" id="ctx-btn-copy"><i data-lucide="copy"></i>复制</div>
                 <div class="ctx-item" id="ctx-btn-reply"><i data-lucide="reply"></i>回复</div>
                 <div class="ctx-item" id="ctx-btn-delete"><i data-lucide="trash-2"></i>删除</div>
             </div>
 
-            <!-- 右上角设置面板：纯黑白灰 -->
+            <!-- 右上角设置面板 -->
             <div class="chat-drawer-overlay" id="chat-drawer">
                 <div class="chat-drawer">
                     <button class="drawer-btn" id="drawer-btn-profile">查看角色主页</button>
@@ -211,6 +210,15 @@
         }
     });
 
+    document.getElementById('drawer-btn-profile').addEventListener('click', () => {
+        drawer.classList.remove('show');
+        if(window.openRoleProfile) {
+            document.getElementById('chat-app').style.display = 'none';
+            document.getElementById('contacts-app').style.display = 'block';
+            window.openRoleProfile(currentChatId);
+        } else { alert('即将前往角色主页...'); }
+    });
+
     // 6. 输入框交互与发送逻辑
     inputArea.addEventListener('input', function() {
         this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px';
@@ -240,9 +248,11 @@
     const triggerAiReply = async () => {
         if(!currentChatId) return;
         const apiConfigStr = localStorage.getItem('wuyo_settings_api');
-        if(!apiConfigStr) return alert("请先配置 API！");
+        if(!apiConfigStr) return alert("请先前往「设置」配置 API URL 和 Key！");
         const apiConfig = JSON.parse(apiConfigStr);
-        if(!apiConfig.chat || !apiConfig.chat.url || !apiConfig.chat.key) return alert("API 配置不完整！");
+        if(!apiConfig.chat || !apiConfig.chat.url || !apiConfig.chat.key || !apiConfig.chat.model) {
+            return alert("普通聊天 API 配置不完整，请前往「设置」补充！");
+        }
 
         statusText.textContent = '对方正在输入...'; statusText.style.color = '#1C1C1E';
         const aiMsgObj = { role: 'assistant', content: '', time: Date.now() };
@@ -286,7 +296,7 @@
             renderChatList(); 
         } catch (error) {
             statusText.textContent = '未连接';
-            aiMsgObj.content = `[系统提示: ${error.message}]`; currentBubble.innerHTML = aiMsgObj.content;
+            aiMsgObj.content = `[系统提示: ${error.message}，请检查API设置]`; currentBubble.innerHTML = aiMsgObj.content;
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
         }
     };
