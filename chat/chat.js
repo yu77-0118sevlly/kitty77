@@ -1,237 +1,111 @@
-(function() {
-    const container = document.getElementById('chat-app');
-    if (!container) return;
+/* ==========================================
+   Chat App - 终极极简黑白灰高级样式 (含高级交互)
+========================================== */
+#chat-app {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #F4F4F7; color: #1C1C1E; z-index: 9999;
+    display: flex; flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
 
-    // ==========================================
-    // 1. 初始化 DOM：双层架构 (列表页 + 详情页)
-    // ==========================================
-    container.innerHTML = `
-        <!-- 页面 1：聊天列表页 -->
-        <div class="chat-page root active" id="chat-page-list">
-            <header class="chat-header">
-                <div style="width:32px;"></div>
-                <span class="chat-header-title">微信 (Chat)</span>
-                <button class="chat-icon-btn"><i data-lucide="plus-circle"></i></button>
-            </header>
-            <div class="chat-search-bar">
-                <input type="text" class="chat-search-input" placeholder="🔍 搜索">
-            </div>
-            <div class="chat-list-container" id="chat-list-render-area">
-                <!-- 列表项将在这里动态生成 -->
-            </div>
-        </div>
+.chat-container { display: flex; flex-direction: column; height: 100%; position: relative; }
 
-        <!-- 页面 2：聊天详情页 -->
-        <div class="chat-page" id="chat-page-detail">
-            <header class="chat-header">
-                <button class="chat-icon-btn" id="chat-back-to-list"><i data-lucide="chevron-left"></i></button>
-                <div class="chat-title-area">
-                    <span class="chat-title" id="chat-char-name">AI 伙伴</span>
-                    <span class="chat-status" id="chat-status-text">在线</span>
-                </div>
-                <button class="chat-icon-btn"><i data-lucide="more-horizontal"></i></button>
-            </header>
-            
-            <div class="chat-messages" id="chat-message-list"></div>
+/* 顶部导航 */
+.chat-header {
+    flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;
+    height: calc(env(safe-area-inset-top, 44px) + 56px);
+    padding-top: env(safe-area-inset-top, 44px); padding: env(safe-area-inset-top, 44px) 16px 0 16px;
+    background: rgba(244, 244, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 0.5px solid rgba(0,0,0,0.05); z-index: 10;
+}
+.chat-title-area { display: flex; flex-direction: column; align-items: center; }
+.chat-title { font-size: 16px; font-weight: 600; color: #1C1C1E; }
+.chat-status { font-size: 11px; color: #34C759; font-weight: 500; margin-top: 2px;}
+.chat-icon-btn { background: none; border: none; font-size: 20px; color: #1C1C1E; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
 
-            <div class="chat-input-area">
-                <button class="chat-ext-btn"><i data-lucide="mic"></i></button>
-                <textarea class="chat-input" id="chat-textarea" placeholder="发消息..." rows="1"></textarea>
-                <button class="chat-ext-btn" id="chat-ext-smile"><i data-lucide="smile"></i></button>
-                <button class="chat-ext-btn" id="chat-ext-plus"><i data-lucide="plus"></i></button>
-                <button class="chat-send-btn" id="chat-send-btn">发送</button>
-            </div>
-        </div>
-    `;
-    lucide.createIcons({ root: container });
+/* 消息列表 */
+.chat-messages {
+    flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px;
+    -webkit-overflow-scrolling: touch; scroll-behavior: smooth; position: relative;
+}
+.chat-empty { text-align: center; color: #8E8E93; font-size: 13px; margin-top: 40px; }
+.chat-timestamp { text-align: center; font-size: 11px; color: #8E8E93; margin-top: 8px; margin-bottom: -8px; font-weight: 500;}
 
-    // ==========================================
-    // 2. 核心状态与数据管理 (支持多角色预留)
-    // ==========================================
-    let currentChatId = null; // 当前正在聊天的角色 ID
-    
-    // 全局所有角色的聊天记录池：{ 'char_default': [{role: 'user', content: 'hi', time: 123}], 'char_2': [] }
-    let globalChatData = JSON.parse(localStorage.getItem('wuyo_global_chat_data')) || {};
-    
-    // 获取/创建默认角色信息 (从美化配置中拉取)
-    const getSystemDefaultChar = () => {
-        const configStr = localStorage.getItem('wuyo_config');
-        let name = 'AI 伙伴'; let avatar = ''; let desc = '随时准备与你交流…';
-        if(configStr) {
-            const config = JSON.parse(configStr);
-            if(config.texts) {
-                if(config.texts.aiTitle) name = config.texts.aiTitle;
-                if(config.texts.aiAvatar) avatar = config.texts.aiAvatar;
-                if(config.texts.aiSubtitle) desc = config.texts.aiSubtitle;
-            }
-        }
-        return { id: 'char_default', name, avatar, desc };
-    };
+/* 气泡 */
+.chat-bubble-wrapper { display: flex; width: 100%; flex-direction: column; position: relative; }
+.chat-bubble-wrapper.left { align-items: flex-start; }
+.chat-bubble-wrapper.right { align-items: flex-end; }
+.chat-bubble {
+    max-width: 75%; padding: 12px 16px; border-radius: 20px; font-size: 15px; 
+    line-height: 1.5; word-wrap: break-word; position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: filter 0.2s;
+    user-select: none; -webkit-user-select: none; /* 禁用系统默认选中，启用自定义长按 */
+}
+.chat-bubble:active { filter: brightness(0.9); }
+.chat-bubble.user { background: #1C1C1E; color: #FFFFFF; border-bottom-right-radius: 4px; }
+.chat-bubble.ai { background: #FFFFFF; color: #1C1C1E; border-bottom-left-radius: 4px; }
 
-    // 格式化时间 (例如：17:43)
-    const formatTime = (ts) => {
-        const d = new Date(ts);
-        return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-    };
+/* 打字机动画 */
+.typing-indicator { display: flex; gap: 4px; padding: 6px 4px; align-items: center; justify-content: center; height: 24px;}
+.typing-dot { width: 6px; height: 6px; background: #8E8E93; border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-    // ==========================================
-    // 3. 渲染聊天列表 (Chat List)
-    // ==========================================
-    const renderChatList = () => {
-        const listArea = document.getElementById('chat-list-render-area');
-        const defaultChar = getSystemDefaultChar();
-        
-        // 保证默认角色的数据池存在
-        if(!globalChatData[defaultChar.id]) globalChatData[defaultChar.id] = [];
-        
-        const history = globalChatData[defaultChar.id];
-        let lastMsg = defaultChar.desc;
-        let lastTime = '';
-        if(history.length > 0) {
-            const lastObj = history[history.length - 1];
-            lastMsg = lastObj.content;
-            lastTime = formatTime(lastObj.time);
-        }
+/* 底部输入框 */
+.chat-input-area {
+    flex-shrink: 0; padding: 10px 12px calc(env(safe-area-inset-bottom, 20px) + 10px) 12px;
+    background: #F4F4F7; border-top: 0.5px solid rgba(0,0,0,0.05);
+    display: flex; align-items: flex-end; gap: 8px; z-index: 10;
+}
+.chat-ext-btn { background: none; border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #1C1C1E; flex-shrink: 0; margin-bottom: 3px; cursor: pointer; }
+.chat-input {
+    flex: 1; background: #FFFFFF; border: none; border-radius: 20px;
+    padding: 10px 16px; font-size: 15px; color: #1C1C1E; max-height: 120px; resize: none; outline: none;
+    line-height: 1.4; margin: 0 4px;
+}
+.chat-send-btn {
+    background: #34C759; border: none; width: 60px; height: 36px; border-radius: 18px;
+    display: flex; justify-content: center; align-items: center; color: #FFF; font-weight: 600; font-size: 14px;
+    transition: all 0.2s; flex-shrink: 0; margin-bottom: 2px;
+    opacity: 0; width: 0; padding: 0; overflow: hidden; pointer-events: none;
+}
+.chat-send-btn.active { opacity: 1; width: 60px; pointer-events: auto; cursor: pointer; }
 
-        const avatarStyle = defaultChar.avatar ? `background-image: url(${defaultChar.avatar});` : `display:flex; justify-content:center; align-items:center;`;
-        const avatarInner = defaultChar.avatar ? '' : `<i data-lucide="bot" style="color:#8E8E93; width:24px; height:24px;"></i>`;
+/* ==========================================
+   💥 新增：长按上下文菜单 (Context Menu)
+========================================== */
+.chat-context-menu {
+    position: fixed; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); display: flex; flex-direction: row; overflow: hidden; z-index: 10000;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s; transform: translate(-50%, -10px);
+}
+.chat-context-menu.show { opacity: 1; pointer-events: auto; }
+.ctx-item { padding: 12px 18px; font-size: 14px; font-weight: 500; color: #1C1C1E; display: flex; flex-direction: column; align-items: center; gap: 4px; border-right: 0.5px solid rgba(0,0,0,0.05); cursor: pointer;}
+.ctx-item:last-child { border-right: none; }
+.ctx-item i { width: 18px; height: 18px; }
+.ctx-item:active { background: rgba(0,0,0,0.05); }
+.ctx-item.danger { color: #FF3B30; }
 
-        listArea.innerHTML = `
-            <div class="chat-list-item" onclick="window.openChatDetail('${defaultChar.id}')">
-                <div class="chat-list-avatar" style="${avatarStyle}">
-                    ${avatarInner}
-                    <!-- <div class="chat-list-unread">1</div> 预留未读红点 -->
-                </div>
-                <div class="chat-list-info">
-                    <div class="chat-list-top">
-                        <span class="chat-list-name">${defaultChar.name}</span>
-                        <span class="chat-list-time">${lastTime}</span>
-                    </div>
-                    <span class="chat-list-msg">${lastMsg}</span>
-                </div>
-            </div>
-        `;
-        lucide.createIcons({ root: listArea });
-    };
-
-    // ==========================================
-    // 4. 页面导航系统
-    // ==========================================
-    window.openChatDetail = (charId) => {
-        currentChatId = charId;
-        const charInfo = getSystemDefaultChar(); // 后续这里可以根据 charId 查找具体角色
-        
-        document.getElementById('chat-char-name').textContent = charInfo.name;
-        document.getElementById('chat-page-detail').classList.add('active');
-        
-        renderMessages();
-    };
-
-    document.getElementById('chat-back-to-list').addEventListener('click', () => {
-        document.getElementById('chat-page-detail').classList.remove('active');
-        currentChatId = null;
-        renderChatList(); // 返回时刷新列表的最后一条消息
-    });
-
-    // ==========================================
-    // 5. 渲染具体消息 (Chat Detail)
-    // ==========================================
-    const msgList = document.getElementById('chat-message-list');
-    const inputArea = document.getElementById('chat-textarea');
-    const sendBtn = document.getElementById('chat-send-btn');
-    const statusText = document.getElementById('chat-status-text');
-
-    const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
-
-    const renderMessages = () => {
-        if(!currentChatId) return;
-        msgList.innerHTML = '';
-        const history = globalChatData[currentChatId];
-
-        if(history.length === 0) {
-            msgList.innerHTML = `<div class="chat-empty">暂无消息，打个招呼吧</div>`;
-            return;
-        }
-
-        let lastTime = 0;
-        history.forEach(msg => {
-            if (msg.time - lastTime > 5 * 60 * 1000) {
-                const timeEl = document.createElement('div');
-                timeEl.className = 'chat-timestamp'; timeEl.textContent = formatTime(msg.time);
-                msgList.appendChild(timeEl);
-            }
-            lastTime = msg.time;
-
-            const isUser = msg.role === 'user';
-            const wrapper = document.createElement('div');
-            wrapper.className = `chat-bubble-wrapper ${isUser ? 'right' : 'left'}`;
-            wrapper.innerHTML = `<div class="chat-bubble ${isUser ? 'user' : 'ai'}">${msg.content.replace(/\n/g, '<br>')}</div>`;
-            msgList.appendChild(wrapper);
-        });
-        scrollToBottom();
-    };
-
-    // ==========================================
-    // 6. 输入框动态控制与发送交互
-    // ==========================================
-    inputArea.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        
-        const hasText = this.value.trim() !== '';
-        if(hasText) {
-            sendBtn.classList.add('active');
-            document.getElementById('chat-ext-plus').style.display = 'none'; // 隐藏加号
-        } else {
-            sendBtn.classList.remove('active');
-            document.getElementById('chat-ext-plus').style.display = 'flex'; // 显示加号
-        }
-    });
-
-    const showTypingIndicator = () => {
-        statusText.textContent = '对方正在输入...'; statusText.style.color = '#1C1C1E';
-        const wrapper = document.createElement('div'); wrapper.className = 'chat-bubble-wrapper left'; wrapper.id = 'typing-indicator-bubble';
-        wrapper.innerHTML = `<div class="chat-bubble ai"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
-        msgList.appendChild(wrapper); scrollToBottom();
-    };
-
-    const hideTypingIndicator = () => {
-        statusText.textContent = '在线'; statusText.style.color = '#34C759';
-        const indicator = document.getElementById('typing-indicator-bubble');
-        if(indicator) indicator.remove();
-    };
-
-    const sendMessage = () => {
-        const text = inputArea.value.trim();
-        if(!text || !currentChatId) return;
-        
-        globalChatData[currentChatId].push({ role: 'user', content: text, time: Date.now() });
-        localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
-        
-        inputArea.value = ''; inputArea.style.height = 'auto';
-        sendBtn.classList.remove('active'); document.getElementById('chat-ext-plus').style.display = 'flex';
-        renderMessages();
-
-        // 模拟 AI 回复系统 (后续对接 API 和世界书)
-        showTypingIndicator();
-        setTimeout(() => {
-            hideTypingIndicator();
-            globalChatData[currentChatId].push({ 
-                role: 'assistant', 
-                content: '好的，我已经收到您的消息。目前我正在为您搭建底层的多角色架构，马上就可以接入真实的 API 啦！', 
-                time: Date.now() 
-            });
-            localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
-            renderMessages();
-        }, 1500);
-    };
-
-    sendBtn.addEventListener('click', sendMessage);
-    inputArea.addEventListener('keypress', (e) => {
-        if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-    });
-
-    // 初始启动时渲染列表
-    renderChatList();
-
-})();
+/* ==========================================
+   💥 新增：右上角设置上拉面板 (Action Sheet)
+========================================== */
+.chat-drawer-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4);
+    z-index: 10001; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.chat-drawer-overlay.show { opacity: 1; pointer-events: auto; }
+.chat-drawer {
+    position: absolute; bottom: 0; left: 0; width: 100%; background: #F2F2F7;
+    border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px 16px env(safe-area-inset-bottom, 20px) 16px;
+    transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; gap: 8px;
+}
+.chat-drawer-overlay.show .chat-drawer { transform: translateY(0); }
+.drawer-btn {
+    width: 100%; padding: 16px; background: #FFF; border: none; font-size: 16px; font-weight: 500; color: #1C1C1E;
+    border-radius: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer;
+}
+.drawer-btn:active { background: #E5E5EA; }
+.drawer-btn.danger { color: #FF3B30; }
+.drawer-btn.cancel { margin-top: 8px; font-weight: 600; }
