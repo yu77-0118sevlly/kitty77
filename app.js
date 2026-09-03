@@ -1,68 +1,76 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. 初始化图标
+    // 1. 初始化极简图标
     lucide.createIcons();
 
-    // 2. 日期与 24 小时组件更新逻辑
+    // 2. 时间与日期自动更新逻辑
     const updateDateTime = () => {
         const now = new Date();
-        
-        // 更新日期
         const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-        const dayEl = document.getElementById('current-day');
-        const dateEl = document.getElementById('current-date');
         
-        if (dayEl) dayEl.textContent = days[now.getDay()];
-        if (dateEl) dateEl.textContent = `${now.getMonth() + 1}月${now.getDate()}日`;
+        // 更新顶部头部
+        const currentDay = days[now.getDay()];
+        const currentDate = `${now.getMonth() + 1}月${now.getDate()}日`;
+        
+        document.getElementById('current-day').textContent = currentDay;
+        document.getElementById('current-date').textContent = currentDate;
 
-        // 更新 24小时小组件
-        const timeWidget = document.getElementById('widget-time');
-        if (timeWidget) {
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            timeWidget.textContent = `${hours}:${minutes}`;
-        }
+        // 更新时钟小组件
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('widget-time').textContent = `${hours}:${minutes}`;
+        document.getElementById('widget-date-sub').textContent = currentDate;
     };
     
     updateDateTime();
-    setInterval(updateDateTime, 60000); // 每分钟更新一次时钟
+    setInterval(updateDateTime, 60000); 
 
-    // 3. 视图切换逻辑
-    const views = document.querySelectorAll('.view');
-    const navigationTriggers = document.querySelectorAll('[data-target]');
-    const dock = document.getElementById('dock');
+    // 3. 桌面滑动分页指示器同步逻辑
+    const swiper = document.getElementById('desktop-swiper');
+    const dots = document.querySelectorAll('.pagination-dots .dot');
 
-    const navigateTo = (targetId) => {
-        // 隐藏所有视图
-        views.forEach(view => {
-            view.classList.remove('active');
-        });
-
-        // 显示目标视图
-        const targetView = document.getElementById(targetId);
-        if (targetView) {
-            targetView.classList.add('active');
-        }
-
-        // 仅在首页显示 Dock，其他页面隐藏下沉
-        if (targetId === 'view-home') {
-            dock.style.transform = 'translateX(-50%) translateY(0)';
-            dock.style.opacity = '1';
-            dock.style.pointerEvents = 'auto';
-        } else {
-            dock.style.transform = 'translateX(-50%) translateY(50px)';
-            dock.style.opacity = '0';
-            dock.style.pointerEvents = 'none';
-        }
-    };
-
-    // 绑定点击事件
-    navigationTriggers.forEach(trigger => {
-        trigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const targetId = trigger.getAttribute('data-target');
-            if (targetId) {
-                navigateTo(targetId);
+    swiper.addEventListener('scroll', () => {
+        // 计算当前滑到了第几页 (基于滚动位置和页面宽度)
+        const scrollPosition = swiper.scrollLeft;
+        const pageIndex = Math.round(scrollPosition / swiper.clientWidth);
+        
+        // 更新点的状态
+        dots.forEach((dot, index) => {
+            if (index === pageIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
             }
         });
+    });
+
+    // 4. 图片自定义上传系统
+    const imageUploader = document.getElementById('image-uploader');
+    const uploadables = document.querySelectorAll('.uploadable');
+    let currentUploadTarget = null;
+
+    // 点击任何带有 uploadable class 的元素，触发隐藏的 file input
+    uploadables.forEach(el => {
+        el.addEventListener('click', () => {
+            currentUploadTarget = el;
+            imageUploader.click();
+        });
+    });
+
+    // 接收用户选择的图片并渲染到对应的组件上
+    imageUploader.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file && currentUploadTarget) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imageUrl = e.target.result;
+                // 将图片设为背景
+                currentUploadTarget.style.backgroundImage = `url(${imageUrl})`;
+                // 添加 class 以隐藏默认的 placeholder 图标
+                currentUploadTarget.classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+        }
+        // 清空 input 状态，允许下次重复上传同一张图
+        imageUploader.value = '';
     });
 });
