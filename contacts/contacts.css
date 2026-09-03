@@ -1,46 +1,28 @@
 /* ==========================================
-   Contacts App 专属通讯录与角色管理样式
+   Contacts App 专属纯黑白灰样式 (修复底栏)
 ========================================== */
-#contacts-app {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #F4F4F7; color: #1C1C1E; z-index: 9999;
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
-    overflow: hidden; -webkit-tap-highlight-color: transparent;
-}
-
-.ct-page {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: #F4F4F7; display: flex; flex-direction: column;
-    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    transform: translateX(100%); z-index: 10;
-}
+#contacts-app { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #F4F4F7; color: #1C1C1E; z-index: 9999; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+.ct-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #F4F4F7; display: flex; flex-direction: column; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateX(100%); z-index: 10; }
 .ct-page.active { transform: translateX(0); }
 .ct-page.root { transform: translateX(0); z-index: 5; }
 
 /* 顶部导航 */
-.ct-header {
-    flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;
-    height: calc(env(safe-area-inset-top, 44px) + 56px);
-    padding-top: env(safe-area-inset-top, 44px); padding: env(safe-area-inset-top, 44px) 16px 0 16px;
-    background: rgba(244, 244, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-bottom: 0.5px solid rgba(0,0,0,0.05); z-index: 20;
-}
+.ct-header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; height: calc(env(safe-area-inset-top, 44px) + 56px); padding-top: env(safe-area-inset-top, 44px); padding: env(safe-area-inset-top, 44px) 16px 0 16px; background: rgba(244, 244, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 0.5px solid rgba(0,0,0,0.05); z-index: 20; }
 .ct-header-title { font-size: 17px; font-weight: 600; color: #1C1C1E; }
 .ct-icon-btn { background: none; border: none; font-size: 22px; color: #1C1C1E; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
 .ct-text-btn { background: none; border: none; font-size: 16px; font-weight: 600; color: #1C1C1E; cursor: pointer; }
 
-/* 容器与列表 */
-.ct-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: env(safe-area-inset-bottom, 20px); }
+/* 容器 */
+.ct-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 70px); }
 .ct-search-bar { padding: 12px 16px; }
 .ct-search-input { width: 100%; background: #E5E5EA; border: none; padding: 10px 16px; border-radius: 12px; font-size: 14px; outline: none; text-align: center; color: #8E8E93;}
 
-/* 通讯录列表项 */
 .ct-list-item { display: flex; align-items: center; padding: 12px 16px; background: #FFF; border-bottom: 0.5px solid #F2F2F7; cursor: pointer; transition: 0.2s; }
 .ct-list-item:active { background: #F2F2F7; }
 .ct-list-avatar { width: 44px; height: 44px; border-radius: 12px; background: #E5E5EA; background-size: cover; background-position: center; margin-right: 12px; flex-shrink: 0; display:flex; justify-content:center; align-items:center; color:#8E8E93;}
 .ct-list-name { font-size: 16px; font-weight: 500; color: #1C1C1E; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* 角色个人主页 */
+/* 个人主页 */
 .ct-profile-top { display: flex; align-items: flex-start; gap: 16px; padding: 30px 24px; background: #FFF; margin-bottom: 8px; }
 .ct-profile-avatar { width: 72px; height: 72px; border-radius: 16px; background: #E5E5EA; background-size: cover; background-position: center; flex-shrink: 0; }
 .ct-profile-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
@@ -55,10 +37,9 @@
 .ct-row-label { width: 80px; font-size: 15px; color: #8E8E93; flex-shrink: 0; }
 .ct-row-value { font-size: 15px; color: #1C1C1E; flex: 1; line-height: 1.5; }
 
+/* 黑白灰大按钮 */
 .ct-btn-large { width: 100%; padding: 16px; background: #FFF; border: none; font-size: 16px; font-weight: 600; color: #1C1C1E; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 8px; transition: 0.2s;}
 .ct-btn-large:active { background: #F2F2F7; }
-.ct-btn-large.primary { color: #34C759; }
-.ct-btn-large.danger { color: #FF3B30; margin-top: 24px; }
 
 /* 表单输入区 */
 .ct-form-group { background: #FFF; padding: 0 16px; margin-bottom: 24px; border-radius: 16px; margin: 16px; }
@@ -69,18 +50,15 @@
 .ct-input, .ct-select, .ct-textarea { flex: 1; width: 100%; border: none; font-size: 15px; color: #1C1C1E; outline: none; background: transparent; }
 .ct-textarea { min-height: 100px; resize: none; background: #F4F4F7; padding: 12px; border-radius: 12px; }
 .ct-avatar-upload { width: 64px; height: 64px; border-radius: 16px; background: #F4F4F7; display: flex; justify-content: center; align-items: center; background-size: cover; cursor: pointer; }
-/* 💥 新增：统一底部英文导航栏 (Chats, Contacts, Moments, Me) */
+
+/* 💥 修复：英文导航底栏 (垫高防挤压) */
 .wechat-bottom-nav {
     position: absolute; bottom: 0; left: 0; width: 100%;
-    height: calc(env(safe-area-inset-bottom, 20px) + 54px);
+    padding-bottom: env(safe-area-inset-bottom, 20px); padding-top: 8px;
     background: rgba(244, 244, 247, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-top: 0.5px solid rgba(0,0,0,0.05);
-    display: flex; justify-content: space-around; align-items: flex-start;
-    padding-top: 8px; z-index: 50;
+    border-top: 0.5px solid rgba(0,0,0,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 50;
 }
-.wechat-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #8E8E93; cursor: pointer; flex: 1; }
+.wechat-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #8E8E93; cursor: pointer; flex: 1; padding-bottom: 4px;}
 .wechat-nav-item.active { color: #1C1C1E; }
 .wechat-nav-item i { width: 24px; height: 24px; }
 .wechat-nav-item span { font-size: 10px; font-weight: 600; }
-.ct-body { padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 60px) !important; }
-
