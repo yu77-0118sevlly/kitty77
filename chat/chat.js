@@ -45,7 +45,8 @@
                 <button class="quote-close-btn" id="quote-close-btn"><i data-lucide="x" style="width:14px;height:14px;"></i></button>
             </div>
 
-            <div class="chat-input-area">
+            <!-- 输入框区域 -->
+            <div class="chat-input-area" id="chat-input-area">
                 <button class="chat-ext-btn"><i data-lucide="mic"></i></button>
                 <textarea class="chat-input" id="chat-textarea" placeholder="发消息..." rows="1"></textarea>
                 <button class="chat-ext-btn" id="chat-ext-ai" title="强制 AI 回复"><i data-lucide="bot"></i></button>
@@ -53,7 +54,7 @@
                 <button class="chat-send-btn" id="chat-send-btn">发送</button>
             </div>
             
-            <!-- 💥 用 JS 内联样式锁死的纯文本两排式小浮窗，绝对不会受旧 CSS 影响 -->
+            <!-- 浮窗菜单 -->
             <div id="chat-context-menu" style="position: absolute; background: #FFFFFF; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); display: none; grid-template-columns: repeat(3, 1fr); padding: 8px; gap: 6px; z-index: 10000; width: 170px;">
                 <div class="ctx-item" id="ctx-btn-quote" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">引用</div>
                 <div class="ctx-item" id="ctx-btn-copy" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">复制</div>
@@ -63,9 +64,10 @@
                 <div class="ctx-item" id="ctx-btn-multiselect" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">多选</div>
             </div>
 
-            <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none;">
-                <button class="ms-action-btn" id="ms-btn-delete-all"><i data-lucide="trash-2"></i>删除所选</button>
-                <button class="ms-action-btn cancel" id="ms-btn-cancel">取消</button>
+            <!-- 💥 完美修复的多选底部栏 (独占底部，不再与输入框撞车) -->
+            <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none; position:absolute; bottom:0; left:0; right:0; height:60px; background:#F4F4F7; border-top:0.5px solid rgba(0,0,0,0.1); display:flex; justify-content:space-around; align-items:center; z-index:100; padding-bottom:env(safe-area-inset-bottom, 20px);">
+                <button class="ms-action-btn" id="ms-btn-delete-all" style="background:#FF3B30; color:#FFF; border:none; padding:8px 20px; border-radius:16px; font-size:14px; font-weight:600; cursor:pointer;">删除所选</button>
+                <button class="ms-action-btn cancel" id="ms-btn-cancel" style="background:#E5E5EA; color:#1C1C1E; border:none; padding:8px 20px; border-radius:16px; font-size:14px; font-weight:600; cursor:pointer;">取消</button>
             </div>
         </div>
 
@@ -286,6 +288,7 @@
         isMultiSelectMode = false;
         selectedIndices.clear();
         document.getElementById('chat-multiselect-bar').style.display = 'none';
+        document.getElementById('chat-input-area').style.display = 'flex';
 
         const roleInfo = getCurrentRoleInfo();
         document.getElementById('chat-char-name').textContent = roleInfo.name;
@@ -401,7 +404,6 @@
             timeSub.className = 'bubble-time-sub';
             timeSub.textContent = formatTime(msg.time);
 
-            // 💥 完美内联计算：双击气泡下方弹出小浮窗，带百分之百安全的防溢出保护
             bubble.addEventListener('dblclick', (e) => {
                 if(isMultiSelectMode) return;
                 selectedMsgIndex = index; 
@@ -495,20 +497,25 @@
         ctxMenu.style.display = 'none';
     });
 
+    // 💥 开启多选模式：隐藏输入框，显示多选底栏
     document.getElementById('ctx-btn-multiselect').addEventListener('click', (e) => {
         e.stopPropagation();
         isMultiSelectMode = true;
         selectedIndices.clear();
         if(selectedMsgIndex !== null) selectedIndices.add(selectedMsgIndex);
+        
+        document.getElementById('chat-input-area').style.display = 'none';
         document.getElementById('chat-multiselect-bar').style.display = 'flex';
         ctxMenu.style.display = 'none';
         renderMessages();
     });
 
+    // 💥 取消多选：恢复输入框，隐藏多选底栏
     document.getElementById('ms-btn-cancel').addEventListener('click', () => {
         isMultiSelectMode = false;
         selectedIndices.clear();
         document.getElementById('chat-multiselect-bar').style.display = 'none';
+        document.getElementById('chat-input-area').style.display = 'flex';
         renderMessages();
     });
 
@@ -523,6 +530,7 @@
             isMultiSelectMode = false;
             selectedIndices.clear();
             document.getElementById('chat-multiselect-bar').style.display = 'none';
+            document.getElementById('chat-input-area').style.display = 'flex';
             renderMessages();
         }
     });
@@ -556,7 +564,6 @@
         applyChatStylesToDOM();
     });
 
-    // 保存设置按钮
     document.getElementById('settings-save-btn').addEventListener('click', () => {
         const sig = document.getElementById('couple-sign-input').value;
         const bubbleBg = document.getElementById('bubble-color-picker').value;
@@ -662,7 +669,7 @@
     document.getElementById('settings-btn-memory').addEventListener('click', () => {
         document.getElementById('chat-page-settings').classList.remove('active');
         container.style.display = 'none'; window.openApp('memory');
-        setTimeout(() => { if(window.openMemory) window.openMemory(currentChatId, document.getElementById('chat-char-name').textContent, 'chat'); }, 100);
+        setTimeout(() => { if(window.openMemory) window.openMemory(currentChatId, document.getElementById('chat-char-name')->textContent, 'chat'); }, 100);
     });
 
     document.getElementById('settings-btn-profile').addEventListener('click', () => {
