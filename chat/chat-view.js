@@ -48,6 +48,7 @@ window.ChatViewTemplate = `
             <button class="chat-send-btn" id="chat-send-btn">发送</button>
         </div>
         
+        <!-- 精致防溢出小浮窗菜单 (无图标两排网格) -->
         <div class="chat-context-menu" id="chat-context-menu">
             <div class="ctx-item" id="ctx-btn-quote">引用</div>
             <div class="ctx-item" id="ctx-btn-copy">复制</div>
@@ -57,13 +58,14 @@ window.ChatViewTemplate = `
             <div class="ctx-item" id="ctx-btn-multiselect">多选</div>
         </div>
 
+        <!-- 多选底部操作栏 -->
         <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none;">
             <button class="ms-action-btn" id="ms-btn-delete-all">删除所选</button>
             <button class="ms-action-btn cancel" id="ms-btn-cancel">取消</button>
         </div>
     </div>
 
-    <!-- 3. 主设置页面 (干净清爽) -->
+    <!-- 3. 主设置页面 -->
     <div class="chat-page" id="chat-page-settings" style="z-index: 20;">
         <header class="chat-header">
             <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -71,11 +73,10 @@ window.ChatViewTemplate = `
             <button id="settings-save-btn" style="font-size:16px; font-weight:600; color:#1C1C1E; background:none; border:none; cursor:pointer; padding:4px;">保存</button>
         </header>
         <div style="flex:1; overflow-y:auto; padding-top:16px; padding-bottom:40px;">
-            
             <div class="settings-list-group">
                 <div class="settings-list-item" id="settings-btn-profile"><span>角色主页</span><i data-lucide="chevron-right"></i></div>
                 <div class="settings-list-item" id="settings-btn-memory"><span>AI 长期记忆</span><i data-lucide="chevron-right"></i></div>
-                <!-- 💥 独立的二级菜单入口：异地模式与感知 -->
+                <!-- 独立的二级菜单入口：异地模式与感知 -->
                 <div class="settings-list-item" id="settings-btn-advanced"><span>异地模式与翻译设置</span><i data-lucide="chevron-right"></i></div>
             </div>
 
@@ -121,7 +122,7 @@ window.ChatViewTemplate = `
         </div>
     </div>
 
-    <!-- 💥 4. 独立的二级设置页：异地模式与多语言翻译 -->
+    <!-- 💥 4. 独立的二级设置页：异地模式与多语言翻译 (已增加海量地区和方言) -->
     <div class="chat-page" id="chat-page-advanced-settings" style="z-index: 30;">
         <header class="chat-header">
             <button class="chat-icon-btn" id="advanced-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -133,18 +134,50 @@ window.ChatViewTemplate = `
             <div class="settings-list-group">
                 <div class="settings-list-item"><span>我的时区</span>
                     <select id="user-timezone-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
-                        <option value="Asia/Shanghai">北京时间 (中国)</option>
+                        <option value="Asia/Shanghai">北京时间 (中国大陆)</option>
+                        <option value="Asia/Hong_Kong">香港时间 (中国香港)</option>
+                        <option value="Asia/Taipei">台北时间 (中国台湾)</option>
                         <option value="Asia/Tokyo">东京时间 (日本)</option>
-                        <option value="America/New_York">纽约时间 (美东)</option>
+                        <option value="Asia/Seoul">首尔时间 (韩国)</option>
+                        <option value="Asia/Singapore">新加坡时间</option>
+                        <option value="Asia/Bangkok">曼谷时间 (泰国)</option>
+                        <option value="Asia/Dubai">迪拜时间 (阿联酋)</option>
                         <option value="Europe/London">伦敦时间 (英国)</option>
+                        <option value="Europe/Paris">巴黎时间 (法国)</option>
+                        <option value="Europe/Berlin">柏林时间 (德国)</option>
+                        <option value="Europe/Moscow">莫斯科时间 (俄罗斯)</option>
+                        <option value="America/New_York">纽约时间 (美东)</option>
+                        <option value="America/Chicago">芝加哥时间 (美中)</option>
+                        <option value="America/Los_Angeles">洛杉矶/旧金山 (美西)</option>
+                        <option value="America/Toronto">多伦多时间 (加拿大)</option>
+                        <option value="America/Vancouver">温哥华时间 (加拿大)</option>
+                        <option value="Australia/Sydney">悉尼时间 (澳洲东部)</option>
+                        <option value="Australia/Melbourne">墨尔本时间 (澳洲东部)</option>
+                        <option value="Pacific/Auckland">奥克兰时间 (新西兰)</option>
                     </select>
                 </div>
                 <div class="settings-list-item"><span>TA 的时区</span>
                     <select id="ai-timezone-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
-                        <option value="Asia/Shanghai">北京时间 (中国)</option>
+                        <option value="Asia/Shanghai">北京时间 (中国大陆)</option>
+                        <option value="Asia/Hong_Kong">香港时间 (中国香港)</option>
+                        <option value="Asia/Taipei">台北时间 (中国台湾)</option>
                         <option value="Asia/Tokyo">东京时间 (日本)</option>
-                        <option value="America/New_York">纽约时间 (美东)</option>
+                        <option value="Asia/Seoul">首尔时间 (韩国)</option>
+                        <option value="Asia/Singapore">新加坡时间</option>
+                        <option value="Asia/Bangkok">曼谷时间 (泰国)</option>
+                        <option value="Asia/Dubai">迪拜时间 (阿联酋)</option>
                         <option value="Europe/London">伦敦时间 (英国)</option>
+                        <option value="Europe/Paris">巴黎时间 (法国)</option>
+                        <option value="Europe/Berlin">柏林时间 (德国)</option>
+                        <option value="Europe/Moscow">莫斯科时间 (俄罗斯)</option>
+                        <option value="America/New_York">纽约时间 (美东)</option>
+                        <option value="America/Chicago">芝加哥时间 (美中)</option>
+                        <option value="America/Los_Angeles">洛杉矶/旧金山 (美西)</option>
+                        <option value="America/Toronto">多伦多时间 (加拿大)</option>
+                        <option value="America/Vancouver">温哥华时间 (加拿大)</option>
+                        <option value="Australia/Sydney">悉尼时间 (澳洲东部)</option>
+                        <option value="Australia/Melbourne">墨尔本时间 (澳洲东部)</option>
+                        <option value="Pacific/Auckland">奥克兰时间 (新西兰)</option>
                     </select>
                 </div>
             </div>
@@ -153,11 +186,21 @@ window.ChatViewTemplate = `
             <div class="settings-list-group">
                 <div class="settings-list-item"><span>TA 的语言</span>
                     <select id="ai-language-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
-                        <option value="default">默认 (中文)</option>
+                        <option value="default">默认 (简体中文)</option>
+                        <option value="Traditional Chinese">繁体中文</option>
+                        <option value="Cantonese">粤语 (Cantonese)</option>
+                        <option value="Sichuanese">四川话</option>
+                        <option value="Northeastern Mandarin">东北话</option>
                         <option value="English">英语 (English)</option>
                         <option value="Japanese">日语 (日本語)</option>
                         <option value="Korean">韩语 (한국어)</option>
                         <option value="French">法语 (Français)</option>
+                        <option value="German">德语 (Deutsch)</option>
+                        <option value="Spanish">西班牙语 (Español)</option>
+                        <option value="Russian">俄语 (Русский)</option>
+                        <option value="Italian">意大利语 (Italiano)</option>
+                        <option value="Portuguese">葡萄牙语 (Português)</option>
+                        <option value="Arabic">阿拉伯语 (العربية)</option>
                     </select>
                 </div>
                 <div class="settings-list-item"><span>自动翻译</span><label class="ios-switch"><input type="checkbox" id="auto-translate-toggle"><span class="ios-slider"></span></label></div>
