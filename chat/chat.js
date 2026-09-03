@@ -2,6 +2,7 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
+    // 绝对安全、无多余转义字符的 DOM 结构
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -39,13 +40,10 @@
             <div class="chat-messages" id="chat-message-list"></div>
 
             <div class="chat-quote-bar" id="chat-quote-bar" style="display:none;">
-                <div class="quote-bar-content">
-                    <span id="quote-bar-text">引用内容...</span>
-                </div>
+                <div class="quote-bar-content"><span id="quote-bar-text"></span></div>
                 <button class="quote-close-btn" id="quote-close-btn"><i data-lucide="x" style="width:14px;height:14px;"></i></button>
             </div>
 
-            <!-- 输入框区域 -->
             <div class="chat-input-area" id="chat-input-area">
                 <button class="chat-ext-btn"><i data-lucide="mic"></i></button>
                 <textarea class="chat-input" id="chat-textarea" placeholder="发消息..." rows="1"></textarea>
@@ -54,23 +52,24 @@
                 <button class="chat-send-btn" id="chat-send-btn">发送</button>
             </div>
             
-            <!-- 浮窗菜单 -->
-            <div id="chat-context-menu" style="position: absolute; background: #FFFFFF; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); display: none; grid-template-columns: repeat(3, 1fr); padding: 8px; gap: 6px; z-index: 10000; width: 170px;">
-                <div class="ctx-item" id="ctx-btn-quote" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">引用</div>
-                <div class="ctx-item" id="ctx-btn-copy" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">复制</div>
-                <div class="ctx-item" id="ctx-btn-recall" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">撤回</div>
-                <div class="ctx-item" id="ctx-btn-delete" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">删除</div>
-                <div class="ctx-item" id="ctx-btn-purge" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #FF3B30; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">彻底删除</div>
-                <div class="ctx-item" id="ctx-btn-multiselect" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">多选</div>
+            <!-- 💥 精致两排式纯文本小浮窗菜单 (无emoji、精准定位) -->
+            <div class="chat-context-menu" id="chat-context-menu">
+                <div class="ctx-item" id="ctx-btn-quote">引用</div>
+                <div class="ctx-item" id="ctx-btn-copy">复制</div>
+                <div class="ctx-item" id="ctx-btn-recall">撤回</div>
+                <div class="ctx-item" id="ctx-btn-delete">删除</div>
+                <div class="ctx-item" id="ctx-btn-purge" style="color:#FF3B30;">彻底删除</div>
+                <div class="ctx-item" id="ctx-btn-multiselect">多选</div>
             </div>
 
-            <!-- 💥 完美修复的多选底部栏 (独占底部，不再与输入框撞车) -->
-            <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none; position:absolute; bottom:0; left:0; right:0; height:60px; background:#F4F4F7; border-top:0.5px solid rgba(0,0,0,0.1); display:flex; justify-content:space-around; align-items:center; z-index:100; padding-bottom:env(safe-area-inset-bottom, 20px);">
-                <button class="ms-action-btn" id="ms-btn-delete-all" style="background:#FF3B30; color:#FFF; border:none; padding:8px 20px; border-radius:16px; font-size:14px; font-weight:600; cursor:pointer;">删除所选</button>
-                <button class="ms-action-btn cancel" id="ms-btn-cancel" style="background:#E5E5EA; color:#1C1C1E; border:none; padding:8px 20px; border-radius:16px; font-size:14px; font-weight:600; cursor:pointer;">取消</button>
+            <!-- 多选底部操作栏 -->
+            <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none;">
+                <button class="ms-action-btn" id="ms-btn-delete-all">删除所选</button>
+                <button class="ms-action-btn cancel" id="ms-btn-cancel">取消</button>
             </div>
         </div>
 
+        <!-- 聊天与美化设置页面 (完整的HTML，绝对不缺代码) -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -313,8 +312,9 @@
     const statusText = document.getElementById('chat-status-text');
     const ctxMenu = document.getElementById('chat-context-menu');
     
-    msgList.addEventListener('scroll', () => ctxMenu.style.display = 'none'); 
-    msgList.addEventListener('click', () => ctxMenu.style.display = 'none');
+    // 点击或滚动时自动隐藏浮窗菜单
+    msgList.addEventListener('scroll', () => ctxMenu.classList.remove('show')); 
+    msgList.addEventListener('click', () => ctxMenu.classList.remove('show'));
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
     const renderMessages = () => {
@@ -404,23 +404,27 @@
             timeSub.className = 'bubble-time-sub';
             timeSub.textContent = formatTime(msg.time);
 
+            // 💥 双击触发浮窗，并智能计算位置（在消息下方，绝不越出屏幕左右边界）
             bubble.addEventListener('dblclick', (e) => {
                 if(isMultiSelectMode) return;
                 selectedMsgIndex = index; 
-                const rect = bubble.getBoundingClientRect();
-                const containerRect = msgList.getBoundingClientRect();
                 
-                let leftPos = rect.left + rect.width / 2 - containerRect.left;
-                const menuWidth = 170;
-                if (leftPos + menuWidth / 2 > containerRect.width - 10) {
-                    leftPos = containerRect.width - menuWidth / 2 - 10;
-                } else if (leftPos - menuWidth / 2 < 10) {
-                    leftPos = menuWidth / 2 + 10;
+                const rect = bubble.getBoundingClientRect();
+                const detailRect = document.getElementById('chat-page-detail').getBoundingClientRect();
+                
+                let leftPos = rect.left + rect.width / 2 - detailRect.left;
+                const menuWidth = 170; // 菜单固定宽度
+                
+                // 防溢出保护
+                if (leftPos + menuWidth / 2 > detailRect.width - 12) {
+                    leftPos = detailRect.width - menuWidth / 2 - 12;
+                } else if (leftPos - menuWidth / 2 < 12) {
+                    leftPos = menuWidth / 2 + 12;
                 }
 
-                ctxMenu.style.left = `${leftPos - menuWidth / 2}px`; 
-                ctxMenu.style.top = `${rect.bottom - containerRect.top + msgList.scrollTop + 6}px`; 
-                ctxMenu.style.display = 'grid';
+                ctxMenu.style.left = `${leftPos}px`; 
+                ctxMenu.style.top = `${rect.bottom - detailRect.top + 8}px`; // 精准显示在气泡下方 8px
+                ctxMenu.classList.add('show');
             });
 
             col.appendChild(bubble);
@@ -434,12 +438,13 @@
         scrollToBottom();
     };
 
+    // 绑定浮窗菜单的各项功能
     document.getElementById('ctx-btn-copy').addEventListener('click', (e) => {
         e.stopPropagation(); 
         if(selectedMsgIndex !== null && currentChatId) {
             navigator.clipboard.writeText(globalChatData[currentChatId][selectedMsgIndex].content).then(() => alert('已复制'));
         }
-        ctxMenu.style.display = 'none';
+        ctxMenu.classList.remove('show');
     });
 
     document.getElementById('ctx-btn-quote').addEventListener('click', (e) => {
@@ -451,7 +456,7 @@
             document.getElementById('chat-quote-bar').style.display = 'flex';
             inputArea.focus();
         }
-        ctxMenu.style.display = 'none';
+        ctxMenu.classList.remove('show');
     });
 
     document.getElementById('quote-close-btn').addEventListener('click', () => {
@@ -466,7 +471,7 @@
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
             renderMessages();
         }
-        ctxMenu.style.display = 'none';
+        ctxMenu.classList.remove('show');
     });
 
     document.getElementById('ctx-btn-delete').addEventListener('click', (e) => {
@@ -476,7 +481,7 @@
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
             renderMessages();
         }
-        ctxMenu.style.display = 'none';
+        ctxMenu.classList.remove('show');
     });
 
     document.getElementById('ctx-btn-purge').addEventListener('click', (e) => {
@@ -487,17 +492,18 @@
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
 
             let memories = JSON.parse(localStorage.getItem('wuyo_memories')) || {};
-            if(memories[currentRole]) {
-                memories[currentRole] = memories[currentRole].filter(m => !m.text.includes(msgText));
+            const roleName = getCurrentRoleInfo().name;
+            // 注意：存储在 wuyo_memories 里的是按角色ID或者姓名分类的，这里需确保匹配
+            if(memories[currentChatId]) {
+                memories[currentChatId] = memories[currentChatId].filter(m => !m.text.includes(msgText));
                 localStorage.setItem('wuyo_memories', JSON.stringify(memories));
             }
             alert("已彻底删除该消息及相关关联记忆。");
             renderMessages();
         }
-        ctxMenu.style.display = 'none';
+        ctxMenu.classList.remove('show');
     });
 
-    // 💥 开启多选模式：隐藏输入框，显示多选底栏
     document.getElementById('ctx-btn-multiselect').addEventListener('click', (e) => {
         e.stopPropagation();
         isMultiSelectMode = true;
@@ -506,11 +512,10 @@
         
         document.getElementById('chat-input-area').style.display = 'none';
         document.getElementById('chat-multiselect-bar').style.display = 'flex';
-        ctxMenu.style.display = 'none';
+        ctxMenu.classList.remove('show');
         renderMessages();
     });
 
-    // 💥 取消多选：恢复输入框，隐藏多选底栏
     document.getElementById('ms-btn-cancel').addEventListener('click', () => {
         isMultiSelectMode = false;
         selectedIndices.clear();
@@ -535,7 +540,7 @@
         }
     });
 
-    // 打开设置菜单
+    // 💥 打开设置菜单
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
         const styleConf = getChatStyleConfig();
         const roleInfo = getCurrentRoleInfo();
@@ -564,6 +569,7 @@
         applyChatStylesToDOM();
     });
 
+    // 💥 保存设置按钮
     document.getElementById('settings-save-btn').addEventListener('click', () => {
         const sig = document.getElementById('couple-sign-input').value;
         const bubbleBg = document.getElementById('bubble-color-picker').value;
@@ -669,7 +675,8 @@
     document.getElementById('settings-btn-memory').addEventListener('click', () => {
         document.getElementById('chat-page-settings').classList.remove('active');
         container.style.display = 'none'; window.openApp('memory');
-        setTimeout(() => { if(window.openMemory) window.openMemory(currentChatId, document.getElementById('chat-char-name')->textContent, 'chat'); }, 100);
+        // 修正了这里之前的语法错误
+        setTimeout(() => { if(window.openMemory) window.openMemory(currentChatId, document.getElementById('chat-char-name').textContent, 'chat'); }, 100);
     });
 
     document.getElementById('settings-btn-profile').addEventListener('click', () => {
