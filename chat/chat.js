@@ -53,14 +53,14 @@
                 <button class="chat-send-btn" id="chat-send-btn">发送</button>
             </div>
             
-            <!-- 💥 精致两排式纯文本小浮窗菜单 -->
-            <div class="chat-context-menu" id="chat-context-menu">
-                <div class="ctx-item" id="ctx-btn-quote">引用</div>
-                <div class="ctx-item" id="ctx-btn-copy">复制</div>
-                <div class="ctx-item" id="ctx-btn-recall">撤回</div>
-                <div class="ctx-item" id="ctx-btn-delete">删除</div>
-                <div class="ctx-item" id="ctx-btn-purge" style="color:#FF3B30;">彻底删除</div>
-                <div class="ctx-item" id="ctx-btn-multiselect">多选</div>
+            <!-- 💥 用 JS 内联样式锁死的纯文本两排式小浮窗，绝对不会受旧 CSS 影响 -->
+            <div id="chat-context-menu" style="position: absolute; background: #FFFFFF; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); display: none; grid-template-columns: repeat(3, 1fr); padding: 8px; gap: 6px; z-index: 10000; width: 170px;">
+                <div class="ctx-item" id="ctx-btn-quote" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">引用</div>
+                <div class="ctx-item" id="ctx-btn-copy" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">复制</div>
+                <div class="ctx-item" id="ctx-btn-recall" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">撤回</div>
+                <div class="ctx-item" id="ctx-btn-delete" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">删除</div>
+                <div class="ctx-item" id="ctx-btn-purge" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #FF3B30; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">彻底删除</div>
+                <div class="ctx-item" id="ctx-btn-multiselect" style="padding: 6px 2px; font-size: 11px; font-weight: 600; color: #1C1C1E; text-align: center; cursor: pointer; border-radius: 6px; background: #F4F4F7;">多选</div>
             </div>
 
             <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none;">
@@ -310,8 +310,8 @@
     const statusText = document.getElementById('chat-status-text');
     const ctxMenu = document.getElementById('chat-context-menu');
     
-    msgList.addEventListener('scroll', () => ctxMenu.classList.remove('show')); 
-    msgList.addEventListener('click', () => ctxMenu.classList.remove('show'));
+    msgList.addEventListener('scroll', () => ctxMenu.style.display = 'none'); 
+    msgList.addEventListener('click', () => ctxMenu.style.display = 'none');
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
     const renderMessages = () => {
@@ -401,7 +401,7 @@
             timeSub.className = 'bubble-time-sub';
             timeSub.textContent = formatTime(msg.time);
 
-            // 💥 双击触发浮窗，并加入智能边界防溢出计算（绝不被屏幕切掉）
+            // 💥 完美内联计算：双击气泡下方弹出小浮窗，带百分之百安全的防溢出保护
             bubble.addEventListener('dblclick', (e) => {
                 if(isMultiSelectMode) return;
                 selectedMsgIndex = index; 
@@ -409,7 +409,6 @@
                 const containerRect = msgList.getBoundingClientRect();
                 
                 let leftPos = rect.left + rect.width / 2 - containerRect.left;
-                // 防溢出保护：如果靠右太近，向左偏移；如果靠左太近，向右偏移
                 const menuWidth = 170;
                 if (leftPos + menuWidth / 2 > containerRect.width - 10) {
                     leftPos = containerRect.width - menuWidth / 2 - 10;
@@ -417,9 +416,9 @@
                     leftPos = menuWidth / 2 + 10;
                 }
 
-                ctxMenu.style.left = `${leftPos}px`; 
+                ctxMenu.style.left = `${leftPos - menuWidth / 2}px`; 
                 ctxMenu.style.top = `${rect.bottom - containerRect.top + msgList.scrollTop + 6}px`; 
-                ctxMenu.classList.add('show');
+                ctxMenu.style.display = 'grid';
             });
 
             col.appendChild(bubble);
@@ -438,7 +437,7 @@
         if(selectedMsgIndex !== null && currentChatId) {
             navigator.clipboard.writeText(globalChatData[currentChatId][selectedMsgIndex].content).then(() => alert('已复制'));
         }
-        ctxMenu.classList.remove('show');
+        ctxMenu.style.display = 'none';
     });
 
     document.getElementById('ctx-btn-quote').addEventListener('click', (e) => {
@@ -450,7 +449,7 @@
             document.getElementById('chat-quote-bar').style.display = 'flex';
             inputArea.focus();
         }
-        ctxMenu.classList.remove('show');
+        ctxMenu.style.display = 'none';
     });
 
     document.getElementById('quote-close-btn').addEventListener('click', () => {
@@ -465,7 +464,7 @@
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
             renderMessages();
         }
-        ctxMenu.classList.remove('show');
+        ctxMenu.style.display = 'none';
     });
 
     document.getElementById('ctx-btn-delete').addEventListener('click', (e) => {
@@ -475,7 +474,7 @@
             localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
             renderMessages();
         }
-        ctxMenu.classList.remove('show');
+        ctxMenu.style.display = 'none';
     });
 
     document.getElementById('ctx-btn-purge').addEventListener('click', (e) => {
@@ -493,7 +492,7 @@
             alert("已彻底删除该消息及相关关联记忆。");
             renderMessages();
         }
-        ctxMenu.classList.remove('show');
+        ctxMenu.style.display = 'none';
     });
 
     document.getElementById('ctx-btn-multiselect').addEventListener('click', (e) => {
@@ -502,7 +501,7 @@
         selectedIndices.clear();
         if(selectedMsgIndex !== null) selectedIndices.add(selectedMsgIndex);
         document.getElementById('chat-multiselect-bar').style.display = 'flex';
-        ctxMenu.classList.remove('show');
+        ctxMenu.style.display = 'none';
         renderMessages();
     });
 
