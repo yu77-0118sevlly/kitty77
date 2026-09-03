@@ -2,11 +2,10 @@
     const container = document.getElementById('contacts-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：加入返回桌面的按钮，清空多余占位符，增加高级私密字段
+    // 1. 初始化 DOM：加入锁脸功能，清空所有多余提示语，恢复硬核信息
     container.innerHTML = `
         <div class="ct-page root active" id="ct-page-list">
             <header class="ct-header">
-                <!-- 💥 修复：左上角的返回系统桌面按钮 -->
                 <button class="ct-icon-btn" onclick="window.closeApp('contacts')"><i data-lucide="chevron-left"></i></button>
                 <span class="ct-header-title">Contacts</span>
                 <button class="ct-icon-btn" id="btn-goto-create"><i data-lucide="user-plus"></i></button>
@@ -22,8 +21,8 @@
             <div class="wechat-bottom-nav">
                 <div class="wechat-nav-item" id="nav-btn-chats"><i data-lucide="message-square"></i><span>Chats</span></div>
                 <div class="wechat-nav-item active"><i data-lucide="users"></i><span>Contacts</span></div>
-                <div class="wechat-nav-item" id="nav-btn-moments-ct"><i data-lucide="compass"></i><span>Moments</span></div>
-                <div class="wechat-nav-item" id="nav-btn-me-ct"><i data-lucide="user"></i><span>Me</span></div>
+                <div class="wechat-nav-item"><i data-lucide="compass"></i><span>Moments</span></div>
+                <div class="wechat-nav-item"><i data-lucide="user"></i><span>Me</span></div>
             </div>
         </div>
 
@@ -44,8 +43,12 @@
             <div class="ct-body">
                 <div class="ct-form-group">
                     <div class="ct-form-row">
-                        <span class="ct-form-label">Avatar</span>
-                        <div class="ct-avatar-upload" id="role-avatar-preview"><i data-lucide="camera" style="color:#8E8E93;"></i></div>
+                        <span class="ct-form-label">Avatar (头像)</span>
+                        <div class="ct-avatar-upload" id="role-avatar-preview" style="border-radius:50%;"><i data-lucide="camera" style="color:#8E8E93;"></i></div>
+                    </div>
+                    <div class="ct-form-row">
+                        <span class="ct-form-label">Face Lock (锁脸)</span>
+                        <div class="ct-avatar-upload" id="role-face-preview" style="border-radius:8px;"><i data-lucide="scan-face" style="color:#8E8E93;"></i></div>
                     </div>
                     <div class="ct-form-row">
                         <span class="ct-form-label">Name</span>
@@ -57,7 +60,7 @@
                     </div>
                     <div class="ct-form-row">
                         <span class="ct-form-label">Relation</span>
-                        <select class="ct-select" id="role-relation">
+                        <select class="ct-select" id="role-relation" dir="rtl">
                             <option value="Stranger">Stranger</option>
                             <option value="Friend" selected>Friend</option>
                             <option value="Lover">Lover</option>
@@ -70,7 +73,7 @@
                     </div>
                 </div>
 
-                <div style="padding: 0 16px 8px 32px; font-size:12px; color:#8E8E93;">Private Info (私密档案)</div>
+                <div style="padding: 0 16px 8px 32px; font-size:12px; color:#8E8E93; text-transform:uppercase;">Private Info</div>
                 <div class="ct-form-group">
                     <div class="ct-form-row">
                         <span class="ct-form-label">WeChat ID</span>
@@ -90,7 +93,7 @@
                     </div>
                 </div>
                 
-                <div style="padding: 0 16px 8px 32px; font-size:12px; color:#8E8E93;">AI Core Setup (核心设定)</div>
+                <div style="padding: 0 16px 8px 32px; font-size:12px; color:#8E8E93; text-transform:uppercase;">AI Core Setup</div>
                 <div class="ct-form-group">
                     <div class="ct-form-row vertical">
                         <span class="ct-form-label">Personality</span>
@@ -102,17 +105,17 @@
                     </div>
                 </div>
                 
-                <button class="ct-btn-large" id="btn-delete-role" style="display:none; margin: 16px; color:#1C1C1E; font-weight: 700;">Delete Contact</button>
+                <button class="ct-btn-large" id="btn-delete-role" style="display:none; margin: 16px; color:#FF3B30;">Delete Contact</button>
             </div>
+            
             <input type="file" id="ct-avatar-uploader" accept="image/*" style="display:none;">
+            <input type="file" id="ct-face-uploader" accept="image/*" style="display:none;">
         </div>
     `;
     lucide.createIcons({ root: container });
 
     // 2. 底栏跳转
     document.getElementById('nav-btn-chats').addEventListener('click', () => { container.style.display = 'none'; window.openApp('chat'); });
-    document.getElementById('nav-btn-moments-ct').addEventListener('click', () => alert('Moments (开发中)'));
-    document.getElementById('nav-btn-me-ct').addEventListener('click', () => alert('Me (开发中)'));
 
     // 3. 数据管理
     let wuyoRoles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
@@ -120,9 +123,7 @@
 
     const renderContactList = () => {
         const listArea = document.getElementById('ct-list-render-area');
-        if (wuyoRoles.length === 0) {
-            listArea.innerHTML = `<div style="text-align:center; padding:60px 16px; color:#8E8E93; font-size:14px;">No contacts yet.<br>Click the plus icon to add your first AI.</div>`; return;
-        }
+        if (wuyoRoles.length === 0) { listArea.innerHTML = `<div style="text-align:center; padding:60px 16px; color:#8E8E93; font-size:14px;">No contacts yet.<br>Click the plus icon to add your first AI.</div>`; return; }
         let html = '';
         wuyoRoles.forEach(role => {
             const avatarStyle = role.avatar ? `background-image: url(${role.avatar});` : '';
@@ -157,15 +158,19 @@
             </div>
             
             <div class="ct-group">
-                ${role.wechat ? `<div class="ct-row"><div class="ct-row-label">WeChat ID</div><div class="ct-row-value">${role.wechat}</div></div>` : ''}
+                ${role.wechat ? `<div class="ct-row"><div class="ct-row-label">WeChat</div><div class="ct-row-value">${role.wechat}</div></div>` : ''}
                 ${role.phone ? `<div class="ct-row"><div class="ct-row-label">Phone</div><div class="ct-row-value">${role.phone}</div></div>` : ''}
                 ${role.idcard ? `<div class="ct-row"><div class="ct-row-label">ID Card</div><div class="ct-row-value">${role.idcard}</div></div>` : ''}
                 ${role.bank ? `<div class="ct-row"><div class="ct-row-label">Bank Info</div><div class="ct-row-value">${role.bank}</div></div>` : ''}
+            </div>
+
+            <div class="ct-group">
                 <div class="ct-row"><div class="ct-row-label">Personality</div><div class="ct-row-value">${role.personality || 'Not set'}</div></div>
                 <div class="ct-row"><div class="ct-row-label">Background</div><div class="ct-row-value">${role.bgStory || 'Not set'}</div></div>
             </div>
             
-            <button class="ct-btn-large" onclick="window.chatWithRole('${role.id}')"><i data-lucide="message-square"></i> Send Message</button>
+            <button class="ct-btn-large" onclick="window.chatWithRole('${role.id}')" style="margin-top:24px;"><i data-lucide="message-square"></i> Send Message</button>
+            <!-- 💥 修复点：传递路由 source 'contacts' -->
             <button class="ct-btn-large" onclick="window.openMemoryFromProfile('${role.id}', '${role.name}')"><i data-lucide="brain-circuit"></i> AI Memory</button>
         `;
         lucide.createIcons({ root: profileArea });
@@ -173,14 +178,22 @@
     };
 
     window.chatWithRole = (roleId) => { container.style.display = 'none'; document.getElementById('home-screen').style.display = 'none'; window.openApp('chat'); if(window.openChatDetail) window.openChatDetail(roleId); };
-    window.openMemoryFromProfile = (roleId, roleName) => { container.style.display = 'none'; window.openApp('memory'); setTimeout(() => { if(window.openMemory) window.openMemory(roleId, roleName); }, 100); };
+    
+    // 💥 修复点：明确告诉 Memory 它是从 Contacts 跳过去的
+    window.openMemoryFromProfile = (roleId, roleName) => { 
+        container.style.display = 'none'; 
+        window.openApp('memory'); 
+        setTimeout(() => { if(window.openMemory) window.openMemory(roleId, roleName, 'contacts'); }, 100); 
+    };
 
     const openEditor = (roleId = null) => {
-        currentEditRoleId = roleId; const titleEl = document.getElementById('editor-title'); const delBtn = document.getElementById('btn-delete-role'); const preview = document.getElementById('role-avatar-preview');
+        currentEditRoleId = roleId; const titleEl = document.getElementById('editor-title'); const delBtn = document.getElementById('btn-delete-role'); 
+        const preview = document.getElementById('role-avatar-preview'); const facePreview = document.getElementById('role-face-preview');
         
         if (roleId) {
             const role = wuyoRoles.find(r => r.id === roleId); titleEl.textContent = 'Edit Profile'; delBtn.style.display = 'block';
             if(role.avatar) preview.style.backgroundImage = `url(${role.avatar})`; else preview.style.backgroundImage = '';
+            if(role.faceImg) facePreview.style.backgroundImage = `url(${role.faceImg})`; else facePreview.style.backgroundImage = '';
             document.getElementById('role-name').value = role.name || '';
             document.getElementById('role-remark').value = role.remark || '';
             document.getElementById('role-relation').value = role.relationship || 'Friend';
@@ -192,7 +205,7 @@
             document.getElementById('role-personality').value = role.personality || '';
             document.getElementById('role-bgstory').value = role.bgStory || '';
         } else {
-            titleEl.textContent = 'New Contact'; delBtn.style.display = 'none'; preview.style.backgroundImage = '';
+            titleEl.textContent = 'New Contact'; delBtn.style.display = 'none'; preview.style.backgroundImage = ''; facePreview.style.backgroundImage = '';
             document.querySelectorAll('.ct-input, .ct-textarea').forEach(el => el.value = '');
             document.getElementById('role-relation').value = 'Friend';
         }
@@ -203,15 +216,20 @@
     document.getElementById('btn-goto-edit').addEventListener('click', () => openEditor(currentProfileRoleId));
     document.querySelectorAll('.ct-back-btn').forEach(btn => { btn.addEventListener('click', (e) => e.target.closest('.ct-page').classList.remove('active')); });
 
-    let tempAvatar = '';
+    // 头像与锁脸上传
+    let tempAvatar = ''; let tempFace = '';
     document.getElementById('role-avatar-preview').addEventListener('click', () => document.getElementById('ct-avatar-uploader').click());
     document.getElementById('ct-avatar-uploader').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) { const reader = new FileReader(); reader.onload = (event) => { tempAvatar = event.target.result; document.getElementById('role-avatar-preview').style.backgroundImage = `url(${tempAvatar})`; }; reader.readAsDataURL(file); }
+        const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { tempAvatar = event.target.result; document.getElementById('role-avatar-preview').style.backgroundImage = `url(${tempAvatar})`; }; reader.readAsDataURL(file); }
+    });
+
+    document.getElementById('role-face-preview').addEventListener('click', () => document.getElementById('ct-face-uploader').click());
+    document.getElementById('ct-face-uploader').addEventListener('change', (e) => {
+        const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { tempFace = event.target.result; document.getElementById('role-face-preview').style.backgroundImage = `url(${tempFace})`; }; reader.readAsDataURL(file); }
     });
 
     document.getElementById('btn-save-role').addEventListener('click', () => {
-        const name = document.getElementById('role-name').value.trim(); if(!name) return alert("Name cannot be empty!");
+        const name = document.getElementById('role-name').value.trim(); if(!name) return alert("Name is required!");
 
         const roleData = {
             id: currentEditRoleId || 'char_' + Date.now().toString(36),
@@ -220,12 +238,13 @@
             wechat: document.getElementById('role-wechat').value.trim(), phone: document.getElementById('role-phone').value.trim(),
             idcard: document.getElementById('role-idcard').value.trim(), bank: document.getElementById('role-bank').value.trim(),
             personality: document.getElementById('role-personality').value.trim(), bgStory: document.getElementById('role-bgstory').value.trim(),
-            avatar: tempAvatar || (currentEditRoleId ? wuyoRoles.find(r=>r.id===currentEditRoleId).avatar : '')
+            avatar: tempAvatar || (currentEditRoleId ? wuyoRoles.find(r=>r.id===currentEditRoleId).avatar : ''),
+            faceImg: tempFace || (currentEditRoleId ? wuyoRoles.find(r=>r.id===currentEditRoleId).faceImg : '')
         };
 
         if (currentEditRoleId) { const idx = wuyoRoles.findIndex(r => r.id === currentEditRoleId); wuyoRoles[idx] = roleData; } else { wuyoRoles.unshift(roleData); }
 
-        localStorage.setItem('wuyo_roles', JSON.stringify(wuyoRoles)); tempAvatar = ''; renderContactList();
+        localStorage.setItem('wuyo_roles', JSON.stringify(wuyoRoles)); tempAvatar = ''; tempFace = ''; renderContactList();
         document.getElementById('ct-page-editor').classList.remove('active'); if(currentEditRoleId) window.openRoleProfile(currentEditRoleId); 
     });
 
