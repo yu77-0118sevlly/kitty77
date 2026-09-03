@@ -43,4 +43,13 @@
     padding: 16px; font-size: 15px; color: #1C1C1E; line-height: 1.5;
     min-height: 200px; outline: none; box-shadow: 0 2px 10px rgba(0,0,0,0.02);
 }
+/* 💥 新增：AI 记忆总结悬浮条与加载样式 */
+.mem-summary-bar {
+    background: #1C1C1E; color: #FFF; padding: 14px 20px; border-radius: 16px;
+    margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.08); font-weight: 600; font-size: 15px;
+}
+.mem-summary-bar:active { opacity: 0.8; }
+.mem-summary-bar i { width: 20px; height: 20px; }
+
 
