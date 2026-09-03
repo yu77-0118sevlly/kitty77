@@ -502,6 +502,18 @@
             }, 200);
         };
 
-        renderCalendar();
+                // 💥 只有当用户点击打开日历、容器显示后再执行渲染，彻底解决因 display:none 导致的白屏/空白问题
+        const originalOpenApp = window.openApp;
+        window.openApp = function(appId) {
+            if (typeof originalOpenApp === 'function') originalOpenApp(appId);
+            if (appId === 'calendar') {
+                const mainAppBox = document.getElementById('calendar-app-main');
+                if (mainAppBox) mainAppBox.classList.add('active');
+                setTimeout(() => {
+                    renderCalendar();
+                }, 50); // 确保容器显示后有宽高再渲染
+            }
+        };
+
     });
 })();
