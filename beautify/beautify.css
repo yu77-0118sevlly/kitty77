@@ -1,24 +1,70 @@
+/* ==========================================
+   美化 App 专属样式隔离
+========================================== */
 #beautify-app {
-    width: 100%; min-height: 100vh;
-    background: #f4f4f7; color: #1c1c1e; overflow-y: auto;
-    padding-top: 56px; padding-bottom: 60px;
+    position: fixed; /* 强制覆盖全屏 */
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: #f4f4f7; 
+    color: #1c1c1e; 
+    
+    /* 核心修复：允许内部上下滑动，覆盖主页的禁止滑动限制 */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; 
+    
+    z-index: 9999;
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
     -webkit-tap-highlight-color: transparent;
 }
 
+/* ==========================================
+   顶部导航栏 (修复被状态栏遮挡问题)
+========================================== */
 .beautify-nav-bar {
-    position: fixed; top: 0; left: 0; width: 100%; height: 56px;
-    background: rgba(244, 244, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 16px; z-index: 1001; border-bottom: 1px solid rgba(0,0,0,0.05);
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    
+    /* 核心修复：给刘海/灵动岛预留高度 */
+    height: calc(env(safe-area-inset-top, 44px) + 56px);
+    padding-top: env(safe-area-inset-top, 44px);
+    padding-left: 16px;
+    padding-right: 16px;
+    
+    background: rgba(244, 244, 247, 0.85); 
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    z-index: 10000; 
+    border-bottom: 1px solid rgba(0,0,0,0.05);
 }
+
 .beautify-nav-title { font-weight: 600; font-size: 16px; }
+
 .beautify-icon-btn, .beautify-text-btn { 
     background: none; border: none; font-size: 16px; color: #1c1c1e; cursor: pointer; font-weight: 600; 
 }
 .beautify-icon-btn { display: flex; align-items: center; }
 
-.beautify-settings-container { padding: 20px 16px; max-width: 500px; margin: 0 auto; }
+/* ==========================================
+   内容容器 (预留出顶部导航栏的距离)
+========================================== */
+.beautify-settings-container { 
+    /* 核心修复：整体内容往下推，避免被加高后的导航栏挡住 */
+    padding: calc(env(safe-area-inset-top, 44px) + 76px) 16px 60px 16px; 
+    max-width: 500px; 
+    margin: 0 auto; 
+}
+
+/* ==========================================
+   设置项样式
+========================================== */
 .beautify-section-title { font-size: 13px; color: #8e8e93; margin: 24px 0 8px 16px; text-transform: uppercase; font-weight: 600; }
 
 .beautify-setting-group {
