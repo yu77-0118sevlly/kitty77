@@ -377,14 +377,22 @@ html, body {
     line-height: 1 !important;
 }
 /* ==========================================
-   强制锁定 App 列表为 4 列，防止图标掉落换行
+   💥 终极锁死：App 列表 4 列对齐（最高权重）
 ========================================== */
-.app-grid {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 20px 8px !important;
-    justify-items: center !important;
+#home-screen .app-grid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    gap: 16px 0 !important;
+    padding: 0 12px !important;
     width: 100% !important;
 }
 
-
+#home-screen .app-grid .app-item {
+    width: 25% !important; /* 强制每个图标精确占满屏幕的四分之一，4个一排，绝不换行 */
+    flex: 0 0 25% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+}
