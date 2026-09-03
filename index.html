@@ -11,13 +11,13 @@
 </head>
 <body>
     
-    <!-- 全局隐藏的图片上传控件 -->
+    <!-- 全局隐藏的图片上传控件 (彻底隐藏原生文字) -->
     <input type="file" id="image-uploader" accept="image/*">
 
     <!-- 主屏幕容器 -->
     <main id="home-screen">
         
-        <!-- 顶部品牌与日期区 (固定不滑动) -->
+        <!-- 顶部品牌与日期区 -->
         <header class="top-header">
             <div class="header-left">
                 <div class="brand-name">WUYO</div>
@@ -39,9 +39,9 @@
             
             <!-- ====== 第一页 ====== -->
             <div class="desktop-page">
-                <!-- 第一页小组件 (2x2 网格) -->
+                
+                <!-- 1. 小组件网格 (2x2) -->
                 <div class="widget-grid">
-                    
                     <!-- Memory 拍立得组件 -->
                     <div class="widget widget-square">
                         <div class="polaroid-inner">
@@ -75,7 +75,18 @@
                     </div>
                 </div>
 
-                <!-- 第一页 App 网格 (8个) -->
+                <!-- 2. AI 伙伴信息卡 -->
+                <div class="ai-card">
+                    <div class="ai-avatar">
+                        <i data-lucide="bot"></i>
+                    </div>
+                    <div class="ai-info">
+                        <h2>AI 伴侣</h2>
+                        <p>随时准备与你交流...</p>
+                    </div>
+                </div>
+
+                <!-- 3. 第一页 App 网格 (8个) -->
                 <div class="app-grid">
                     <div class="app-item"><div class="app-icon"><i data-lucide="book"></i></div><span>世界书</span></div>
                     <div class="app-item"><div class="app-icon"><i data-lucide="palette"></i></div><span>美化</span></div>
@@ -90,9 +101,9 @@
 
             <!-- ====== 第二页 ====== -->
             <div class="desktop-page">
-                <!-- 第二页小组件 -->
+                
+                <!-- 1. 第二页小组件 -->
                 <div class="widget-grid">
-                    
                     <!-- 音乐组件 (横向占两格) -->
                     <div class="widget widget-wide music-widget">
                         <div class="music-cover uploadable" id="music-cover">
@@ -117,7 +128,7 @@
                     </div>
                 </div>
 
-                <!-- 第二页 App 网格 (8个) -->
+                <!-- 2. 第二页 App 网格 (8个) -->
                 <div class="app-grid">
                     <div class="app-item"><div class="app-icon"><i data-lucide="scan-search"></i></div><span>查手机</span></div>
                     <div class="app-item"><div class="app-icon"><i data-lucide="smartphone"></i></div><span>小手机</span></div>
@@ -132,7 +143,7 @@
 
         </div>
 
-        <!-- 分页指示点 -->
+        <!-- 页面指示点 -->
         <div class="pagination-dots" id="pagination-dots">
             <div class="dot active"></div>
             <div class="dot"></div>
