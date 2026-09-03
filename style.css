@@ -333,3 +333,47 @@ html, body {
     justify-content: center;
     z-index: 99;
 }
+/* ==========================================
+   强制顶部 Header 左侧排成一排，并与右侧居中对齐
+========================================== */
+.top-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important; /* 确保左右两边在同一条水平线上 */
+}
+
+.header-left {
+    display: flex !important;
+    align-items: center !important; /* 让左侧的文字全部垂直居中对齐 */
+    gap: 10px !important; /* 控制 WUYO 和日期之间的间距 */
+}
+
+.brand-name {
+    font-size: 16px !important; /* 变成精致的小字号 */
+    font-weight: 800 !important;
+    color: #1c1c1e !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+.date-display {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important; /* 星期和具体日期之间的间距 */
+    margin: 0 !important; 
+}
+
+.date-display .day {
+    font-size: 13px !important;
+    color: #8E8E93 !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+}
+
+.date-display .date {
+    font-size: 15px !important; /* 缩小原本巨大的日期 */
+    font-weight: 700 !important;
+    color: #1C1C1E !important;
+    line-height: 1 !important;
+}
+
