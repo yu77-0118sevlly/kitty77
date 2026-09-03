@@ -1,144 +1,167 @@
 (function() {
-    const container = document.getElementById('memory-app');
-    if (!container) return;
+    window.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('chat-app');
+        if (!container) return;
 
-    container.innerHTML = `
-        <div class="mem-page root active" id="mem-page-list">
-            <header class="mem-header">
-                <button class="mem-icon-btn" id="mem-main-back-btn"><i data-lucide="chevron-left"></i></button>
-                <span class="mem-title" id="mem-main-title">AI Memory</span>
-                <button class="mem-icon-btn" id="mem-btn-add"><i data-lucide="plus"></i></button>
-            </header>
-            <div class="mem-body" id="mem-list-area"></div>
-        </div>
-
-        <div class="mem-page" id="mem-page-editor">
-            <header class="mem-header">
-                <button class="mem-icon-btn" id="mem-btn-back"><i data-lucide="chevron-left"></i></button>
-                <span class="mem-title" id="mem-edit-title">New Memory</span>
-                <button class="mem-text-btn" id="mem-btn-save">Save</button>
-            </header>
-            <div class="mem-body">
-                <textarea class="mem-textarea" id="mem-input" placeholder="Enter important events or rules..."></textarea>
-            </div>
-        </div>
-    `;
-    lucide.createIcons({ root: container });
-
-    let currentRole = null;
-    let memories = JSON.parse(localStorage.getItem('wuyo_memories')) || {};
-    let editingId = null;
-    let sourceApp = 'chat'; 
-
-    const formatTime = (ts) => { const d = new Date(ts); return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`; };
-
-    const renderList = () => {
-        const listArea = document.getElementById('mem-list-area');
-        
-        // 💥 构建置顶的「AI 智能记忆总结」入口
-        let html = `
-            <div class="mem-summary-bar" id="btn-ai-summarize">
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <i data-lucide="sparkles"></i>
-                    <span>AI 智能提炼聊天总结</span>
-                </div>
-                <i data-lucide="chevron-right"></i>
-            </div>
-        `;
-
-        if(!currentRole || !memories[currentRole] || memories[currentRole].length === 0) {
-            html += `<div style="text-align:center; padding:40px 16px; color:#8E8E93; font-size:14px;">暂无长期记忆。<br>点击上方按钮可让 AI 自动总结聊天记录，或手动添加。</div>`;
-        } else {
-            memories[currentRole].forEach(mem => {
-                html += `<div class="mem-item"><div class="mem-item-text">${mem.text.replace(/\n/g, '<br>')}</div><div class="mem-item-bottom"><span class="mem-item-time">${formatTime(mem.time)}</span><div class="mem-actions"><span class="mem-action-btn" onclick="window.editMemory('${mem.id}')"><i data-lucide="edit-2" style="width:14px;"></i>编辑</span><span class="mem-action-btn danger" onclick="window.deleteMemory('${mem.id}')"><i data-lucide="trash-2" style="width:14px;"></i>删除</span></div></div></div>`;
-            });
+        // 1. 确保朋友圈的 DOM 视图已经注入
+        if (!document.getElementById('moments-page-main')) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = window.MomentsViewTemplate;
+            container.appendChild(tempDiv.firstElementChild);
+            if (window.lucide) lucide.createIcons({ root: container });
         }
-        listArea.innerHTML = html; 
-        lucide.createIcons({ root: listArea });
 
-        // 绑定一键总结事件
-        document.getElementById('btn-ai-summarize').addEventListener('click', window.runAiMemorySummary);
-    };
+        // 2. 初始化朋友圈假数据
+        let momentsData = JSON.parse(localStorage.getItem('wuyo_moments_data'));
+        if (!momentsData || momentsData.length === 0) {
+            momentsData = [
+                {
+                    id: "m_1001",
+                    authorId: "char_default",
+                    authorName: "AI 伙伴",
+                    avatar: "",
+                    content: "今天下班路上突然下雨了，还好带了伞。",
+                    images: [],
+                    time: Date.now() - 3600000,
+                    likes: ["我"],
+                    comments: [
+                        { id: "c_1", author: "我", text: "注意安全，别感冒了。" }
+                    ]
+                },
+                {
+                    id: "m_1002",
+                    authorId: "user",
+                    authorName: "我",
+                    avatar: "",
+                    content: "工作很累，但晚霞很美。",
+                    images: [],
+                    time: Date.now() - 86400000,
+                    likes: ["AI 伙伴"],
+                    comments: []
+                }
+            ];
+            localStorage.setItem('wuyo_moments_data', JSON.stringify(momentsData));
+        }
 
-    window.openMemory = (roleId, roleName, source) => {
-        currentRole = roleId;
-        sourceApp = source || 'chat'; 
-        document.getElementById('mem-main-title').textContent = roleName ? `${roleName}的记忆库` : 'AI Memory';
-        document.getElementById('mem-page-list').classList.add('active');
-        renderList();
-    };
-
-    document.getElementById('mem-main-back-btn').addEventListener('click', () => {
-        container.style.display = 'none';
-        const sourceContainer = document.getElementById(sourceApp + '-app');
-        if (sourceContainer) sourceContainer.style.display = 'block';
-        else document.getElementById('home-screen').style.display = 'flex';
-    });
-
-    document.getElementById('mem-btn-add').addEventListener('click', () => { editingId = null; document.getElementById('mem-input').value = ''; document.getElementById('mem-edit-title').textContent = '新建记忆'; document.getElementById('mem-page-editor').classList.add('active'); });
-    window.editMemory = (id) => { editingId = id; const mem = memories[currentRole].find(m => m.id === id); if(mem) { document.getElementById('mem-input').value = mem.text; document.getElementById('mem-edit-title').textContent = '编辑记忆'; document.getElementById('mem-page-editor').classList.add('active'); } };
-    window.deleteMemory = (id) => { if(confirm('确定删除这条记忆吗？')) { memories[currentRole] = memories[currentRole].filter(m => m.id !== id); localStorage.setItem('wuyo_memories', JSON.stringify(memories)); renderList(); } };
-
-    document.getElementById('mem-btn-save').addEventListener('click', () => {
-        const text = document.getElementById('mem-input').value.trim(); if(!text) return alert("内容不能为空！");
-        if(!memories[currentRole]) memories[currentRole] = [];
-        if(editingId) { const mem = memories[currentRole].find(m => m.id === editingId); if(mem) { mem.text = text; mem.time = Date.now(); } } 
-        else { memories[currentRole].unshift({ id: 'mem_'+Date.now(), text: text, time: Date.now() }); }
-        localStorage.setItem('wuyo_memories', JSON.stringify(memories)); document.getElementById('mem-page-editor').classList.remove('active'); renderList();
-    });
-
-    document.getElementById('mem-btn-back').addEventListener('click', () => { document.getElementById('mem-page-editor').classList.remove('active'); });
-
-    // ==========================================
-    // 💥 核心功能：AI 自动阅读聊天记录并提炼成记忆
-    // ==========================================
-    window.runAiMemorySummary = async () => {
-        const apiConfigStr = localStorage.getItem('wuyo_settings_api');
-        if(!apiConfigStr) return alert("请先在设置中配置 API！");
-        const apiConfig = JSON.parse(apiConfigStr);
-        if(!apiConfig.chat || !apiConfig.chat.url || !apiConfig.chat.key) return alert("API 配置不完整！");
-
-        // 读取当前角色的聊天记录
-        const globalChat = JSON.parse(localStorage.getItem('wuyo_global_chat_data')) || {};
-        const chatHistory = globalChat[currentRole] || [];
-        if(chatHistory.length === 0) return alert("当前没有聊天记录，无法进行总结！");
-
-        const btn = document.getElementById('btn-ai-summarize');
-        btn.innerHTML = `<div style="display:flex; align-items:center; gap:8px;"><i data-lucide="loader-2" class="animate-spin"></i><span>AI 正在提炼核心记忆中...</span></div>`;
-
-        // 拼接发给 API 的提炼 Prompt
-        const transcript = chatHistory.map(m => `${m.role === 'user' ? 'User' : 'AI'}: ${m.content}`).join('\n');
-        const summaryPrompt = [
-            { role: 'system', content: '你是一个高效的记忆总结助手。请分析以下 User 与 AI 的聊天对话，提取出关键的事实、双方约定的事情、User 的喜好或重要事件。请用简练的陈述句分条列出，不要废话。' },
-            { role: 'user', content: transcript }
-        ];
-
-        try {
-            const cleanUrl = apiConfig.chat.url.replace(/\/+$/, '') + '/v1/chat/completions';
-            const response = await fetch(cleanUrl, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiConfig.chat.key}` },
-                body: JSON.stringify({ model: apiConfig.chat.model, messages: summaryPrompt, temperature: 0.3 })
-            });
-            if(!response.ok) throw new Error(`HTTP ${response.status}`);
-            const data = await response.json();
-            const resultText = data.choices[0].message.content.trim();
-
-            if(resultText) {
-                if(!memories[currentRole]) memories[currentRole] = [];
-                memories[currentRole].unshift({ id: 'mem_'+Date.now(), text: `【AI 自动总结】\n${resultText}`, time: Date.now() });
-                localStorage.setItem('wuyo_memories', JSON.stringify(memories));
-                renderList();
-                alert("记忆提炼成功！已自动写入长期记忆库。");
+        // 3. 💥 精准直接绑定：点击底栏的 Moments 按钮，直通朋友圈页面！
+        // 延时 100ms 确保底栏的 HTML 已经被 chat.js 渲染出来
+        setTimeout(() => {
+            const momentsNav = document.getElementById('nav-btn-moments');
+            if (momentsNav) {
+                momentsNav.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openMomentsPage();
+                });
+            } else {
+                // 兼容兜底：如果 ID 没找到，遍历所有导航项寻找 Moments 文字
+                document.querySelectorAll('.wechat-nav-item').forEach(item => {
+                    if (item.textContent.includes('Moments') || item.textContent.includes('朋友圈')) {
+                        // 克隆节点以彻底清除原有的 onclick 弹窗事件
+                        const newItem = item.cloneNode(true);
+                        item.parentNode.replaceChild(newItem, item);
+                        newItem.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            openMomentsPage();
+                        });
+                    }
+                });
             }
-        } catch(error) {
-            alert(`总结失败: ${error.message}`);
-            renderList();
-        }
-    };
+        }, 300);
 
-    window.getMemoryContext = (roleId) => {
-        if(!roleId || !memories[roleId] || memories[roleId].length === 0) return '';
-        const memText = memories[roleId].map(m => `- ${m.text}`).join('\n');
-        return `[SYSTEM: LONG-TERM MEMORY]\n以下是 User 与你之间发生的核心记忆，请你永远记住并基于此进行交流：\n${memText}`;
-    };
+        // 4. 界面交互事件绑定
+        const momentsPage = document.getElementById('moments-page-main');
+        const scrollArea = document.getElementById('moments-scroll-area');
+        const header = document.getElementById('moments-header');
+        
+        if (scrollArea) {
+            scrollArea.addEventListener('scroll', () => {
+                if (scrollArea.scrollTop > 200) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+        }
+
+        const backBtn = document.getElementById('moments-back-btn');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                momentsPage.classList.remove('active');
+            });
+        }
+
+        const cameraBtn = document.getElementById('moments-camera-btn');
+        if (cameraBtn) {
+            cameraBtn.addEventListener('click', () => {
+                alert("发朋友圈功能即将接入 AI 动态感知引擎！");
+            });
+        }
+
+        // 5. 渲染朋友圈列表
+        const renderMoments = () => {
+            const feedList = document.getElementById('moments-feed-list');
+            if (!feedList) return;
+            feedList.innerHTML = '';
+            
+            const data = JSON.parse(localStorage.getItem('wuyo_moments_data')) || [];
+
+            const configStr = localStorage.getItem('wuyo_config');
+            const coupleConf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
+            let userAv = coupleConf.userAvatar || '';
+            if(!userAv && configStr) { 
+                const cfg = JSON.parse(configStr); 
+                if(cfg.profile && cfg.profile.avatar) userAv = cfg.profile.avatar; 
+            }
+            
+            const avEl = document.getElementById('moments-user-avatar');
+            if (avEl && userAv) { 
+                avEl.style.backgroundImage = `url(${userAv})`; 
+                avEl.innerHTML = ''; 
+            }
+            
+            data.forEach(item => {
+                const dateObj = new Date(item.time);
+                const timeStr = `${dateObj.getMonth()+1}月${dateObj.getDate()}日 ${String(dateObj.getHours()).padStart(2,'0')}:${String(dateObj.getMinutes()).padStart(2,'0')}`;
+
+                let html = `
+                    <div class="moment-item">
+                        <div class="moment-avatar" style="${item.avatar ? `background-image:url(${item.avatar})` : ''}">${item.avatar ? '' : '<i data-lucide="user"></i>'}</div>
+                        <div class="moment-body">
+                            <div class="moment-name">${item.authorName}</div>
+                            <div class="moment-text">${item.content}</div>
+                `;
+
+                let interactionHtml = '';
+                if (item.likes.length > 0 || item.comments.length > 0) {
+                    interactionHtml += `<div class="moment-comments-area">`;
+                    if (item.likes.length > 0) {
+                        interactionHtml += `<div class="moment-likes"><i data-lucide="heart"></i> ${item.likes.join(', ')}</div>`;
+                    }
+                    item.comments.forEach(c => {
+                        interactionHtml += `<div class="moment-comment-item"><span class="comment-author">${c.author}:</span> ${c.text}</div>`;
+                    });
+                    interactionHtml += `</div>`;
+                }
+
+                html += `
+                            <div class="moment-footer">
+                                <span class="moment-time">${timeStr}</span>
+                                <button class="moment-action-btn"><i data-lucide="more-horizontal" style="width:14px;height:14px;"></i></button>
+                            </div>
+                            ${interactionHtml}
+                        </div>
+                    </div>
+                `;
+                feedList.innerHTML += html;
+            });
+            if (window.lucide) lucide.createIcons({ root: feedList });
+        };
+
+        const openMomentsPage = () => {
+            renderMoments();
+            momentsPage.classList.add('active');
+        };
+    });
 })();
