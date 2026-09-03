@@ -1,7 +1,8 @@
 /* ==========================================
    Chat App - 纯黑白灰极简高级样式
 ========================================== */
-#chat-app { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #F4F4F7; color: #1C1C1E; z-index: 9999; display: flex; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; -webkit-tap-highlight-color: transparent; }
+/* 💥 修复点：强制统一为 100%，解决与 Contacts 高度不一致的视口差问题 */
+#chat-app { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #F4F4F7; color: #1C1C1E; z-index: 9999; display: flex; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; -webkit-tap-highlight-color: transparent; }
 .chat-container { display: flex; flex-direction: column; height: 100%; position: relative; }
 .chat-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #F4F4F7; display: flex; flex-direction: column; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateX(100%); z-index: 10; }
 .chat-page.active { transform: translateX(0); }
@@ -14,7 +15,7 @@
 .chat-title-area { display: flex; flex-direction: column; align-items: center; }
 .chat-status { font-size: 11px; color: #8E8E93; font-weight: 500; margin-top: 2px;}
 
-/* 💥 统一英文底栏 (高度与 Contacts 绝对对齐) */
+/* 统一英文底栏 */
 .wechat-bottom-nav {
     position: absolute; bottom: 0; left: 0; width: 100%;
     height: calc(54px + env(safe-area-inset-bottom, 20px));
@@ -65,7 +66,7 @@
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-/* 底部输入框：黑白灰 */
+/* 底部输入框 */
 .chat-input-area { flex-shrink: 0; padding: 10px 12px calc(env(safe-area-inset-bottom, 20px) + 10px) 12px; background: #F4F4F7; border-top: 0.5px solid rgba(0,0,0,0.05); display: flex; align-items: flex-end; gap: 8px; z-index: 10; }
 .chat-ext-btn { background: none; border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #1C1C1E; flex-shrink: 0; margin-bottom: 3px; cursor: pointer; }
 .chat-input { flex: 1; background: #FFFFFF; border: none; border-radius: 20px; padding: 10px 16px; font-size: 15px; color: #1C1C1E; max-height: 120px; resize: none; outline: none; line-height: 1.4; margin: 0 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
@@ -79,7 +80,7 @@
 .ctx-item:last-child { border-right: none; }
 .ctx-item i { width: 18px; height: 18px; color: #1C1C1E; }
 
-/* 💥 新增：独立设置页面样式 (取代抽屉) */
+/* 独立设置页面样式 */
 .settings-list-group { background: #FFFFFF; border-radius: 16px; margin: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); overflow: hidden; }
 .settings-list-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 0.5px solid #F2F2F7; cursor: pointer; font-size: 15px; color: #1C1C1E; font-weight: 500; transition: background 0.2s;}
 .settings-list-item:active { background: #F2F2F7; }
