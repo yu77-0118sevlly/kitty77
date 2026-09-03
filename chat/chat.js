@@ -195,6 +195,7 @@
                 }
 
                 const isUser = msg.role === 'user';
+                
                 const outerWrapper = document.createElement('div');
                 outerWrapper.style.cssText = 'display: flex; align-items: flex-start; width: 100%; margin-bottom: 0;';
 
@@ -449,12 +450,10 @@
             document.getElementById('chat-page-settings').classList.add('active');
         });
 
-        // 💥 新增：打开独立的二级高级设置页面
         document.getElementById('settings-btn-advanced').addEventListener('click', () => {
             document.getElementById('chat-page-advanced-settings').classList.add('active');
         });
 
-        // 💥 新增：关闭二级高级设置页面
         document.getElementById('advanced-settings-back').addEventListener('click', () => {
             document.getElementById('chat-page-advanced-settings').classList.remove('active');
         });
