@@ -17,11 +17,17 @@ window.openApp = (appId) => {
         window.chatLoaded = true;
     }
 
-    // 🟢 修复白屏：加载设置模块的代码补上了！
     if (appId === 'settings' && !window.settingsLoaded) {
         const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'settings/settings.css'; document.head.appendChild(link);
         const script = document.createElement('script'); script.src = 'settings/settings.js'; document.body.appendChild(script);
         window.settingsLoaded = true;
+    }
+
+    // 🟢 动态加载世界书模块 (这里已经帮你加好了！)
+    if (appId === 'worldbook' && !window.worldbookLoaded) {
+        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'worldbook/worldbook.css'; document.head.appendChild(link);
+        const script = document.createElement('script'); script.src = 'worldbook/worldbook.js'; document.body.appendChild(script);
+        window.worldbookLoaded = true;
     }
 };
 
