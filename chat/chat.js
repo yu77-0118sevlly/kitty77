@@ -666,8 +666,15 @@ container.innerHTML = `
 
         </div>
 
-
-        <div class="chat-room-placeholder"></div>
+<button
+    class="chat-room-more"
+    id="room-more-btn"
+    type="button"
+    aria-label="聊天设置"
+>
+    <i data-lucide="more-horizontal"></i>
+</button>
+        
 
     </header>
 
@@ -755,7 +762,13 @@ const aiBtn =
     document.getElementById('room-ai-btn');
 
 const backBtn =
-    document.getElementById('room-back-btn');
+    document.getElementById('room-back-btn');const moreBtn =
+    document.getElementById('room-more-btn');
+
+const settingsBackBtn =
+    document.getElementById(
+        'chat-settings-back'
+    );
 
 const roomNameEl =
     document.getElementById('room-target-name');
@@ -786,7 +799,142 @@ let currentContact = null;
 let currentCharacter = null;
 
 let aiRequesting = false;
+/* =====================================================
+   每个角色独立聊天设置
+   ===================================================== */
 
+const CHAT_SETTINGS_KEY =
+    'wuyo_chat_settings';
+
+
+function loadChatSettings(){
+
+    try{
+
+        return JSON.parse(
+            localStorage.getItem(
+                CHAT_SETTINGS_KEY
+            ) || '{}'
+        );
+
+    }catch(error){
+
+        return {};
+
+    }
+
+}
+
+
+function saveChatSettings(data){
+
+    localStorage.setItem(
+        CHAT_SETTINGS_KEY,
+        JSON.stringify(data)
+    );
+
+}
+
+
+function defaultChatSettings(){
+
+    return {
+
+        note:'',
+
+        timeAwareness:false,
+
+        locationMode:false,
+
+        autoMessage:false,
+
+        autoMessageInterval:30,
+
+        autoMessageUnit:'minute',
+
+        minBubbles:1,
+
+        maxBubbles:4,
+
+        freeActivity:false,
+
+        diaryPush:false,
+
+        autoMoments:false,
+
+        npcComments:false,
+
+        autoFriends:false,
+
+        reversePhone:false,
+
+        offlineInvite:false,
+
+        autoTranslate:false,
+
+        language:'',
+
+        voice:false,
+
+        voiceFrequency:20,
+
+        offlineMode:false,
+
+        daysOffset:0,
+
+        worldBook:null,
+
+        avatarDisplay:'both',
+
+        bubbleCSS:'',
+
+        chatBackground:'',
+
+        memoryRounds:20,
+
+        memorySummaries:[]
+
+    };
+
+}
+
+
+function getChatSettings(characterId){
+
+    const all =
+        loadChatSettings();
+
+    const defaults =
+        defaultChatSettings();
+
+    const result =
+        Object.assign(
+            {},
+            defaults,
+            all[characterId] || {}
+        );
+
+    return result;
+
+}
+
+
+function setChatSettings(
+    characterId,
+    settings
+){
+
+    const all =
+        loadChatSettings();
+
+    all[characterId] =
+        settings;
+
+    saveChatSettings(
+        all
+    );
+
+}
 
 /* =====================================================
    基础工具
@@ -1531,6 +1679,1006 @@ characterMask.innerHTML = `
 
 container.appendChild(
     characterMask
+);/* =====================================================
+   聊天设置系统
+   ===================================================== */
+
+const chatSettingsMask =
+    document.createElement('div');
+
+chatSettingsMask.className =
+    'chat-settings-mask';
+
+chatSettingsMask.innerHTML = `
+
+<div class="chat-settings-panel">
+
+    <!-- 顶部 -->
+
+    <div class="chat-settings-top">
+
+        <button
+            class="chat-settings-back"
+            id="chat-settings-back"
+            type="button"
+        >
+            <i data-lucide="chevron-left"></i>
+        </button>
+
+        <div class="chat-settings-title">
+            聊天设置
+        </div>
+
+        <div class="chat-settings-top-placeholder"></div>
+
+    </div>
+
+
+    <div
+        class="chat-settings-scroll"
+        id="chat-settings-scroll"
+    >
+
+
+        <!-- =========================================
+             角色
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            角色
+        </div>
+
+
+        <div
+            class="chat-settings-item"
+            id="character-home-setting"
+        >
+
+            <div class="chat-settings-icon">
+                <i data-lucide="user-round"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    ${'角色'}的主页查看
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    查看角色主页、资料与动态
+                </div>
+
+            </div>
+
+            <i
+                data-lucide="chevron-right"
+                class="chat-settings-arrow"
+            ></i>
+
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="tag"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    角色备注
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    自定义角色在各处显示的备注
+                </div>
+
+            </div>
+
+            <input
+                class="chat-settings-inline-input"
+                id="setting-note"
+                type="text"
+                placeholder="添加备注"
+            >
+
+        </div>
+
+
+        <!-- =========================================
+             时间
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            时间与环境
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="clock-3"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    时间感知
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    角色按照现实 24 小时生活
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-time-awareness"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="map-pin"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    异地模式
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    根据角色与用户所在位置模拟当地时间和天气
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-location-mode"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <!-- =========================================
+             主动消息
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            主动行为
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="message-circle-plus"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    主动发消息
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    角色会按照设定主动联系你
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-auto-message"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="chat-settings-subpanel">
+
+            <div class="chat-setting-row">
+
+                <span>
+                    主动消息间隔
+                </span>
+
+                <input
+                    id="setting-auto-message-min"
+                    type="number"
+                    min="1"
+                    value="30"
+                >
+
+                <select
+                    id="setting-auto-message-unit"
+                >
+
+                    <option value="minute">
+                        分钟
+                    </option>
+
+                    <option value="hour">
+                        小时
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="chat-setting-row">
+
+                <span>
+                    最少回复气泡
+                </span>
+
+                <input
+                    id="setting-min-bubbles"
+                    type="number"
+                    min="1"
+                    max="20"
+                    value="1"
+                >
+
+                <span>
+                    条
+                </span>
+
+            </div>
+
+
+            <div class="chat-setting-row">
+
+                <span>
+                    最多回复气泡
+                </span>
+
+                <input
+                    id="setting-max-bubbles"
+                    type="number"
+                    min="1"
+                    max="20"
+                    value="4"
+                >
+
+                <span>
+                    条
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================================
+             自由活动
+        ========================================== -->
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="sparkles"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    角色自由活动
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    角色可以自行生活、发朋友圈、写日记和产生心思
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-free-activity"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="book-open"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    日记推送
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    有新的角色日记时通知你
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-diary-push"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <div
+            class="chat-settings-clickable"
+            id="setting-diary-view"
+        >
+
+            <span>
+                查看角色日记
+            </span>
+
+            <i data-lucide="chevron-right"></i>
+
+        </div>
+
+
+        <div
+            class="chat-settings-clickable"
+            id="setting-thought-view"
+        >
+
+            <span>
+                查看角色心思
+            </span>
+
+            <i data-lucide="chevron-right"></i>
+
+        </div>
+
+
+        <!-- =========================================
+             社交
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            社交行为
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="camera"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    主动发朋友圈
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    角色可以自动发布朋友圈
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-auto-moments"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="users"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    朋友圈 NPC 评论
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    角色的微信好友可以自动评论
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-npc-comments"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="user-plus"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    角色自定义加好友
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    可以主动添加朋友、家人、同事或感兴趣的人
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-auto-friends"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <!-- =========================================
+             互动
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            互动
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="smartphone"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    反向查手机
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    角色吃醋或查岗时可以进入模拟手机查看动态
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-reverse-phone"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="calendar-heart"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    线下邀请
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    角色想见你时可以主动发出见面邀请
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-offline-invite"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <!-- =========================================
+             翻译
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            语言
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="languages"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    自动翻译
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    点击消息气泡后翻译
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-auto-translate"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="chat-settings-subpanel">
+
+            <div class="chat-setting-row">
+
+                <span>
+                    角色使用语言
+                </span>
+
+                <input
+                    id="setting-language"
+                    type="text"
+                    placeholder="例如 English"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================================
+             语音
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            语音
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="mic"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    角色语音
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    角色聊天时可以发送语音
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-voice"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="chat-settings-subpanel">
+
+            <div class="chat-setting-row">
+
+                <span>
+                    发语音频率
+                </span>
+
+                <input
+                    id="setting-voice-frequency"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value="20"
+                >
+
+                <span>
+                    %
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================================
+             在线状态
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            在线状态
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="moon"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    角色下线
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    角色暂时离开手机，可以查看其模拟活动
+                </div>
+
+            </div>
+
+            <label class="chat-switch">
+
+                <input
+                    type="checkbox"
+                    id="setting-offline-mode"
+                >
+
+                <span></span>
+
+            </label>
+
+        </div>
+
+
+        <div
+            class="chat-settings-clickable"
+            id="setting-doing-view"
+        >
+
+            <span>
+                查看角色在干嘛
+            </span>
+
+            <i data-lucide="chevron-right"></i>
+
+        </div>
+
+
+        <!-- =========================================
+             时间跳转
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            时间
+        </div>
+
+
+        <div class="chat-settings-subpanel">
+
+            <div class="chat-setting-row">
+
+                <span>
+                    自定义经过天数
+                </span>
+
+                <input
+                    id="setting-days-offset"
+                    type="number"
+                    value="0"
+                >
+
+                <span>
+                    天
+                </span>
+
+            </div>
+
+
+            <div class="chat-setting-row">
+
+                <button
+                    class="chat-small-button"
+                    id="setting-days-apply"
+                    type="button"
+                >
+                    应用时间
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================================
+             世界书
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            世界书
+        </div>
+
+
+        <div
+            class="chat-settings-clickable"
+            id="setting-worldbook"
+        >
+
+            <span>
+                绑定世界书
+            </span>
+
+            <i data-lucide="chevron-right"></i>
+
+        </div>
+
+
+        <!-- =========================================
+             显示
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            显示
+        </div>
+
+
+        <div class="chat-settings-item">
+
+            <div class="chat-settings-icon">
+                <i data-lucide="image"></i>
+            </div>
+
+            <div class="chat-settings-item-content">
+
+                <div class="chat-settings-item-title">
+                    头像显示
+                </div>
+
+                <div class="chat-settings-item-sub">
+                    设置聊天双方头像显示方式
+                </div>
+
+            </div>
+
+            <select
+                id="setting-avatar-display"
+                class="chat-settings-select"
+            >
+
+                <option value="both">
+                    双方显示
+                </option>
+
+                <option value="character">
+                    仅角色
+                </option>
+
+                <option value="user">
+                    仅用户
+                </option>
+
+                <option value="none">
+                    全部关闭
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="chat-settings-clickable">
+
+            <span>
+                气泡 CSS
+            </span>
+
+            <i data-lucide="code-2"></i>
+
+        </div>
+
+
+        <textarea
+            class="chat-settings-css"
+            id="setting-bubble-css"
+            placeholder="在这里填写自定义气泡 CSS……"
+        ></textarea>
+
+
+        <div class="chat-settings-clickable">
+
+            <span>
+                聊天背景图
+            </span>
+
+            <i data-lucide="image-plus"></i>
+
+        </div>
+
+
+        <label class="chat-settings-upload">
+
+            选择聊天背景图
+
+            <input
+                id="setting-chat-bg"
+                type="file"
+                accept="image/*"
+                hidden
+            >
+
+        </label>
+
+
+        <!-- =========================================
+             记忆
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            记忆
+        </div>
+
+
+        <div class="chat-settings-subpanel">
+
+            <div class="chat-setting-row">
+
+                <span>
+                    每
+                </span>
+
+                <input
+                    id="setting-memory-rounds"
+                    type="number"
+                    min="1"
+                    value="20"
+                >
+
+                <span>
+                    轮总结一次
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="chat-settings-clickable"
+            id="setting-memory-view"
+        >
+
+            <span>
+                记忆总结
+            </span>
+
+            <i data-lucide="chevron-right"></i>
+
+        </div>
+
+
+        <!-- =========================================
+             危险操作
+        ========================================== -->
+
+        <div class="chat-settings-section-title">
+            其他
+        </div>
+
+
+        <button
+            class="chat-danger-button"
+            id="setting-delete-character"
+            type="button"
+        >
+            删除角色
+        </button>
+
+
+        <button
+            class="chat-block-button"
+            id="setting-block-character"
+            type="button"
+        >
+            拉黑角色
+        </button>
+
+
+        <div class="chat-settings-bottom-space"></div>
+
+    </div>
+
+</div>
+
+`;
+
+container.appendChild(
+    chatSettingsMask
 );
 
 
@@ -3685,7 +4833,609 @@ const finalStyle =
     );
 
 
-finalStyle.textContent = `
+finalStyle.textContent = /* =====================================================
+   Chat 设置页面
+   ===================================================== */
+
+.chat-settings-mask{
+
+    position:absolute !important;
+
+    inset:0 !important;
+
+    width:100%;
+    height:100%;
+
+    z-index:200 !important;
+
+    display:none;
+
+    background:#f7f7f7;
+
+    overflow:hidden;
+
+}
+
+
+.chat-settings-panel{
+
+    width:100%;
+    height:100%;
+
+    display:flex;
+    flex-direction:column;
+
+    background:#f7f7f7;
+
+}
+
+
+.chat-settings-top{
+
+    flex:0 0 52px;
+
+    height:52px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:
+        0 12px;
+
+    background:
+        rgba(255,255,255,.94);
+
+    border-bottom:
+        .5px solid #dedede;
+
+}
+
+
+.chat-settings-back{
+
+    width:38px;
+    height:38px;
+
+    border:0;
+
+    background:transparent;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+}
+
+
+.chat-settings-back:active{
+
+    background:#e9e9e9;
+
+}
+
+
+.chat-settings-title{
+
+    font-size:17px;
+
+    font-weight:650;
+
+    color:#222;
+
+}
+
+
+.chat-settings-top-placeholder{
+
+    width:38px;
+}
+
+
+.chat-settings-scroll{
+
+    flex:1;
+
+    min-height:0;
+
+    overflow-y:auto;
+
+    overflow-x:hidden;
+
+    padding:
+        8px 12px 30px;
+
+    box-sizing:border-box;
+
+    -webkit-overflow-scrolling:touch;
+
+}
+
+
+.chat-settings-section-title{
+
+    font-size:12px;
+
+    color:#999;
+
+    padding:
+        17px 7px 7px;
+
+}
+
+
+.chat-settings-item{
+
+    min-height:64px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:11px;
+
+    padding:
+        10px 12px;
+
+    box-sizing:border-box;
+
+    background:#fff;
+
+    border-radius:16px;
+
+    margin-bottom:7px;
+
+}
+
+
+.chat-settings-icon{
+
+    width:34px;
+    height:34px;
+
+    flex:none;
+
+    border-radius:10px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#f0f0f0;
+
+    color:#555;
+
+}
+
+
+.chat-settings-icon svg{
+
+    width:18px;
+    height:18px;
+
+}
+
+
+.chat-settings-item-content{
+
+    flex:1;
+
+    min-width:0;
+
+}
+
+
+.chat-settings-item-title{
+
+    font-size:14px;
+
+    color:#222;
+
+    line-height:20px;
+
+}
+
+
+.chat-settings-item-sub{
+
+    font-size:11px;
+
+    color:#999;
+
+    margin-top:2px;
+
+    line-height:16px;
+
+}
+
+
+.chat-settings-arrow{
+
+    width:17px;
+    height:17px;
+
+    color:#aaa;
+
+    flex:none;
+
+}
+
+
+.chat-settings-inline-input{
+
+    width:100px;
+
+    border:0;
+
+    outline:none;
+
+    background:#f4f4f4;
+
+    border-radius:9px;
+
+    padding:8px;
+
+    font-size:12px;
+
+    color:#333;
+
+}
+
+
+.chat-switch{
+
+    width:42px;
+    height:25px;
+
+    position:relative;
+
+    flex:none;
+
+}
+
+
+.chat-switch input{
+
+    display:none;
+
+}
+
+
+.chat-switch span{
+
+    position:absolute;
+
+    inset:0;
+
+    background:#ddd;
+
+    border-radius:30px;
+
+    transition:.2s;
+
+}
+
+
+.chat-switch span::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:21px;
+    height:21px;
+
+    left:2px;
+    top:2px;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    box-shadow:
+        0 1px 3px rgba(0,0,0,.15);
+
+    transition:.2s;
+
+}
+
+
+.chat-switch input:checked + span{
+
+    background:#222;
+
+}
+
+
+.chat-switch input:checked + span::after{
+
+    transform:
+        translateX(17px);
+
+}
+
+
+.chat-settings-subpanel{
+
+    background:#fff;
+
+    border-radius:16px;
+
+    padding:4px 12px;
+
+    margin-bottom:7px;
+
+}
+
+
+.chat-setting-row{
+
+    min-height:45px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
+    border-bottom:
+        .5px solid #eee;
+
+    font-size:13px;
+
+    color:#555;
+
+}
+
+
+.chat-setting-row:last-child{
+
+    border-bottom:0;
+
+}
+
+
+.chat-setting-row span:first-child{
+
+    flex:1;
+
+}
+
+
+.chat-setting-row input,
+.chat-setting-row select{
+
+    width:72px;
+
+    border:0;
+
+    outline:none;
+
+    background:#f2f2f2;
+
+    border-radius:8px;
+
+    padding:7px;
+
+    font-size:12px;
+
+    box-sizing:border-box;
+
+}
+
+
+.chat-setting-row select{
+
+    width:78px;
+
+}
+
+
+.chat-settings-clickable{
+
+    min-height:52px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:0 14px;
+
+    box-sizing:border-box;
+
+    background:#fff;
+
+    border-radius:15px;
+
+    margin-bottom:7px;
+
+    font-size:14px;
+
+    color:#333;
+
+}
+
+
+.chat-settings-clickable svg{
+
+    width:17px;
+    height:17px;
+
+    color:#aaa;
+
+}
+
+
+.chat-settings-select{
+
+    border:0;
+
+    outline:none;
+
+    background:#f2f2f2;
+
+    border-radius:9px;
+
+    padding:7px 8px;
+
+    font-size:11px;
+
+    color:#444;
+
+}
+
+
+.chat-settings-css{
+
+    width:100%;
+
+    min-height:130px;
+
+    resize:vertical;
+
+    box-sizing:border-box;
+
+    border:0;
+
+    outline:none;
+
+    background:#fff;
+
+    border-radius:15px;
+
+    padding:12px;
+
+    margin-bottom:7px;
+
+    font-family:
+        monospace;
+
+    font-size:12px;
+
+}
+
+
+.chat-settings-upload{
+
+    display:block;
+
+    background:#fff;
+
+    border-radius:15px;
+
+    padding:14px;
+
+    text-align:center;
+
+    color:#666;
+
+    font-size:13px;
+
+    margin-bottom:7px;
+
+}
+
+
+.chat-small-button{
+
+    width:100%;
+
+    border:0;
+
+    background:#222;
+
+    color:#fff;
+
+    border-radius:10px;
+
+    padding:9px;
+
+}
+
+
+.chat-danger-button,
+.chat-block-button{
+
+    width:100%;
+
+    border:0;
+
+    border-radius:15px;
+
+    padding:13px;
+
+    font-size:14px;
+
+    margin-bottom:8px;
+
+}
+
+
+.chat-danger-button{
+
+    background:#fff;
+
+    color:#d44;
+
+}
+
+
+.chat-block-button{
+
+    background:#eee;
+
+    color:#555;
+
+}
+
+
+.chat-settings-bottom-space{
+
+    height:30px;
+
+}`/* =====================================================
+   聊天右上角三个点
+   ===================================================== */
+
+.chat-room-more{
+
+    width:38px;
+    height:38px;
+
+    border:0;
+
+    background:transparent;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:#333;
+
+    padding:0;
+
+    flex:none;
+
+}
+
+.chat-room-more:active{
+
+    background:#e9e9e9;
+
+}
+
+.chat-room-more svg{
+
+    width:21px;
+    height:21px;
+
+}
 
 /* Chat 应用本身 */
 
@@ -4102,6 +5852,724 @@ if(
             container
     });
 
+}/* =====================================================
+   聊天设置：表单同步
+   ===================================================== */
+
+function loadSettingsIntoUI(){
+
+    if(!currentCharacter){
+
+        return;
+
+    }
+
+
+    const settings =
+        getChatSettings(
+            currentCharacter.id
+        );
+
+
+    $('setting-note').value =
+        settings.note || '';
+
+
+    $('setting-time-awareness').checked =
+        !!settings.timeAwareness;
+
+
+    $('setting-location-mode').checked =
+        !!settings.locationMode;
+
+
+    $('setting-auto-message').checked =
+        !!settings.autoMessage;
+
+
+    $('setting-auto-message-min').value =
+        settings.autoMessageInterval ?? 30;
+
+
+    $('setting-auto-message-unit').value =
+        settings.autoMessageUnit ||
+        'minute';
+
+
+    $('setting-min-bubbles').value =
+        settings.minBubbles ?? 1;
+
+
+    $('setting-max-bubbles').value =
+        settings.maxBubbles ?? 4;
+
+
+    $('setting-free-activity').checked =
+        !!settings.freeActivity;
+
+
+    $('setting-diary-push').checked =
+        !!settings.diaryPush;
+
+
+    $('setting-auto-moments').checked =
+        !!settings.autoMoments;
+
+
+    $('setting-npc-comments').checked =
+        !!settings.npcComments;
+
+
+    $('setting-auto-friends').checked =
+        !!settings.autoFriends;
+
+
+    $('setting-reverse-phone').checked =
+        !!settings.reversePhone;
+
+
+    $('setting-offline-invite').checked =
+        !!settings.offlineInvite;
+
+
+    $('setting-auto-translate').checked =
+        !!settings.autoTranslate;
+
+
+    $('setting-language').value =
+        settings.language || '';
+
+
+    $('setting-voice').checked =
+        !!settings.voice;
+
+
+    $('setting-voice-frequency').value =
+        settings.voiceFrequency ?? 20;
+
+
+    $('setting-offline-mode').checked =
+        !!settings.offlineMode;
+
+
+    $('setting-days-offset').value =
+        settings.daysOffset ?? 0;
+
+
+    $('setting-avatar-display').value =
+        settings.avatarDisplay ||
+        'both';
+
+
+    $('setting-bubble-css').value =
+        settings.bubbleCSS || '';
+
+
+    $('setting-memory-rounds').value =
+        settings.memoryRounds ?? 20;
+
+
+    applyChatBackground(
+        settings.chatBackground
+    );
+
+    applyBubbleCSS(
+        settings.bubbleCSS
+    );
+
 }
 
+
+function saveSettingsFromUI(){
+
+    if(!currentCharacter){
+
+        return;
+
+    }
+
+
+    const settings =
+        getChatSettings(
+            currentCharacter.id
+        );
+
+
+    settings.note =
+        $('setting-note').value.trim();
+
+
+    settings.timeAwareness =
+        $('setting-time-awareness').checked;
+
+
+    settings.locationMode =
+        $('setting-location-mode').checked;
+
+
+    settings.autoMessage =
+        $('setting-auto-message').checked;
+
+
+    settings.autoMessageInterval =
+        Math.max(
+            1,
+            Number(
+                $('setting-auto-message-min').value
+            ) || 30
+        );
+
+
+    settings.autoMessageUnit =
+        $('setting-auto-message-unit').value;
+
+
+    settings.minBubbles =
+        Math.max(
+            1,
+            Number(
+                $('setting-min-bubbles').value
+            ) || 1
+        );
+
+
+    settings.maxBubbles =
+        Math.max(
+            settings.minBubbles,
+            Number(
+                $('setting-max-bubbles').value
+            ) || 4
+        );
+
+
+    settings.freeActivity =
+        $('setting-free-activity').checked;
+
+
+    settings.diaryPush =
+        $('setting-diary-push').checked;
+
+
+    settings.autoMoments =
+        $('setting-auto-moments').checked;
+
+
+    settings.npcComments =
+        $('setting-npc-comments').checked;
+
+
+    settings.autoFriends =
+        $('setting-auto-friends').checked;
+
+
+    settings.reversePhone =
+        $('setting-reverse-phone').checked;
+
+
+    settings.offlineInvite =
+        $('setting-offline-invite').checked;
+
+
+    settings.autoTranslate =
+        $('setting-auto-translate').checked;
+
+
+    settings.language =
+        $('setting-language').value.trim();
+
+
+    settings.voice =
+        $('setting-voice').checked;
+
+
+    settings.voiceFrequency =
+        Math.max(
+            1,
+            Math.min(
+                100,
+                Number(
+                    $('setting-voice-frequency').value
+                ) || 20
+            )
+        );
+
+
+    settings.offlineMode =
+        $('setting-offline-mode').checked;
+
+
+    settings.daysOffset =
+        Number(
+            $('setting-days-offset').value
+        ) || 0;
+
+
+    settings.avatarDisplay =
+        $('setting-avatar-display').value;
+
+
+    settings.bubbleCSS =
+        $('setting-bubble-css').value;
+
+
+    settings.memoryRounds =
+        Math.max(
+            1,
+            Number(
+                $('setting-memory-rounds').value
+            ) || 20
+        );
+
+
+    setChatSettings(
+        currentCharacter.id,
+        settings
+    );
+
+
+    /*
+     * 备注同步到角色资料
+     */
+
+    const characters =
+        getChars();
+
+
+    const updated =
+        characters.map(
+            character =>
+                character.id ===
+                currentCharacter.id
+                    ? {
+                        ...character,
+                        note:
+                            settings.note
+                    }
+                    : character
+        );
+
+
+    saveChars(
+        updated
+    );
+
+
+    currentCharacter =
+        updated.find(
+            character =>
+                character.id ===
+                currentCharacter.id
+        ) || currentCharacter;
+
+
+    /*
+     * 聊天顶部名称使用备注
+     */
+
+    roomNameEl.textContent =
+        settings.note ||
+        currentCharacter.name;
+
+
+    renderContacts();
+
+    renderChats();
+
+}
+
+
+/* =====================================================
+   背景图
+   ===================================================== */
+
+function applyChatBackground(
+    data
+){
+
+    if(!roomPage){
+
+        return;
+
+    }
+
+
+    if(data){
+
+        roomPage.style.backgroundImage =
+            `url("${data}")`;
+
+        roomPage.style.backgroundSize =
+            'cover';
+
+        roomPage.style.backgroundPosition =
+            'center';
+
+    }
+
+    else{
+
+        roomPage.style.backgroundImage =
+            '';
+
+    }
+
+}
+
+
+/* =====================================================
+   自定义气泡 CSS
+   ===================================================== */
+
+function applyBubbleCSS(
+    css
+){
+
+    let old =
+        document.getElementById(
+            'wuyo-custom-bubble-css'
+        );
+
+
+    if(old){
+
+        old.remove();
+
+    }
+
+
+    if(!css){
+
+        return;
+
+    }
+
+
+    const style =
+        document.createElement(
+            'style'
+        );
+
+
+    style.id =
+        'wuyo-custom-bubble-css';
+
+
+    style.textContent =
+        css;
+
+
+    document.head.appendChild(
+        style
+    );
+
+}
+/* =====================================================
+   打开聊天设置
+   ===================================================== */
+
+function openChatSettings(){
+
+    if(!currentCharacter){
+
+        return;
+
+    }
+
+
+    saveSettingsFromUI();
+
+
+    loadSettingsIntoUI();
+
+
+    /*
+     * 更新主页文字
+     */
+
+    const homeTitle =
+        document.querySelector(
+            '#character-home-setting .chat-settings-item-title'
+        );
+
+
+    if(homeTitle){
+
+        homeTitle.textContent =
+            `${currentCharacter.name}的主页查看`;
+
+    }
+
+
+    chatSettingsMask.style.display =
+        'flex';
+
+
+    /*
+     * 防止聊天页面继续滚动
+     */
+
+    roomPage.style.display =
+        'none';
+
+
+    if(
+        window.lucide
+    ){
+
+        lucide.createIcons({
+            root:
+                chatSettingsMask
+        });
+
+    }
+
+}
+
+
+function closeChatSettings(){
+
+    saveSettingsFromUI();
+
+
+    chatSettingsMask.style.display =
+        'none';
+
+
+    roomPage.style.display =
+        'flex';
+
+
+    applyBubbleCSS(
+        getChatSettings(
+            currentCharacter.id
+        ).bubbleCSS
+    );
+
+}
+
+
+moreBtn.onclick =
+    function(event){
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        openChatSettings();
+
+    };
+
+
+settingsBackBtn.onclick =
+    function(event){
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        closeChatSettings();
+
+    };/* =====================================================
+   聊天背景图
+   ===================================================== */
+
+$('setting-chat-bg').addEventListener(
+    'change',
+    function(event){
+
+        const file =
+            event.target.files[0];
+
+
+        if(!file || !currentCharacter){
+
+            return;
+
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            function(){
+
+                const settings =
+                    getChatSettings(
+                        currentCharacter.id
+                    );
+
+
+                settings.chatBackground =
+                    reader.result;
+
+
+                setChatSettings(
+                    currentCharacter.id,
+                    settings
+                );
+
+
+                applyChatBackground(
+                    reader.result
+                );
+
+            };
+
+
+        reader.readAsDataURL(
+            file
+        );
+
+    }
+);/* =====================================================
+   删除角色
+   ===================================================== */
+
+$('setting-delete-character').onclick =
+    function(){
+
+        if(!currentCharacter){
+
+            return;
+
+        }
+
+
+        const name =
+            currentCharacter.name;
+
+
+        const ok =
+            confirm(
+                `确定删除「${name}」吗？\n\n开启“角色寻找”后，后续可以让角色再次主动发送好友申请。`
+            );
+
+
+        if(!ok){
+
+            return;
+
+        }
+
+
+        const characters =
+            getChars().filter(
+                character =>
+                    character.id !==
+                    currentCharacter.id
+            );
+
+
+        saveChars(
+            characters
+        );
+
+
+        const messages =
+            loadMessages();
+
+
+        delete messages[name];
+
+
+        saveMessages(
+            messages
+        );
+
+
+        const settings =
+            loadChatSettings();
+
+
+        delete settings[
+            currentCharacter.id
+        ];
+
+
+        saveChatSettings(
+            settings
+        );
+
+
+        currentCharacter =
+            null;
+
+        currentContact =
+            null;
+
+
+        chatSettingsMask.style.display =
+            'none';
+
+
+        roomPage.style.display =
+            'none';
+
+
+        mainTabs.style.display =
+            'block';
+
+
+        renderContacts();
+
+        renderChats();
+
+    };
+
+
+/* =====================================================
+   拉黑角色
+   ===================================================== */
+
+$('setting-block-character').onclick =
+    function(){
+
+        if(!currentCharacter){
+
+            return;
+
+        }
+
+
+        const settings =
+            getChatSettings(
+                currentCharacter.id
+            );
+
+
+        settings.blocked =
+            true;
+
+
+        setChatSettings(
+            currentCharacter.id,
+            settings
+        );
+
+
+        addMessage(
+            currentCharacter.name,
+            {
+
+                from:'system',
+
+                text:
+                    '你已将该角色加入黑名单。'
+
+            }
+        );
+
+
+        renderMessages(
+            currentCharacter.name
+        );
+
+
+        alert(
+            `已拉黑 ${currentCharacter.name}`
+        );
+
+    };
 })();
