@@ -19,11 +19,18 @@
                 <div class="beautify-setting-item"><span>卡片透明度</span><input type="range" id="card-opacity" min="10" max="100" value="55"></div>
             </div>
 
-            <div class="beautify-section-title">主页文字</div>
+            <div class="beautify-section-title">主页文字 & AI 伴侣</div>
             <div class="beautify-setting-group">
                 <div class="beautify-setting-item vertical"><span>品牌名称 (左上角)</span><input type="text" id="text-brand" value="WUYO"></div>
                 <div class="beautify-setting-item vertical"><span>AI 伴侣标题</span><input type="text" id="text-ai-title" value="AI 伙伴"></div>
                 <div class="beautify-setting-item vertical"><span>AI 伴侣副标题</span><input type="text" id="text-ai-subtitle" value="随时准备与你交流…"></div>
+                
+                <!-- 🟢 新增：自定义 AI 头像 -->
+                <div class="beautify-setting-item">
+                    <span>AI 头像</span>
+                    <div class="beautify-avatar-preview" id="ai-avatar-preview"></div>
+                    <button class="beautify-upload-btn" data-target="ai-avatar">更换</button>
+                </div>
             </div>
 
             <div class="beautify-section-title">个人资料</div>
@@ -72,7 +79,8 @@
 
     const defaultConfig = {
         style: { bgColor: '#f4f4f7', bgImage: '', cardRadius: '24', cardOpacity: '55' },
-        texts: { brand: 'WUYO', aiTitle: 'AI 伙伴', aiSubtitle: '随时准备与你交流…' },
+        // 🟢 新增 aiAvatar 字段存放自定义机器人头像
+        texts: { brand: 'WUYO', aiTitle: 'AI 伙伴', aiSubtitle: '随时准备与你交流…', aiAvatar: '' },
         profile: { nickname: '锁骨痣', avatar: '' },
         widgets: {
             memory: { show: true, title: 'MEMORY', sub: '美好的瞬间', img: '' },
@@ -84,6 +92,7 @@
 
     let wuyoConfig = JSON.parse(localStorage.getItem('wuyo_config')) || defaultConfig;
     
+    // 生成动态列表
     const appsList = ['世界书', '美化', '相册', '备忘录', '音乐', '日历', '设置', '情侣空间', '查手机', '小手机', '短信', '阅读', '时钟', '地图', '记忆总结', '小游戏'];
     const appSettingsContainer = document.getElementById('app-icon-settings');
     appsList.forEach(app => {
@@ -105,8 +114,17 @@
         document.getElementById('text-brand').value = wuyoConfig.texts.brand;
         document.getElementById('text-ai-title').value = wuyoConfig.texts.aiTitle;
         document.getElementById('text-ai-subtitle').value = wuyoConfig.texts.aiSubtitle;
+        
+        // 渲染已保存的 AI 头像
+        if(wuyoConfig.texts.aiAvatar) {
+            document.getElementById('ai-avatar-preview').style.backgroundImage = `url(${wuyoConfig.texts.aiAvatar})`;
+        }
+
         document.getElementById('profile-nickname').value = wuyoConfig.profile.nickname;
-        if(wuyoConfig.profile.avatar) document.getElementById('profile-avatar-preview').style.backgroundImage = `url(${wuyoConfig.profile.avatar})`;
+        if(wuyoConfig.profile.avatar) {
+            document.getElementById('profile-avatar-preview').style.backgroundImage = `url(${wuyoConfig.profile.avatar})`;
+        }
+        
         document.getElementById('w-memory-show').checked = wuyoConfig.widgets.memory.show;
         document.getElementById('w-memory-title').value = wuyoConfig.widgets.memory.title;
         document.getElementById('w-memory-sub').value = wuyoConfig.widgets.memory.sub;
@@ -143,6 +161,10 @@
                     wuyoConfig.profile.avatar = base64;
                     document.getElementById('profile-avatar-preview').style.backgroundImage = `url(${base64})`;
                 }
+                if (currentTarget === 'ai-avatar') {
+                    wuyoConfig.texts.aiAvatar = base64;
+                    document.getElementById('ai-avatar-preview').style.backgroundImage = `url(${base64})`;
+                }
                 if (currentTarget === 'w-memory-img') wuyoConfig.widgets.memory.img = base64;
                 if (currentTarget === 'w-couple-img') wuyoConfig.widgets.couple.img = base64;
                 if (currentTarget.startsWith('app-img-')) {
@@ -150,14 +172,13 @@
                     if(!wuyoConfig.apps[appName]) wuyoConfig.apps[appName] = {};
                     wuyoConfig.apps[appName].img = base64;
                 }
-                alert('图片已加载，点击右上角保存生效');
             };
             reader.readAsDataURL(file);
         }
         uploader.value = '';
     });
 
-    // 保存设置 (同步数据 -> 渲染主页 -> 关闭 App)
+    // 保存设置
     document.getElementById('beautify-save-btn').addEventListener('click', () => {
         wuyoConfig.style.bgColor = document.getElementById('bg-color').value;
         wuyoConfig.style.cardRadius = document.getElementById('card-radius').value;
@@ -183,6 +204,9 @@
         });
 
         localStorage.setItem('wuyo_config', JSON.stringify(wuyoConfig));
+        
+        // 🟢 新增：贴心的成功提示弹窗
+        alert('保存成功ovo');
         
         if (typeof window.applyConfig === 'function') window.applyConfig();
         window.closeApp('beautify'); 
