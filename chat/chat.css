@@ -204,29 +204,37 @@
 }
 .chat-room-input-box input::placeholder { color: #8E8E93; }
 
-/* 发送按钮 —— 白底黑色细边框，纯黑白灰 */
+/* 发送按钮 —— 白底黑色细边框，纯黑白灰，!important 锁死颜色防止系统蓝 */
 .chat-room-send-btn {
-    -webkit-appearance: none; appearance: none;
+    -webkit-appearance: none !important;
+    appearance: none !important;
     width: 36px; height: 36px; border-radius: 50%;
-    background: #FFFFFF; border: 1px solid #1C1C1E;
+    background: #FFFFFF !important;
+    border: 1px solid #1C1C1E !important;
+    color: #1C1C1E !important;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0; cursor: pointer; transition: all 0.2s;
 }
-.chat-room-send-btn i { width: 16px; height: 16px; color: #1C1C1E; }
-.chat-room-send-btn:disabled { border-color: #E5E5EA; cursor: default; }
-.chat-room-send-btn:disabled i { color: #C7C7CC; }
+.chat-room-send-btn i { width: 16px; height: 16px; color: #1C1C1E !important; }
+.chat-room-send-btn:disabled { border-color: #E5E5EA !important; cursor: default; }
+.chat-room-send-btn:disabled i { color: #C7C7CC !important; }
+.chat-room-send-btn:active { background: #F2F2F7 !important; }
 
 /* AI 按钮 —— 白底灰色细边框，比发送按钮更"轻" */
 .chat-room-ai-btn {
-    -webkit-appearance: none; appearance: none;
+    -webkit-appearance: none !important;
+    appearance: none !important;
     width: 36px; height: 36px; border-radius: 50%;
-    background: #FFFFFF; border: 1px solid #C7C7CC;
+    background: #FFFFFF !important;
+    border: 1px solid #C7C7CC !important;
+    color: #8E8E93 !important;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0; cursor: pointer; transition: all 0.2s;
 }
-.chat-room-ai-btn i { width: 16px; height: 16px; color: #8E8E93; }
-.chat-room-ai-btn:disabled { border-color: #F2F2F7; cursor: default; }
-.chat-room-ai-btn:disabled i { color: #E5E5EA; }
+.chat-room-ai-btn i { width: 16px; height: 16px; color: #8E8E93 !important; }
+.chat-room-ai-btn:disabled { border-color: #F2F2F7 !important; cursor: default; }
+.chat-room-ai-btn:disabled i { color: #E5E5EA !important; }
+.chat-room-ai-btn:active { background: #F2F2F7 !important; }
 
 /* 消息气泡 */
 .msg-row { display: flex; max-width: 80%; }
@@ -250,7 +258,7 @@
     background: #F7F7F9; padding: 6px 14px; border-radius: 12px;
 }
 
-/* 🟢 强制去除浏览器默认的蓝色焦点框/点击高亮/系统按钮皮肤 */
+/* 强制去除浏览器默认的蓝色焦点框/点击高亮/系统按钮皮肤 */
 #chat-app button,
 #chat-app input,
 #chat-app .chat-list-item,
@@ -267,7 +275,6 @@
     box-shadow: none;
 }
 
-/* 防止浏览器自动填充时出现蓝色/黄色背景 */
 #chat-app input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px #F7F7F9 inset !important;
     -webkit-text-fill-color: #1C1C1E !important;
