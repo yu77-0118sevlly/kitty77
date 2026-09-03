@@ -17,6 +17,7 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+/* 顶部导航栏 (适配刘海屏/灵动岛) */
 .beautify-nav-bar {
     position: fixed; 
     top: 0; 
@@ -43,12 +44,16 @@
 }
 .beautify-icon-btn { display: flex; align-items: center; }
 
+/* 内容容器预留顶部高度 */
 .beautify-settings-container { 
     padding: calc(env(safe-area-inset-top, 44px) + 76px) 16px 60px 16px; 
     max-width: 500px; 
     margin: 0 auto; 
 }
 
+/* ==========================================
+   设置项通用样式
+========================================== */
 .beautify-section-title { font-size: 13px; color: #8e8e93; margin: 24px 0 8px 16px; text-transform: uppercase; font-weight: 600; }
 
 .beautify-setting-group {
@@ -88,7 +93,27 @@
 }
 
 /* ==========================================
-   自定义高级弹窗样式 (黑白灰)
+   新增：主题管理方案与导入导出样式
+========================================== */
+.theme-list-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px; border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.theme-list-item:last-child { border-bottom: none; }
+.theme-info { display: flex; flex-direction: column; gap: 4px; }
+.theme-name { font-size: 15px; font-weight: 600; color: #1c1c1e; }
+.theme-status { font-size: 12px; color: #34c759; font-weight: 500; }
+
+.theme-actions { display: flex; gap: 8px; }
+.theme-btn-apply { background: #1c1c1e; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.theme-btn-delete { background: #ffe5e5; color: #ff3b30; border: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+.theme-io-group { display: flex; gap: 12px; padding: 16px; background: #fafafc; }
+.theme-btn-io { flex: 1; background: #e5e5ea; color: #1c1c1e; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 6px; }
+.theme-btn-io i { width: 18px; height: 18px; }
+
+/* ==========================================
+   自定义高级弹窗样式 (黑白灰保存成功提示)
 ========================================== */
 .beautify-modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
