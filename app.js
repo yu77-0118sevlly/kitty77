@@ -1,4 +1,120 @@
 document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+
+    // ==========================================
+    // 🎨 WUYO 美化数据同步引擎
+    // 读取 localStorage 并应用到主屏幕
+    // ==========================================
+    const applyConfig = () => {
+        const configStr = localStorage.getItem('wuyo_config');
+        if (!configStr) return; // 如果没有自定义配置，使用默认 CSS
+        
+        const config = JSON.parse(configStr);
+        const root = document.documentElement;
+
+        // 1. 应用总体视觉 (通过 CSS 变量重写)
+        if (config.style) {
+            if (config.style.bgImage) {
+                document.body.style.backgroundImage = `url(${config.style.bgImage})`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+            } else {
+                root.style.setProperty('--bg-color', config.style.bgColor);
+            }
+            root.style.setProperty('--radius-md', `${config.style.cardRadius}px`);
+            // 将 1-100 的透明度滑块值转换为 0-1 的 alpha 值
+            const alpha = config.style.cardOpacity / 100;
+            root.style.setProperty('--glass-bg', `rgba(255, 255, 255, ${alpha})`);
+        }
+
+        // 2. 应用主页文字
+        if (config.texts) {
+            const brandEl = document.querySelector('.brand-name');
+            if(brandEl) brandEl.textContent = config.texts.brand;
+            
+            const aiTitleEl = document.querySelector('.ai-info h2');
+            if(aiTitleEl) aiTitleEl.textContent = config.texts.aiTitle;
+            
+            const aiSubEl = document.querySelector('.ai-info p');
+            if(aiSubEl) aiSubEl.textContent = config.texts.aiSubtitle;
+        }
+
+        // 3. 应用头像
+        if (config.profile && config.profile.avatar) {
+            const profilePic = document.getElementById('profile-pic');
+            if(profilePic) {
+                profilePic.style.backgroundImage = `url(${config.profile.avatar})`;
+                profilePic.classList.add('has-image');
+            }
+        }
+
+        // 4. 应用 Widget (Memory 等)
+        if (config.widgets) {
+            // Memory
+            const memoryTag = document.querySelector('.polaroid-tag');
+            const memoryDesc = document.querySelector('.polaroid-desc');
+            const memoryPic = document.getElementById('memory-pic');
+            if(memoryTag) memoryTag.textContent = config.widgets.memory.title;
+            if(memoryDesc) memoryDesc.textContent = config.widgets.memory.sub;
+            if(memoryPic && config.widgets.memory.img) {
+                memoryPic.style.backgroundImage = `url(${config.widgets.memory.img})`;
+                memoryPic.classList.add('has-image');
+            }
+            
+            // Today
+            const todayText = document.querySelector('.today-text');
+            if(todayText) {
+                // 处理换行符
+                todayText.innerHTML = config.widgets.today.text.replace(/\n/g, '<br>');
+            }
+
+            // 情侣相恋天数计算
+            if (config.widgets.couple && config.widgets.couple.date) {
+                const startDate = new Date(config.widgets.couple.date);
+                const diffTime = Math.abs(new Date() - startDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                const coupleDaysEl = document.querySelector('.couple-days');
+                if (coupleDaysEl) coupleDaysEl.textContent = `${diffDays} Days`;
+            }
+        }
+
+        // 5. 应用 App 图标与重命名
+        if (config.apps) {
+            const appSpans = document.querySelectorAll('.app-item span');
+            appSpans.forEach(span => {
+                const appName = span.textContent;
+                if (config.apps[appName]) {
+                    // 替换名称
+                    if (config.apps[appName].name) {
+                        span.textContent = config.apps[appName].name;
+                    }
+                    // 替换图片
+                    if (config.apps[appName].img) {
+                        const iconDiv = span.previousElementSibling; // 获取上方的 .app-icon
+                        if(iconDiv) {
+                            iconDiv.innerHTML = ''; // 清除原有的 lucide 图标
+                            iconDiv.style.backgroundImage = `url(${config.apps[appName].img})`;
+                            iconDiv.style.backgroundSize = 'cover';
+                        }
+                    }
+                }
+            });
+        }
+    };
+    
+    // 立即执行配置同步
+    applyConfig();
+
+    // ==========================================
+    // 下面保留原有的时间更新、分页指示器等代码...
+    // ==========================================
+    const updateDateTime = () => { /* ...原代码... */ };
+    updateDateTime();
+    setInterval(updateDateTime, 60000); 
+    // ...
+});
+
+document.addEventListener('DOMContentLoaded', () => {
     // 1. 初始化极简图标
     lucide.createIcons();
 
