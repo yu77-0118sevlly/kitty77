@@ -11,21 +11,22 @@ document.addEventListener('DOMContentLoaded', () => {
             today: { show: true, text: '保持专注，\n顺其自然。' },
             couple: { show: true, date: '2024-01-01', img: '' }
         },
-        apps: {} // 用于存自定义 App 名称和图片
+        apps: {} 
     };
 
     let wuyoConfig = JSON.parse(localStorage.getItem('wuyo_config')) || defaultConfig;
     
     // 初始化 App 列表生成
-    const appsList = ['世界书', '美化', '相册', '备忘录', '音乐', '日历', '设置', '情侣空间'];
+    const appsList = ['世界书', '美化', '相册', '备忘录', '音乐', '日历', '设置', '情侣空间', '查手机', '小手机', '短信', '阅读', '时钟', '地图', '记忆总结', '小游戏'];
     const appSettingsContainer = document.getElementById('app-icon-settings');
+    
     appsList.forEach(app => {
         appSettingsContainer.innerHTML += `
             <details class="widget-details">
                 <summary>${app}</summary>
                 <div class="detail-content">
                     <div class="setting-item vertical"><span>重命名</span><input type="text" id="app-name-${app}" value="${wuyoConfig.apps[app]?.name || app}"></div>
-                    <div class="setting-item"><span>自定义图标</span><button class="upload-btn" data-target="app-img-${app}">上传</button></div>
+                    <div class="setting-item"><span>自定义图标</span><button class="upload-btn" data-target="app-img-${app}">上传图片</button></div>
                 </div>
             </details>
         `;
@@ -60,11 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploader = document.getElementById('global-uploader');
     let currentTarget = '';
     
-    document.querySelectorAll('.upload-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+    // 使用事件代理或者重新绑定以支持动态生成的按钮
+    document.body.addEventListener('click', (e) => {
+        if (e.target.classList.contains('upload-btn')) {
             currentTarget = e.target.getAttribute('data-target');
             uploader.click();
-        });
+        }
     });
 
     uploader.addEventListener('change', (e) => {
@@ -89,6 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             reader.readAsDataURL(file);
         }
+        // 重置上传框，允许同名文件再次触发 change
+        uploader.value = '';
     });
 
     // 保存按钮逻辑
@@ -124,13 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         localStorage.setItem('wuyo_config', JSON.stringify(wuyoConfig));
         alert('保存成功！');
-        window.history.back(); // 返回主页
+        window.location.href = '../index.html'; // 强制跳回主页
     });
 
     document.getElementById('reset-btn').addEventListener('click', () => {
         if(confirm('确定要恢复所有默认设置吗？')) {
             localStorage.removeItem('wuyo_config');
-            location.reload();
+            window.location.href = '../index.html';
         }
     });
 });
