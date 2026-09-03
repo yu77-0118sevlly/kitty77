@@ -2,7 +2,7 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：恢复独立的聊天设置页面，且 UI 全部改回中文，底栏保留英文
+    // 1. 初始化 DOM：加入独立的“气泡与双头像美化设置页”
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -51,11 +51,11 @@
             </div>
         </div>
 
-        <!-- 💥 致命修复：找回独立的设置页面！纯中文！ -->
+        <!-- 💥 独立聊天与气泡美化设置页面 -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
-                <span class="chat-header-title">聊天设置</span>
+                <span class="chat-header-title">气泡与恋爱设置</span>
                 <div style="width:32px;"></div>
             </header>
             <div style="flex:1; overflow-y:auto; padding-top:16px;">
@@ -67,56 +67,96 @@
                         <span>AI 长期记忆</span><i data-lucide="chevron-right"></i>
                     </div>
                 </div>
+
+                <div style="padding: 0 16px 8px 24px; font-size:12px; color:#8E8E93;">顶部双头像与浪漫签名自定义</div>
+                <div class="settings-list-group">
+                    <div class="settings-list-item" id="set-user-avatar-btn">
+                        <span>我的头像框</span>
+                        <div style="width:32px; height:32px; border-radius:8px; background:#E5E5EA; background-size:cover;" id="preview-user-av"></div>
+                    </div>
+                    <div class="settings-list-item" id="set-ai-avatar-btn">
+                        <span>AI 头像框</span>
+                        <div style="width:32px; height:32px; border-radius:8px; background:#E5E5EA; background-size:cover;" id="preview-ai-av"></div>
+                    </div>
+                    <div style="padding: 16px; display:flex; flex-direction:column; gap:8px;">
+                        <span style="font-size:14px; color:#8E8E93;">浪漫标语 (默认: 我会爱你很久很久)</span>
+                        <input type="text" id="couple-sign-input" style="padding:10px 14px; border-radius:10px; border:0.5px solid #E5E5EA; background:#F4F4F7; font-size:15px; outline:none;" placeholder="我会爱你很久很久">
+                    </div>
+                </div>
+
                 <div class="settings-list-group">
                     <div class="settings-list-item danger" id="settings-btn-clear">
                         清空聊天记录
                     </div>
                 </div>
             </div>
+            <!-- 隐藏的文件上传 input -->
+            <input type="file" id="couple-avatar-uploader" accept="image/*" style="display:none;">
         </div>
     `;
     lucide.createIcons({ root: container });
 
-    // 2. 底栏跳转
+    // 底栏跳转
     document.getElementById('nav-btn-contacts').addEventListener('click', () => { container.style.display = 'none'; window.openApp('contacts'); });
 
     let currentChatId = null; 
     let globalChatData = JSON.parse(localStorage.getItem('wuyo_global_chat_data')) || {};
     let selectedMsgIndex = null;
     
-    const getSystemDefaultChar = () => {
+    // 获取当前聊天角色的详细信息（头像、锁脸等）
+    const getCurrentRoleInfo = () => {
+        const roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
+        const role = roles.find(r => r.id === currentChatId);
+        if(role) return { name: role.remark || role.name, avatar: role.faceImg || role.avatar || '' };
+        
+        // Fallback 到默认美化配置
         const configStr = localStorage.getItem('wuyo_config');
-        let name = 'AI'; let avatar = ''; let desc = '随时准备与你交流…';
+        let name = 'AI'; let avatar = '';
         if(configStr) {
             const config = JSON.parse(configStr);
-            if(config.texts) {
-                if(config.texts.aiTitle) name = config.texts.aiTitle;
-                if(config.texts.aiAvatar) avatar = config.texts.aiAvatar;
-                if(config.texts.aiSubtitle) desc = config.texts.aiSubtitle;
-            }
+            if(config.texts) { if(config.texts.aiTitle) name = config.texts.aiTitle; if(config.texts.aiAvatar) avatar = config.texts.aiAvatar; }
         }
-        return { id: 'char_default', name, avatar, desc };
+        return { name, avatar };
     };
+
+    // 获取 User 头像与签名配置
+    const getCoupleConfig = () => {
+        let conf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
+        const configStr = localStorage.getItem('wuyo_config');
+        let defaultUserAvatar = '';
+        if(configStr) {
+            const cfg = JSON.parse(configStr);
+            if(cfg.profile && cfg.profile.avatar) defaultUserAvatar = cfg.profile.avatar;
+        }
+        return {
+            userAvatar: conf.userAvatar || defaultUserAvatar,
+            signature: conf.signature !== undefined ? conf.signature : '我会爱你很久很久'
+        };
+    };
+
     const formatTime = (ts) => { const d = new Date(ts); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
 
     const renderChatList = () => {
         const listArea = document.getElementById('chat-list-render-area');
-        const defaultChar = getSystemDefaultChar();
-        if(!globalChatData[defaultChar.id]) globalChatData[defaultChar.id] = [];
-        const history = globalChatData[defaultChar.id];
-        let lastMsg = defaultChar.desc; let lastTime = '';
+        const roleInfo = getCurrentRoleInfo();
+        if(!globalChatData['char_default']) globalChatData['char_default'] = [];
+        const history = globalChatData['char_default'];
+        let lastMsg = '准备好开始对话了...'; let lastTime = '';
         if(history.length > 0) { const lastObj = history[history.length - 1]; lastMsg = lastObj.content; lastTime = formatTime(lastObj.time); }
 
-        const avatarStyle = defaultChar.avatar ? `background-image: url(${defaultChar.avatar});` : ``;
-        const avatarInner = defaultChar.avatar ? '' : `<i data-lucide="bot"></i>`;
+        const avatarStyle = roleInfo.avatar ? `background-image: url(${roleInfo.avatar});` : ``;
+        const avatarInner = roleInfo.avatar ? '' : `<i data-lucide="bot"></i>`;
 
-        listArea.innerHTML = `<div class="chat-list-item" onclick="window.openChatDetail('${defaultChar.id}')"><div class="chat-list-avatar" style="${avatarStyle}">${avatarInner}</div><div class="chat-list-info"><div class="chat-list-top"><span class="chat-list-name">${defaultChar.name}</span><span class="chat-list-time">${lastTime}</span></div><span class="chat-list-msg">${lastMsg}</span></div></div>`;
+        listArea.innerHTML = `<div class="chat-list-item" onclick="window.openChatDetail('char_default')"><div class="chat-list-avatar" style="${avatarStyle}">${avatarInner}</div><div class="chat-list-info"><div class="chat-list-top"><span class="chat-list-name">${roleInfo.name}</span><span class="chat-list-time">${lastTime}</span></div><span class="chat-list-msg">${lastMsg}</span></div></div>`;
         lucide.createIcons({ root: listArea });
     };
 
     window.openChatDetail = (charId) => {
-        currentChatId = charId; document.getElementById('chat-char-name').textContent = getSystemDefaultChar().name;
-        document.getElementById('chat-page-detail').classList.add('active'); renderMessages();
+        currentChatId = charId; 
+        const roleInfo = getCurrentRoleInfo();
+        document.getElementById('chat-char-name').textContent = roleInfo.name;
+        document.getElementById('chat-page-detail').classList.add('active'); 
+        renderMessages();
     };
 
     document.getElementById('chat-back-to-list').addEventListener('click', () => {
@@ -130,52 +170,160 @@
     const ctxMenu = document.getElementById('chat-context-menu');
     
     let pressTimer = null;
-    msgList.addEventListener('scroll', () => ctxMenu.classList.remove('show')); msgList.addEventListener('click', () => ctxMenu.classList.remove('show'));
+    msgList.addEventListener('scroll', () => ctxMenu.classList.remove('show')); 
+    msgList.addEventListener('click', () => ctxMenu.classList.remove('show'));
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
+    // ==========================================
+    // 💥 核心渲染：带双头像、气泡头像与滚动标语的聊天详情
+    // ==========================================
     const renderMessages = () => {
-        if(!currentChatId) return; msgList.innerHTML = '';
-        const history = globalChatData[currentChatId];
-        if(history.length === 0) { msgList.innerHTML = `<div class="chat-empty">暂无消息，打个招呼吧</div>`; return; }
+        if(!currentChatId) return; 
+        msgList.innerHTML = '';
+        const history = globalChatData[currentChatId] || [];
+        const roleInfo = getCurrentRoleInfo();
+        const coupleConf = getCoupleConfig();
+
+        // 1. 渲染画圈位置的顶部双头像与浪漫签名 (作为消息列表的第一项，随聊天一起网上滚动)
+        const bannerEl = document.createElement('div');
+        bannerEl.className = 'chat-couple-banner';
+        
+        const userAvStyle = coupleConf.userAvatar ? `background-image:url(${coupleConf.userAvatar});` : '';
+        const aiAvStyle = roleInfo.avatar ? `background-image:url(${roleInfo.avatar});` : '';
+
+        bannerEl.innerHTML = `
+            <div class="couple-avatars-box">
+                <div class="couple-avatar-item" style="${userAvStyle}">${coupleConf.userAvatar ? '' : '<i data-lucide="user"></i>'}</div>
+                <span class="couple-heart-icon">❤️</span>
+                <div class="couple-avatar-item" style="${aiAvStyle}">${roleInfo.avatar ? '' : '<i data-lucide="bot"></i>'}</div>
+            </div>
+            <div class="couple-signature-text">${coupleConf.signature}</div>
+        `;
+        msgList.appendChild(bannerEl);
+
+        if(history.length === 0) {
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'chat-empty';
+            emptyEl.textContent = '暂无消息，打个招呼吧';
+            msgList.appendChild(emptyEl);
+            scrollToBottom();
+            return;
+        }
 
         let lastTime = 0;
         history.forEach((msg, index) => {
             if (msg.time - lastTime > 5 * 60 * 1000) {
-                const timeEl = document.createElement('div'); timeEl.className = 'chat-timestamp'; timeEl.textContent = formatTime(msg.time); msgList.appendChild(timeEl);
+                const timeEl = document.createElement('div'); 
+                timeEl.className = 'chat-timestamp'; 
+                timeEl.textContent = formatTime(msg.time); 
+                msgList.appendChild(timeEl);
             }
             lastTime = msg.time;
+
             const isUser = msg.role === 'user';
-            const wrapper = document.createElement('div'); wrapper.className = `chat-bubble-wrapper ${isUser ? 'right' : 'left'}`;
-            const bubble = document.createElement('div'); bubble.className = `chat-bubble ${isUser ? 'user' : 'ai'}`; bubble.innerHTML = msg.content.replace(/\n/g, '<br>');
-            
+            const row = document.createElement('div');
+            row.className = `chat-bubble-row ${isUser ? 'user' : 'ai'}`;
+
+            // 头像框渲染
+            const avDiv = document.createElement('div');
+            avDiv.className = 'bubble-avatar';
+            if (isUser) {
+                if (coupleConf.userAvatar) { avDiv.style.backgroundImage = `url(${coupleConf.userAvatar})`; }
+                else { avDiv.innerHTML = '<i data-lucide="user" style="width:18px;height:18px;"></i>'; }
+            } else {
+                if (roleInfo.avatar) { avDiv.style.backgroundImage = `url(${roleInfo.avatar})`; }
+                else { avDiv.innerHTML = '<i data-lucide="bot" style="width:18px;height:18px;"></i>'; }
+            }
+
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${isUser ? 'user' : 'ai'}`;
+            bubble.innerHTML = msg.content.replace(/\n/g, '<br>');
+
+            // 长按事件
             bubble.addEventListener('touchstart', (e) => {
                 pressTimer = setTimeout(() => {
                     selectedMsgIndex = index; const touch = e.touches[0];
-                    ctxMenu.style.left = `${Math.max(60, Math.min(touch.clientX, window.innerWidth - 60))}px`; ctxMenu.style.top = `${Math.max(50, touch.clientY - 60)}px`; ctxMenu.classList.add('show');
+                    ctxMenu.style.left = `${Math.max(60, Math.min(touch.clientX, window.innerWidth - 60))}px`; 
+                    ctxMenu.style.top = `${Math.max(50, touch.clientY - 60)}px`; 
+                    ctxMenu.classList.add('show');
                 }, 600);
             });
-            bubble.addEventListener('touchend', () => clearTimeout(pressTimer)); bubble.addEventListener('touchmove', () => clearTimeout(pressTimer));
-            wrapper.appendChild(bubble); msgList.appendChild(wrapper);
+            bubble.addEventListener('touchend', () => clearTimeout(pressTimer)); 
+            bubble.addEventListener('touchmove', () => clearTimeout(pressTimer));
+
+            row.appendChild(avDiv);
+            row.appendChild(bubble);
+            msgList.appendChild(row);
         });
+        lucide.createIcons({ root: msgList });
         scrollToBottom();
     };
 
+    // 长按菜单操作
     document.getElementById('ctx-btn-copy').addEventListener('click', (e) => {
-        e.stopPropagation(); if(selectedMsgIndex !== null && currentChatId) navigator.clipboard.writeText(globalChatData[currentChatId][selectedMsgIndex].content).then(() => alert('已复制'));
+        e.stopPropagation(); 
+        if(selectedMsgIndex !== null && currentChatId) navigator.clipboard.writeText(globalChatData[currentChatId][selectedMsgIndex].content).then(() => alert('已复制'));
         ctxMenu.classList.remove('show');
     });
     document.getElementById('ctx-btn-delete').addEventListener('click', (e) => {
         e.stopPropagation();
-        if(selectedMsgIndex !== null && currentChatId) { if(confirm('确定删除这条消息？')) { globalChatData[currentChatId].splice(selectedMsgIndex, 1); localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData)); renderMessages(); } }
+        if(selectedMsgIndex !== null && currentChatId) { 
+            if(confirm('确定删除这条消息？')) { globalChatData[currentChatId].splice(selectedMsgIndex, 1); localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData)); renderMessages(); } 
+        }
         ctxMenu.classList.remove('show');
     });
 
-    // 💥 修复独立设置页面的所有跳转交互 
+    // 💥 独立设置页面路由打通
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
+        const conf = getCoupleConfig();
+        const roleInfo = getCurrentRoleInfo();
+        document.getElementById('couple-sign-input').value = conf.signature;
+        
+        const pUser = document.getElementById('preview-user-av');
+        if(conf.userAvatar) pUser.style.backgroundImage = `url(${conf.userAvatar})`; else pUser.style.backgroundImage = '';
+        
+        const pAi = document.getElementById('preview-ai-av');
+        if(roleInfo.avatar) pAi.style.backgroundImage = `url(${roleInfo.avatar})`; else pAi.style.backgroundImage = '';
+
         document.getElementById('chat-page-settings').classList.add('active');
     });
     document.getElementById('chat-settings-back').addEventListener('click', () => {
         document.getElementById('chat-page-settings').classList.remove('active');
+        renderMessages(); // 刷新详情页的签名和头像
+    });
+
+    // 头像与标语自定义修改逻辑
+    let activeUploadTarget = null;
+    document.getElementById('set-user-avatar-btn').addEventListener('click', () => { activeUploadTarget = 'user'; document.getElementById('couple-avatar-uploader').click(); });
+    document.getElementById('set-ai-avatar-btn').addEventListener('click', () => { activeUploadTarget = 'ai'; document.getElementById('couple-avatar-uploader').click(); });
+
+    document.getElementById('couple-avatar-uploader').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const res = event.target.result;
+                if(activeUploadTarget === 'user') {
+                    let conf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
+                    conf.userAvatar = res;
+                    localStorage.setItem('wuyo_couple_config', JSON.stringify(conf));
+                    document.getElementById('preview-user-av').style.backgroundImage = `url(${res})`;
+                } else if(activeUploadTarget === 'ai') {
+                    // 更新当前角色的头像
+                    let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
+                    let r = roles.find(item => item.id === currentChatId);
+                    if(r) { r.faceImg = res; localStorage.setItem('wuyo_roles', JSON.stringify(roles)); }
+                    document.getElementById('preview-ai-av').style.backgroundImage = `url(${res})`;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('couple-sign-input').addEventListener('input', function() {
+        let conf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
+        conf.signature = this.value;
+        localStorage.setItem('wuyo_couple_config', JSON.stringify(conf));
     });
 
     document.getElementById('settings-btn-clear').addEventListener('click', () => {
@@ -208,8 +356,8 @@
         if (window.getMemoryContext) finalPrompt += window.getMemoryContext(currentChatId) + "\n\n";
         const personaStr = localStorage.getItem('wuyo_settings_persona');
         if (personaStr) { const persona = JSON.parse(personaStr); finalPrompt += `[SYSTEM: USER]\n${persona.name||'未知'}\n${persona.info||'未知'}\n\n`; }
-        const charInfo = getSystemDefaultChar();
-        finalPrompt += `[SYSTEM: CHAR]\n${charInfo.name}\n${charInfo.desc}\n\n`;
+        const roleInfo = getCurrentRoleInfo();
+        finalPrompt += `[SYSTEM: CHAR]\n${roleInfo.name}\n\n`;
         const now = new Date(); finalPrompt += `[SYSTEM: TIME]\n${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${formatTime(now.getTime())}\n\n`;
         return finalPrompt.trim();
     };
@@ -223,9 +371,12 @@
 
         statusText.textContent = '对方正在输入...'; statusText.style.color = '#1C1C1E';
         const aiMsgObj = { role: 'assistant', content: '', time: Date.now() };
-        globalChatData[currentChatId].push(aiMsgObj); renderMessages(); 
+        if(!globalChatData[currentChatId]) globalChatData[currentChatId] = [];
+        globalChatData[currentChatId].push(aiMsgObj); 
+        renderMessages(); 
         
-        const bubbles = msgList.querySelectorAll('.chat-bubble.ai'); const currentBubble = bubbles[bubbles.length - 1];
+        const rows = msgList.querySelectorAll('.chat-bubble-row.ai'); 
+        const currentBubble = rows[rows.length - 1].querySelector('.chat-bubble');
         const historyContext = globalChatData[currentChatId].slice(-21, -1).map(m => ({ role: m.role, content: m.content }));
         const apiMessages = [{ role: 'system', content: buildSystemPrompt() }, ...historyContext];
 
@@ -263,7 +414,10 @@
 
     const sendUserMessage = () => {
         const text = inputArea.value.trim(); if(!text || !currentChatId) return;
-        globalChatData[currentChatId].push({ role: 'user', content: text, time: Date.now() }); localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
+        if(!globalChatData[currentChatId]) globalChatData[currentChatId] = [];
+        globalChatData[currentChatId].push({ role: 'user', content: text, time: Date.now() }); 
+        localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
+        
         inputArea.value = ''; inputArea.style.height = 'auto'; sendBtn.classList.remove('active'); 
         document.getElementById('chat-ext-ai').style.display = 'flex'; document.getElementById('chat-ext-plus').style.display = 'flex';
         renderMessages(); triggerAiReply(); 
