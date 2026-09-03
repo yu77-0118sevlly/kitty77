@@ -1,4 +1,9 @@
+
+
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. 初始化极简图标
+    lucide.createIcons();
+    document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
 
     // ==========================================
@@ -114,9 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ...
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. 初始化极简图标
-    lucide.createIcons();
 
     // 2. 时间与日期自动更新逻辑
     const updateDateTime = () => {
