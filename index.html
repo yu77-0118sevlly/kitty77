@@ -21,7 +21,7 @@
             
             <!-- ====== 第一页：核心主屏幕 ====== -->
             <div class="desktop-page">
-                <!-- 🟢 终极修复：打散左侧的内部 div，强制让三个文本标签在同一层级横向排列 -->
+                <!-- 强制左上角全部横向排成一排，并与右侧居中对齐 -->
                 <header class="top-header" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; margin-top: 10px; margin-bottom: 24px; padding: 0 16px;">
                     
                     <div class="header-left" style="display: flex !important; flex-direction: row !important; align-items: baseline !important; gap: 8px !important;">
@@ -71,8 +71,10 @@
                     <div class="app-item"><div class="app-icon"><i data-lucide="file-text"></i></div><span>备忘录</span></div>
                     <div class="app-item"><div class="app-icon"><i data-lucide="music"></i></div><span>音乐</span></div>
                     <div class="app-item"><div class="app-icon"><i data-lucide="calendar"></i></div><span>日历</span></div>
-                    ⁠<div class="app-item" onclick="window.openApp('settings')"><div class="app-icon"><i data-lucide="settings"></i></div><span>设置</span></div>⁠
-
+                    
+                    <!-- 🟢 修复点 1：给设置加上了打开功能的 onclick -->
+                    <div class="app-item" onclick="window.openApp('settings')"><div class="app-icon"><i data-lucide="settings"></i></div><span>设置</span></div>
+                    
                     <div class="app-item"><div class="app-icon"><i data-lucide="heart"></i></div><span>情侣空间</span></div>
                 </div>
             </div>
@@ -80,7 +82,6 @@
             <!-- ====== 第二页：情侣与社交桌面 ====== -->
             <div class="desktop-page">
                 <div class="bento-grid">
-                    <!-- 高级情侣小组件 (2x1) -->
                     <div class="widget widget-2x1 couple-advanced-widget">
                         <div class="couple-avatars">
                             <div class="c-avatar uploadable" id="w-couple-user-img"><i data-lucide="user"></i></div>
@@ -93,7 +94,6 @@
                         </div>
                     </div>
 
-                    <!-- 一起听歌小组件 (2x1) -->
                     <div class="widget widget-2x1 listen-together-widget">
                         <div class="listen-cover uploadable" id="w-listen-cover"><i data-lucide="music"></i></div>
                         <div class="listen-info">
@@ -126,13 +126,11 @@
             <!-- ====== 第三页：生活与工具桌面 ====== -->
             <div class="desktop-page">
                 <div class="bento-grid">
-                    <!-- 仅保留天气 1x1 小正方形 -->
                     <div class="widget widget-1x1 flex-center col-layout weather-widget">
                         <i data-lucide="cloud" class="weather-icon"></i>
                         <div class="weather-temp">18°</div>
                         <div class="weather-city">Tokyo / Cloudy</div>
                     </div>
-                    <!-- 留白占位 1x1 -->
                     <div class="widget widget-1x1" style="background: transparent; box-shadow: none;"></div>
                 </div>
 
@@ -154,14 +152,12 @@
 
         </div>
         
-        <!-- 🟢 终极修复：通过底部安全距离动态计算高度，把圆点压底 -->
         <div class="pagination-dots" id="pagination-dots" style="position: fixed !important; bottom: calc(env(safe-area-inset-bottom, 20px) + 95px) !important; left: 0 !important; width: 100% !important; display: flex !important; justify-content: center !important; z-index: 99 !important; padding: 0 !important; margin: 0 !important; pointer-events: none;">
             <div class="dot active"></div>
             <div class="dot"></div>
             <div class="dot"></div>
         </div>
 
-        <!-- 🟢 终极修复：把 Dock 的底边距设定为屏幕安全边界 + 10px，完美沉底 -->
         <nav id="dock" style="position: fixed !important; bottom: calc(env(safe-area-inset-bottom, 20px) + 10px) !important; left: 0 !important; width: 100% !important; display: flex !important; justify-content: center !important; z-index: 100 !important; padding: 0 !important; margin: 0 !important;">
             <div class="dock-container" style="margin: 0 !important;">
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="phone"></i></div></div>
@@ -170,14 +166,15 @@
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="more-horizontal"></i></div></div>
             </div>
         </nav>
-
     </main>
 
     <!-- SPA 应用的独立容器 -->
     <section id="beautify-app" class="app-view" style="display: none;"></section>
     <section id="chat-app" class="app-view" style="display: none;"></section>
+    
+    <!-- 🟢 修复点 2：加上了 settings 的隐藏容器 -->
     <section id="settings-app" class="app-view" style="display: none;"></section>
-
+    
     <script src="app.js"></script>
 </body>
 </html>
