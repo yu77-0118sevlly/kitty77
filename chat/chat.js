@@ -2,7 +2,7 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：加入独立的“气泡与双头像美化设置页”
+    // 1. 初始化 DOM
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -36,6 +36,7 @@
             
             <div class="chat-messages" id="chat-message-list"></div>
 
+            <!-- 💥 修复点：调整输入栏布局，发送键改为常驻可点 -->
             <div class="chat-input-area">
                 <button class="chat-ext-btn"><i data-lucide="mic"></i></button>
                 <textarea class="chat-input" id="chat-textarea" placeholder="发消息..." rows="1"></textarea>
@@ -51,7 +52,7 @@
             </div>
         </div>
 
-        <!-- 💥 独立聊天与气泡美化设置页面 -->
+        <!-- 聊天气泡与恋爱标语设置页面 -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -90,7 +91,6 @@
                     </div>
                 </div>
             </div>
-            <!-- 隐藏的文件上传 input -->
             <input type="file" id="couple-avatar-uploader" accept="image/*" style="display:none;">
         </div>
     `;
@@ -103,23 +103,21 @@
     let globalChatData = JSON.parse(localStorage.getItem('wuyo_global_chat_data')) || {};
     let selectedMsgIndex = null;
     
-    // 获取当前聊天角色的详细信息（头像、锁脸等）
     const getCurrentRoleInfo = () => {
         const roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
-        const role = roles.find(r => r.id === currentChatId);
-        if(role) return { name: role.remark || role.name, avatar: role.faceImg || role.avatar || '' };
+        // 如果没有匹配到，默认返回第一个或者默认 AI
+        const role = roles.find(r => r.id === currentChatId) || roles[0];
+        if(role) return { id: role.id, name: role.remark || role.name, avatar: role.faceImg || role.avatar || '' };
         
-        // Fallback 到默认美化配置
         const configStr = localStorage.getItem('wuyo_config');
         let name = 'AI'; let avatar = '';
         if(configStr) {
             const config = JSON.parse(configStr);
             if(config.texts) { if(config.texts.aiTitle) name = config.texts.aiTitle; if(config.texts.aiAvatar) avatar = config.texts.aiAvatar; }
         }
-        return { name, avatar };
+        return { id: 'char_default', name, avatar };
     };
 
-    // 获取 User 头像与签名配置
     const getCoupleConfig = () => {
         let conf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
         const configStr = localStorage.getItem('wuyo_config');
@@ -138,16 +136,38 @@
 
     const renderChatList = () => {
         const listArea = document.getElementById('chat-list-render-area');
-        const roleInfo = getCurrentRoleInfo();
-        if(!globalChatData['char_default']) globalChatData['char_default'] = [];
-        const history = globalChatData['char_default'];
-        let lastMsg = '准备好开始对话了...'; let lastTime = '';
-        if(history.length > 0) { const lastObj = history[history.length - 1]; lastMsg = lastObj.content; lastTime = formatTime(lastObj.time); }
+        const roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
+        
+        if(roles.length === 0) {
+            // 如果通讯录没有角色，创建一个默认的
+            roles.push({ id: 'char_default', name: 'AI 伙伴', avatar: '' });
+        }
 
-        const avatarStyle = roleInfo.avatar ? `background-image: url(${roleInfo.avatar});` : ``;
-        const avatarInner = roleInfo.avatar ? '' : `<i data-lucide="bot"></i>`;
+        let html = '';
+        roles.forEach(role => {
+            if(!globalChatData[role.id]) globalChatData[role.id] = [];
+            const history = globalChatData[role.id];
+            let lastMsg = '准备好开始对话了...'; let lastTime = '';
+            if(history.length > 0) { const lastObj = history[history.length - 1]; lastMsg = lastObj.content; lastTime = formatTime(lastObj.time); }
 
-        listArea.innerHTML = `<div class="chat-list-item" onclick="window.openChatDetail('char_default')"><div class="chat-list-avatar" style="${avatarStyle}">${avatarInner}</div><div class="chat-list-info"><div class="chat-list-top"><span class="chat-list-name">${roleInfo.name}</span><span class="chat-list-time">${lastTime}</span></div><span class="chat-list-msg">${lastMsg}</span></div></div>`;
+            const avatarStyle = role.avatar || role.faceImg ? `background-image: url(${role.faceImg || role.avatar});` : ``;
+            const avatarInner = role.avatar || role.faceImg ? '' : `<i data-lucide="bot"></i>`;
+            const displayName = role.remark ? `${role.remark} (${role.name})` : role.name;
+
+            html += `
+                <div class="chat-list-item" onclick="window.openChatDetail('${role.id}')">
+                    <div class="chat-list-avatar" style="${avatarStyle}">${avatarInner}</div>
+                    <div class="chat-list-info">
+                        <div class="chat-list-top">
+                            <span class="chat-list-name">${displayName}</span>
+                            <span class="chat-list-time">${lastTime}</span>
+                        </div>
+                        <span class="chat-list-msg">${lastMsg}</span>
+                    </div>
+                </div>
+            `;
+        });
+        listArea.innerHTML = html;
         lucide.createIcons({ root: listArea });
     };
 
@@ -175,16 +195,17 @@
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
     // ==========================================
-    // 💥 核心渲染：带双头像、气泡头像与滚动标语的聊天详情
+    // 💥 强制渲染：双头像、浪漫标语与气泡列表
     // ==========================================
     const renderMessages = () => {
         if(!currentChatId) return; 
         msgList.innerHTML = '';
-        const history = globalChatData[currentChatId] || [];
+        if(!globalChatData[currentChatId]) globalChatData[currentChatId] = [];
+        const history = globalChatData[currentChatId];
         const roleInfo = getCurrentRoleInfo();
         const coupleConf = getCoupleConfig();
 
-        // 1. 渲染画圈位置的顶部双头像与浪漫签名 (作为消息列表的第一项，随聊天一起网上滚动)
+        // 1. 顶部双头像与浪漫签名横幅 (随消息上滑)
         const bannerEl = document.createElement('div');
         bannerEl.className = 'chat-couple-banner';
         
@@ -224,7 +245,6 @@
             const row = document.createElement('div');
             row.className = `chat-bubble-row ${isUser ? 'user' : 'ai'}`;
 
-            // 头像框渲染
             const avDiv = document.createElement('div');
             avDiv.className = 'bubble-avatar';
             if (isUser) {
@@ -239,7 +259,6 @@
             bubble.className = `chat-bubble ${isUser ? 'user' : 'ai'}`;
             bubble.innerHTML = msg.content.replace(/\n/g, '<br>');
 
-            // 长按事件
             bubble.addEventListener('touchstart', (e) => {
                 pressTimer = setTimeout(() => {
                     selectedMsgIndex = index; const touch = e.touches[0];
@@ -259,7 +278,6 @@
         scrollToBottom();
     };
 
-    // 长按菜单操作
     document.getElementById('ctx-btn-copy').addEventListener('click', (e) => {
         e.stopPropagation(); 
         if(selectedMsgIndex !== null && currentChatId) navigator.clipboard.writeText(globalChatData[currentChatId][selectedMsgIndex].content).then(() => alert('已复制'));
@@ -273,7 +291,7 @@
         ctxMenu.classList.remove('show');
     });
 
-    // 💥 独立设置页面路由打通
+    // 独立设置页面
     document.getElementById('chat-btn-settings').addEventListener('click', () => {
         const conf = getCoupleConfig();
         const roleInfo = getCurrentRoleInfo();
@@ -289,10 +307,9 @@
     });
     document.getElementById('chat-settings-back').addEventListener('click', () => {
         document.getElementById('chat-page-settings').classList.remove('active');
-        renderMessages(); // 刷新详情页的签名和头像
+        renderMessages(); 
     });
 
-    // 头像与标语自定义修改逻辑
     let activeUploadTarget = null;
     document.getElementById('set-user-avatar-btn').addEventListener('click', () => { activeUploadTarget = 'user'; document.getElementById('couple-avatar-uploader').click(); });
     document.getElementById('set-ai-avatar-btn').addEventListener('click', () => { activeUploadTarget = 'ai'; document.getElementById('couple-avatar-uploader').click(); });
@@ -309,7 +326,6 @@
                     localStorage.setItem('wuyo_couple_config', JSON.stringify(conf));
                     document.getElementById('preview-user-av').style.backgroundImage = `url(${res})`;
                 } else if(activeUploadTarget === 'ai') {
-                    // 更新当前角色的头像
                     let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
                     let r = roles.find(item => item.id === currentChatId);
                     if(r) { r.faceImg = res; localStorage.setItem('wuyo_roles', JSON.stringify(roles)); }
@@ -344,10 +360,14 @@
         if(window.openRoleProfile) { container.style.display = 'none'; window.openApp('contacts'); window.openRoleProfile(currentChatId); }
     });
 
+    // 💥 修复点：只要输入框有字，发送按钮立刻呈现并可以任意点击
     inputArea.addEventListener('input', function() {
         this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        if(this.value.trim() !== '') { sendBtn.classList.add('active'); document.getElementById('chat-ext-ai').style.display = 'none'; document.getElementById('chat-ext-plus').style.display = 'none'; } 
-        else { sendBtn.classList.remove('active'); document.getElementById('chat-ext-ai').style.display = 'flex'; document.getElementById('chat-ext-plus').style.display = 'flex'; }
+        if(this.value.trim() !== '') { 
+            sendBtn.classList.add('active'); 
+        } else { 
+            sendBtn.classList.remove('active'); 
+        }
     });
 
     const buildSystemPrompt = () => {
@@ -418,9 +438,10 @@
         globalChatData[currentChatId].push({ role: 'user', content: text, time: Date.now() }); 
         localStorage.setItem('wuyo_global_chat_data', JSON.stringify(globalChatData));
         
-        inputArea.value = ''; inputArea.style.height = 'auto'; sendBtn.classList.remove('active'); 
-        document.getElementById('chat-ext-ai').style.display = 'flex'; document.getElementById('chat-ext-plus').style.display = 'flex';
-        renderMessages(); triggerAiReply(); 
+        inputArea.value = ''; inputArea.style.height = 'auto'; 
+        sendBtn.classList.remove('active'); 
+        renderMessages(); 
+        triggerAiReply(); 
     };
 
     sendBtn.addEventListener('click', sendUserMessage);
