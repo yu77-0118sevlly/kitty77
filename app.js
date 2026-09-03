@@ -42,6 +42,13 @@ window.openApp = (appId) => {
         const script = document.createElement('script'); script.src = 'contacts/contacts.js'; document.body.appendChild(script);
         window.contactsLoaded = true;
     }
+        // 6. 动态加载记忆模块
+    if (appId === 'memory' && !window.memoryLoaded) {
+        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'memory/memory.css'; document.head.appendChild(link);
+        const script = document.createElement('script'); script.src = 'memory/memory.js'; document.body.appendChild(script);
+        window.memoryLoaded = true;
+    }
+
 };
 
 window.closeApp = (appId) => {
