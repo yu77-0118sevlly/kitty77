@@ -1,5 +1,4 @@
 window.ChatViewTemplate = `
-    <!-- 1. 聊天列表页 -->
     <div class="chat-page root active" id="chat-page-list">
         <header class="chat-header">
             <div style="width:32px;"></div><span class="chat-header-title">微信</span><button class="chat-icon-btn"><i data-lucide="plus-circle"></i></button>
@@ -10,12 +9,10 @@ window.ChatViewTemplate = `
             <div class="wechat-nav-item active"><i data-lucide="message-square"></i><span>Chats</span></div>
             <div class="wechat-nav-item" id="nav-btn-contacts"><i data-lucide="users"></i><span>Contacts</span></div>
             <div class="wechat-nav-item" id="nav-btn-moments"><i data-lucide="compass"></i><span>Moments</span></div>
-
             <div class="wechat-nav-item" onclick="alert('功能开发中')"><i data-lucide="user"></i><span>Me</span></div>
         </div>
     </div>
 
-    <!-- 2. 聊天详情页 -->
     <div class="chat-page" id="chat-page-detail">
         <header class="chat-header">
             <div class="chat-header-left" id="chat-back-to-list">
@@ -33,28 +30,32 @@ window.ChatViewTemplate = `
             <button class="quote-close-btn" id="quote-close-btn"><i data-lucide="x" style="width:14px;height:14px;"></i></button>
         </div>
 
-        <div class="chat-input-area" id="chat-input-area">
-            <button class="chat-ext-btn"><i data-lucide="mic"></i></button>
-            <textarea class="chat-input" id="chat-textarea" placeholder="发消息..." rows="1"></textarea>
-            <button class="chat-ext-btn" id="chat-ext-ai" title="强制回复"><i data-lucide="bot"></i></button>
-            <button class="chat-ext-btn" id="chat-ext-plus"><i data-lucide="plus"></i></button>
-            <button class="chat-send-btn" id="chat-send-btn">发送</button>
+        <div class="chat-bottom-bar" id="chat-input-area">
+            <button class="chat-icon-btn" id="chat-add-btn" type="button">
+                <i data-lucide="plus"></i>
+            </button>
+            
+            <div class="chat-input-wrapper">
+                <input type="text" id="chat-msg-input" placeholder="发消息..." autocomplete="off">
+            </div>
+            
+            <div class="chat-action-group">
+                <button class="chat-action-btn btn-ai" id="chat-ai-reply-btn" type="button">AI</button>
+                <button class="chat-action-btn btn-send" id="chat-user-send-btn" type="button">发送</button>
+            </div>
         </div>
         
-        <!-- 双击浮窗 -->
         <div class="chat-context-menu" id="chat-context-menu">
             <div class="ctx-item" id="ctx-btn-quote">引用</div><div class="ctx-item" id="ctx-btn-copy">复制</div><div class="ctx-item" id="ctx-btn-recall">撤回</div>
             <div class="ctx-item" id="ctx-btn-delete">删除</div><div class="ctx-item" id="ctx-btn-purge" style="color:#FF3B30;">彻底删除</div><div class="ctx-item" id="ctx-btn-multiselect">多选</div>
         </div>
         
-        <!-- 多选底栏 -->
         <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none;">
             <button class="ms-action-btn" id="ms-btn-delete-all">删除所选</button>
             <button class="ms-action-btn cancel" id="ms-btn-cancel">取消</button>
         </div>
     </div>
 
-    <!-- 3. 主设置页 -->
     <div class="chat-page" id="chat-page-settings" style="z-index: 20;">
         <header class="chat-header">
             <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -96,7 +97,6 @@ window.ChatViewTemplate = `
         </div>
     </div>
 
-    <!-- 4. 异地模式与翻译页 (海量地区与方言选择) -->
     <div class="chat-page" id="chat-page-advanced-settings" style="z-index: 30;">
         <header class="chat-header"><button class="chat-icon-btn" id="advanced-settings-back"><i data-lucide="chevron-left"></i></button><span class="chat-header-title">异地模式与翻译</span><div style="width:32px;"></div></header>
         <div style="flex:1; overflow-y:auto; padding-top:16px; padding-bottom:40px;">
@@ -178,7 +178,6 @@ window.ChatViewTemplate = `
         </div>
     </div>
 
-    <!-- 5. 角色行为与进阶设定页 -->
     <div class="chat-page" id="chat-page-behavior-settings" style="z-index: 30;">
         <header class="chat-header"><button class="chat-icon-btn" id="behavior-settings-back"><i data-lucide="chevron-left"></i></button><span class="chat-header-title">行为与设定</span><div style="width:32px;"></div></header>
         <div style="flex:1; overflow-y:auto; padding-top:16px; padding-bottom:40px;">
@@ -210,7 +209,6 @@ window.ChatViewTemplate = `
         </div>
     </div>
 
-    <!-- 6. 心声浮窗 -->
     <div id="inner-voice-modal" class="iv-modal-overlay">
         <div class="iv-modal-box">
             <div class="iv-modal-title" id="iv-modal-title">心声</div>
