@@ -17,7 +17,7 @@
     <!-- 主屏幕容器 -->
     <main id="home-screen">
         
-        <!-- 顶部品牌与日期区 (缩小顶部无意义留白) -->
+               <!-- 顶部品牌与日期区 (替换这一段) -->
         <header class="top-header">
             <div class="header-left">
                 <div class="brand-name">WUYO</div>
@@ -26,12 +26,23 @@
                     <span class="date" id="current-date">9月3日</span>
                 </div>
             </div>
+            <!-- 修改了这里：加入了昵称显示 -->
             <div class="header-right">
+                <span class="user-nickname" id="user-nickname">锁骨痣</span>
                 <div class="profile-widget uploadable" id="profile-pic">
                     <i data-lucide="user" class="placeholder-icon"></i>
                 </div>
             </div>
         </header>
+
+        <!-- ... 中间代码不变 ... -->
+
+        <!-- 找到你的美化 App，替换成下面这行 (使用 onclick 确保跳转) -->
+        <div class="app-item" onclick="window.location.href='beautify/index.html'">
+            <div class="app-icon"><i data-lucide="palette"></i></div>
+            <span>美化</span>
+        </div>
+
 
         <!-- 桌面滑动分页区 -->
         <div class="desktop-swiper" id="desktop-swiper">
