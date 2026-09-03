@@ -18,7 +18,8 @@ window.openApp = (appId) => {
     // 2. 加载聊天模块
     if (appId === 'chat' && !window.chatLoaded) {
         const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'chat/chat.css'; document.head.appendChild(link);
-        const script = document.createElement('script'); script.src = 'chat/chat.js'; document.body.appendChild(script);
+        const script = document.createElement('script'); script.src = 'chat/chat.js?v=' + Date.now(); document.body.appendChild(script);
+
         window.chatLoaded = true;
     }
 
