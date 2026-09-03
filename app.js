@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dots = document.querySelectorAll('.pagination-dots .dot');
 
     swiper.addEventListener('scroll', () => {
-        // 计算当前滑到了第几页 (基于滚动位置和页面宽度)
+        // 计算当前滑到了第几页
         const scrollPosition = swiper.scrollLeft;
         const pageIndex = Math.round(scrollPosition / swiper.clientWidth);
         
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadables = document.querySelectorAll('.uploadable');
     let currentUploadTarget = null;
 
-    // 点击任何带有 uploadable class 的元素，触发隐藏的 file input
+    // 点击图片区域触发隐藏的文件输入框
     uploadables.forEach(el => {
         el.addEventListener('click', () => {
             currentUploadTarget = el;
@@ -56,21 +56,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 接收用户选择的图片并渲染到对应的组件上
+    // 渲染图片
     imageUploader.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file && currentUploadTarget) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const imageUrl = e.target.result;
-                // 将图片设为背景
                 currentUploadTarget.style.backgroundImage = `url(${imageUrl})`;
-                // 添加 class 以隐藏默认的 placeholder 图标
                 currentUploadTarget.classList.add('has-image');
             };
             reader.readAsDataURL(file);
         }
-        // 清空 input 状态，允许下次重复上传同一张图
         imageUploader.value = '';
     });
 });
