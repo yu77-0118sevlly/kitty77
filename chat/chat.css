@@ -51,6 +51,7 @@
 .chat-icon-btn {
     background: none; border: none; padding: 0;
     color: #1C1C1E; cursor: pointer;
+    -webkit-appearance: none; appearance: none;
 }
 .chat-icon-btn i { width: 26px; height: 26px; }
 
@@ -172,6 +173,7 @@
 .chat-room-back {
     background: none; border: none; display: flex; align-items: center;
     cursor: pointer; color: #1C1C1E; padding: 8px;
+    -webkit-appearance: none; appearance: none;
 }
 .chat-room-back i { width: 24px; height: 24px; }
 .chat-room-title-area { display: flex; align-items: center; gap: 10px; }
@@ -198,11 +200,13 @@
     width: 100%; height: 100%; border: none; background: transparent;
     outline: none; font-size: 14px; color: #1C1C1E; font-family: inherit;
     caret-color: #1C1C1E;
+    -webkit-appearance: none; appearance: none;
 }
 .chat-room-input-box input::placeholder { color: #8E8E93; }
 
 /* 发送按钮 —— 白底黑色细边框，纯黑白灰 */
 .chat-room-send-btn {
+    -webkit-appearance: none; appearance: none;
     width: 36px; height: 36px; border-radius: 50%;
     background: #FFFFFF; border: 1px solid #1C1C1E;
     display: flex; align-items: center; justify-content: center;
@@ -214,6 +218,7 @@
 
 /* AI 按钮 —— 白底灰色细边框，比发送按钮更"轻" */
 .chat-room-ai-btn {
+    -webkit-appearance: none; appearance: none;
     width: 36px; height: 36px; border-radius: 50%;
     background: #FFFFFF; border: 1px solid #C7C7CC;
     display: flex; align-items: center; justify-content: center;
@@ -243,4 +248,27 @@
     align-self: center; max-width: 90%;
     font-size: 12px; color: #8E8E93; text-align: center;
     background: #F7F7F9; padding: 6px 14px; border-radius: 12px;
+}
+
+/* 🟢 强制去除浏览器默认的蓝色焦点框/点击高亮/系统按钮皮肤 */
+#chat-app button,
+#chat-app input,
+#chat-app .chat-list-item,
+#chat-app .chat-target-item {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+#chat-app button:focus,
+#chat-app input:focus,
+#chat-app button:focus-visible,
+#chat-app input:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+/* 防止浏览器自动填充时出现蓝色/黄色背景 */
+#chat-app input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #F7F7F9 inset !important;
+    -webkit-text-fill-color: #1C1C1E !important;
 }
