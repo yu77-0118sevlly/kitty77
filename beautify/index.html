@@ -1,10 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>无忧机 · 美化</title>
+    <link rel="stylesheet" href="beautify.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <h1>无忧机美化</h1>
+    <header class="nav-bar">
+        <button class="icon-btn" onclick="window.history.back()"><i data-lucide="chevron-left"></i></button>
+        <span class="nav-title">无忧机美化</span>
+        <button class="text-btn" id="save-btn">保存</button>
+    </header>
+
+    <main class="settings-container">
+        <!-- 隐藏的通用文件选择器 -->
+        <input type="file" id="global-uploader" accept="image/*" style="display: none;">
+
+        <div class="section-title">总体视觉</div>
+        <div class="setting-group">
+            <div class="setting-item">
+                <span>背景纯色</span>
+                <input type="color" id="bg-color" value="#f4f4f7">
+            </div>
+            <div class="setting-item">
+                <span>自定义背景图</span>
+                <button class="upload-btn" data-target="bg-image">上传</button>
+            </div>
+            <div class="setting-item">
+                <span>卡片圆角 (px)</span>
+                <input type="range" id="card-radius" min="10" max="40" value="24">
+            </div>
+            <div class="setting-item">
+                <span>卡片透明度</span>
+                <input type="range" id="card-opacity" min="10" max="100" value="55">
+            </div>
+        </div>
+
+        <div class="section-title">主页文字</div>
+        <div class="setting-group">
+            <div class="setting-item vertical">
+                <span>品牌名称 (左上角)</span>
+                <input type="text" id="text-brand" value="WUYO">
+            </div>
+            <div class="setting-item vertical">
+                <span>AI 伴侣标题</span>
+                <input type="text" id="text-ai-title" value="AI 伙伴">
+            </div>
+            <div class="setting-item vertical">
+                <span>AI 伴侣副标题</span>
+                <input type="text" id="text-ai-subtitle" value="随时准备与你交流…">
+            </div>
+        </div>
+
+        <div class="section-title">个人资料</div>
+        <div class="setting-group">
+            <div class="setting-item">
+                <span>头像</span>
+                <div class="avatar-preview" id="profile-avatar-preview"></div>
+                <button class="upload-btn" data-target="profile-avatar">更换</button>
+            </div>
+            <div class="setting-item vertical">
+                <span>昵称</span>
+                <input type="text" id="profile-nickname" value="锁骨痣">
+            </div>
+        </div>
+
+        <div class="section-title">桌面组件管理</div>
+        <div class="setting-group" id="widget-settings">
+            <!-- Memory -->
+            <details class="widget-details">
+                <summary>Memory 记忆组件</summary>
+                <div class="detail-content">
+                    <div class="setting-item"><span>显示组件</span><input type="checkbox" id="w-memory-show" checked></div>
+                    <div class="setting-item vertical"><span>主标题</span><input type="text" id="w-memory-title" value="MEMORY"></div>
+                    <div class="setting-item vertical"><span>副标题</span><input type="text" id="w-memory-sub" value="美好的瞬间"></div>
+                    <div class="setting-item"><span>更换图片</span><button class="upload-btn" data-target="w-memory-img">上传</button></div>
+                </div>
+            </details>
+            <!-- Today -->
+            <details class="widget-details">
+                <summary>Today 每日文字</summary>
+                <div class="detail-content">
+                    <div class="setting-item"><span>显示组件</span><input type="checkbox" id="w-today-show" checked></div>
+                    <div class="setting-item vertical"><span>正文内容</span><textarea id="w-today-text" rows="3">保持专注，&#10;顺其自然。</textarea></div>
+                </div>
+            </details>
+            <!-- 情侣组件 -->
+            <details class="widget-details">
+                <summary>情侣纪念日</summary>
+                <div class="detail-content">
+                    <div class="setting-item"><span>显示组件</span><input type="checkbox" id="w-couple-show" checked></div>
+                    <div class="setting-item vertical"><span>相恋日期</span><input type="date" id="w-couple-date" value="2024-01-01"></div>
+                    <div class="setting-item"><span>背景图片</span><button class="upload-btn" data-target="w-couple-img">上传</button></div>
+                </div>
+            </details>
+        </div>
+
+        <div class="section-title">App 图标自定义</div>
+        <div class="setting-group" id="app-icon-settings">
+            <!-- 通过 JS 自动渲染所有 App 列表 -->
+        </div>
+
+        <button class="danger-btn" id="reset-btn">恢复默认设置</button>
+    </main>
+
+    <script src="beautify.js"></script>
 </body>
 </html>
