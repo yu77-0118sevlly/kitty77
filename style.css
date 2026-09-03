@@ -1,18 +1,15 @@
-/* 基础变量定义 - 极简灰白配色 */
 :root {
     --bg-color: #f7f7f9;
     --card-bg: rgba(255, 255, 255, 0.7);
     --card-border: 1px solid rgba(255, 255, 255, 0.9);
     --text-main: #1c1c1e;
     --text-muted: #8e8e93;
-    
     --shadow-soft: 0 12px 40px -12px rgba(0, 0, 0, 0.05);
     
     --radius-sm: 16px;
     --radius-md: 24px;
     --radius-lg: 32px;
     
-    /* 自动适配 iPhone Safe Area */
     --safe-top: env(safe-area-inset-top, 47px);
     --safe-bottom: env(safe-area-inset-bottom, 34px);
 }
@@ -22,6 +19,7 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+/* 核心：彻底锁定页面上下滑动 */
 html, body {
     margin: 0;
     padding: 0;
@@ -29,12 +27,9 @@ html, body {
     height: 100%;
     background-color: var(--bg-color);
     color: var(--text-main);
-    font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    font-family: "PingFang SC", -apple-system, sans-serif;
     overflow: hidden; 
-    display: flex;
-    flex-direction: column;
-    
-    /* 锁定操作，防止误触、选中文字 */
+    touch-action: none; /* 彻底阻止浏览器的反弹特效 */
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
@@ -44,12 +39,11 @@ html, body {
     position: relative;
 }
 
-/* 视图容器 */
 #view-container {
     flex: 1;
     position: relative;
     width: 100%;
-    overflow: hidden;
+    height: 100%;
 }
 
 .view {
@@ -60,7 +54,7 @@ html, body {
     height: 100%;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: opacity 0.3s ease, transform 0.35s ease;
     transform: scale(0.97) translateY(10px);
     display: flex;
     flex-direction: column;
@@ -73,35 +67,34 @@ html, body {
     z-index: 10;
 }
 
-/* 首页内部滚动区 */
-.home-scroll-area {
-    flex: 1;
-    overflow-y: auto;
-    padding: max(var(--safe-top), 24px) 24px 140px 24px;
-    scrollbar-width: none;
-}
-.home-scroll-area::-webkit-scrollbar {
-    display: none;
+/* 首页固定区 (不使用 overflow-y: auto，彻底定死) */
+.home-fixed-area {
+    width: 100%;
+    height: 100%;
+    padding: max(var(--safe-top), 24px) 24px 0 24px;
+    display: flex;
+    flex-direction: column;
 }
 
-/* 左上角大字体 WU YO 与 头像区域 */
-.top-brand-bar {
+/* 头部紧凑排版 */
+.header-section {
+    margin-bottom: 24px;
+}
+.header-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 4px; /* 拉近与日期的距离 */
 }
-
 .brand-name-large {
     color: #000000;
     font-size: 28px;
     font-weight: 900;
     letter-spacing: 1px;
 }
-
 .user-avatar-card {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: var(--card-bg);
     border: var(--card-border);
@@ -109,173 +102,186 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
 }
-
 .avatar-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     color: var(--text-muted);
 }
-
-/* 日期显示 */
 .date-display {
     display: flex;
     flex-direction: column;
-    margin-bottom: 32px;
 }
-
 .date-display .day {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-muted);
     font-weight: 500;
-    margin-bottom: 2px;
 }
-
 .date-display .date {
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 600;
-    letter-spacing: -0.5px;
 }
 
-/* 拍立得与AI卡片 */
-.polaroid-decoration {
+/* 小组件横排区域 (照片 + 时间) */
+.widgets-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    height: 160px; /* 固定组件高度 */
+}
+
+.polaroid-widget {
+    flex: 1;
     background: rgba(255, 255, 255, 0.85);
     border-radius: var(--radius-sm);
-    padding: 14px 14px 24px 14px;
+    padding: 12px;
     box-shadow: var(--shadow-soft);
-    transform: rotate(-3deg);
-    margin-bottom: 32px;
-    width: fit-content;
     border: 1px solid rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
-
 .polaroid-photo {
-    width: 130px;
-    height: 130px;
+    width: 100%;
+    flex: 1;
     background: #eeeeF0;
     border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
-
 .placeholder-icon {
     color: #c7c7cc;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
 }
-
 .polaroid-text {
-    text-align: center;
-    margin-top: 14px;
+    margin-top: 10px;
     color: var(--text-muted);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
 }
 
+/* 新增：24小时时间组件 */
+.time-widget {
+    flex: 1;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: var(--card-border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.time-widget-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+.time-icon {
+    width: 32px;
+    height: 32px;
+    color: var(--text-muted);
+}
+.time-display {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -1px;
+}
+
+/* AI 卡片 */
 .ai-card {
     background: var(--card-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: var(--card-border);
     border-radius: var(--radius-md);
-    padding: 20px;
+    padding: 16px 20px;
     display: flex;
     align-items: center;
     gap: 16px;
     box-shadow: var(--shadow-soft);
-    margin-bottom: 36px;
+    margin-bottom: 24px;
 }
-
 .ai-avatar {
-    width: 52px;
-    height: 52px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-sm);
     background: #e5e5ea;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: var(--text-muted);
 }
-
 .ai-info h2 {
-    margin: 0 0 4px 0;
-    font-size: 17px;
-    font-weight: 600;
+    margin: 0 0 2px 0;
+    font-size: 16px;
 }
-
 .ai-info p {
     margin: 0;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-muted);
 }
 
-/* 横向滑动 App 网格容器 */
-.app-grid-wrapper {
-    width: calc(100% + 24px); /* 允许滚动到屏幕边缘 */
-    margin-right: -24px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
+/* 核心：分页滑动的 App 区域 */
+.app-swiper {
+    flex: 1;
+    display: flex;
+    width: calc(100% + 48px); /* 冲破父级 padding */
+    margin-left: -24px;
+    overflow-x: auto; /* 允许横滑 */
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory; /* 强制停靠分页 */
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-x; /* 仅允许横向拖拽 */
 }
-
-.app-grid-wrapper::-webkit-scrollbar {
+.app-swiper::-webkit-scrollbar {
     display: none;
 }
 
-.app-grid {
+/* 每一页 App */
+.app-page {
+    min-width: 100%; /* 每页占据一整屏 */
+    padding: 0 24px;
     display: grid;
-    /* 强制显示2行 */
+    grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(2, max-content);
-    /* 每个应用图标宽度计算 (一屏显示4个) */
-    grid-auto-columns: calc((100% - 36px) / 4);
-    /* 水平排列，超出会自动往右延伸 */
-    grid-auto-flow: column;
-    gap: 24px 12px;
-    padding-bottom: 20px;
-    padding-right: 24px; /* 右侧留白 */
+    gap: 20px 12px;
+    scroll-snap-align: start; /* 滑动停靠点 */
 }
 
 .app-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     cursor: pointer;
-    scroll-snap-align: start;
 }
-
 .app-icon {
-    width: 62px;
-    height: 62px;
+    width: 58px;
+    height: 58px;
     background: var(--card-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border: var(--card-border);
-    border-radius: 20px;
+    border-radius: 18px;
     box-shadow: var(--shadow-soft);
     display: flex;
     justify-content: center;
     align-items: center;
     color: var(--text-main);
-    transition: transform 0.2s ease, background 0.2s ease;
 }
-
 .app-item:active .app-icon {
     transform: scale(0.92);
-    background: rgba(235, 235, 240, 0.7);
 }
-
 .app-item span {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
-    color: var(--text-main);
 }
 
-/* 子页面导航栏 */
+/* 子页面 */
 .nav-bar {
     height: calc(var(--safe-top) + 48px);
     padding-top: var(--safe-top);
@@ -285,16 +291,9 @@ html, body {
     padding-left: 16px;
     padding-right: 16px;
     background: rgba(247, 247, 249, 0.85);
-    backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.03);
     z-index: 20;
 }
-
-.nav-title {
-    font-weight: 600;
-    font-size: 16px;
-}
-
 .icon-btn {
     background: none;
     border: none;
@@ -303,47 +302,22 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-main);
     cursor: pointer;
-    border-radius: 50%;
 }
-
-.icon-btn-placeholder {
-    width: 40px;
-}
-
 .page-content {
     flex: 1;
     padding: 24px;
     overflow-y: auto;
 }
 
-/* 聊天气泡 */
-.message {
-    display: flex;
-    margin-bottom: 20px;
-}
-.message.received { justify-content: flex-start; }
-.msg-bubble {
-    background: var(--card-bg);
-    border: var(--card-border);
-    padding: 14px 18px;
-    border-radius: 20px;
-    border-top-left-radius: 4px;
-    box-shadow: var(--shadow-soft);
-    font-size: 15px;
-    line-height: 1.5;
-    max-width: 85%;
-}
-
-/* 底部 Dock - 置于最底部 */
+/* 底部 Dock - 压在最底部边缘 */
 #dock {
     position: absolute;
-    bottom: max(var(--safe-bottom), 12px);
+    bottom: var(--safe-bottom); /* 严格贴合底部 */
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 48px);
-    height: 80px;
+    width: calc(100% - 32px);
+    height: 72px; /* 稍微做薄一点更精致 */
     background: var(--card-bg);
     backdrop-filter: blur(30px) saturate(150%);
     -webkit-backdrop-filter: blur(30px) saturate(150%);
@@ -353,28 +327,26 @@ html, body {
     z-index: 100;
     display: flex;
     align-items: center;
-    padding: 0 20px;
+    padding: 0 16px;
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .dock-container {
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around; /* 均匀分布 */
     align-items: center;
 }
 
 .dock-item {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
     border-radius: var(--radius-sm);
     display: flex;
     justify-content: center;
     align-items: center;
     color: var(--text-muted);
-    cursor: pointer;
 }
-
 .dock-item:active {
     transform: scale(0.88);
     color: var(--text-main);
