@@ -11,13 +11,13 @@
 </head>
 <body>
     
-    <!-- 全局隐藏的图片上传控件 (彻底隐藏原生文字) -->
-    <input type="file" id="image-uploader" accept="image/*">
+    <!-- 极其暴力的隐藏，彻底杜绝“未选择文件”出现在屏幕上 -->
+    <input type="file" id="image-uploader" accept="image/*" style="display: none !important; opacity: 0; position: absolute; z-index: -999; width: 0; height: 0; overflow: hidden;">
 
     <!-- 主屏幕容器 -->
     <main id="home-screen">
         
-        <!-- 顶部品牌与日期区 -->
+        <!-- 顶部品牌与日期区 (缩小顶部无意义留白) -->
         <header class="top-header">
             <div class="header-left">
                 <div class="brand-name">WUYO</div>
@@ -27,7 +27,6 @@
                 </div>
             </div>
             <div class="header-right">
-                <!-- 支持上传的主页图片 -->
                 <div class="profile-widget uploadable" id="profile-pic">
                     <i data-lucide="user" class="placeholder-icon"></i>
                 </div>
@@ -40,9 +39,8 @@
             <!-- ====== 第一页 ====== -->
             <div class="desktop-page">
                 
-                <!-- 1. 小组件网格 (2x2) -->
-                <div class="widget-grid">
-                    <!-- Memory 拍立得组件 -->
+                <!-- 1. 两个主要 Widget (Memory & 时钟) -->
+                <div class="widget-row-main">
                     <div class="widget widget-square">
                         <div class="polaroid-inner">
                             <div class="polaroid-img uploadable" id="memory-pic">
@@ -55,38 +53,24 @@
                         </div>
                     </div>
 
-                    <!-- Clock 时间组件 -->
                     <div class="widget widget-square flex-center col-layout">
                         <div class="clock-time" id="widget-time">09:41</div>
                         <div class="clock-date" id="widget-date-sub">9月3日</div>
                     </div>
-
-                    <!-- Today 今日组件 -->
-                    <div class="widget widget-square flex-center col-layout today-widget">
-                        <div class="today-title">TODAY</div>
-                        <div class="today-text">保持专注，<br>顺其自然。</div>
-                    </div>
-
-                    <!-- Weather 天气组件 -->
-                    <div class="widget widget-square flex-center col-layout weather-widget">
-                        <i data-lucide="cloud" class="weather-icon"></i>
-                        <div class="weather-temp">18°</div>
-                        <div class="weather-city">Tokyo / Cloudy</div>
-                    </div>
                 </div>
 
-                <!-- 2. AI 伙伴信息卡 -->
+                <!-- 2. AI 伙伴 (锁死高度的小型横向卡片) -->
                 <div class="ai-card">
                     <div class="ai-avatar">
                         <i data-lucide="bot"></i>
                     </div>
                     <div class="ai-info">
-                        <h2>AI 伴侣</h2>
-                        <p>随时准备与你交流...</p>
+                        <h2>AI 伙伴</h2>
+                        <p>随时准备与你交流…</p>
                     </div>
                 </div>
 
-                <!-- 3. 第一页 App 网格 (8个) -->
+                <!-- 3. 第一页 App 网格 (4x2) -->
                 <div class="app-grid">
                     <div class="app-item"><div class="app-icon"><i data-lucide="book"></i></div><span>世界书</span></div>
                     <div class="app-item"><div class="app-icon"><i data-lucide="palette"></i></div><span>美化</span></div>
@@ -102,9 +86,9 @@
             <!-- ====== 第二页 ====== -->
             <div class="desktop-page">
                 
-                <!-- 1. 第二页小组件 -->
-                <div class="widget-grid">
-                    <!-- 音乐组件 (横向占两格) -->
+                <!-- 1. 第二页 Widget 收纳区 -->
+                <div class="widget-row-secondary">
+                    <!-- 音乐 (宽) -->
                     <div class="widget widget-wide music-widget">
                         <div class="music-cover uploadable" id="music-cover">
                             <i data-lucide="music" class="placeholder-icon"></i>
@@ -115,20 +99,28 @@
                         </div>
                         <div class="music-play"><i data-lucide="play-circle"></i></div>
                     </div>
+                </div>
 
-                    <!-- 照片组件 -->
+                <div class="widget-grid-compact">
                     <div class="widget widget-square photo-widget uploadable" id="photo-widget">
                         <i data-lucide="camera" class="placeholder-icon"></i>
                     </div>
-
-                    <!-- 情侣组件 -->
                     <div class="widget widget-square flex-center col-layout couple-widget">
                         <div class="couple-heart">♡</div>
                         <div class="couple-days">99 Days</div>
                     </div>
+                    <div class="widget widget-square flex-center col-layout today-widget">
+                        <div class="today-title">TODAY</div>
+                        <div class="today-text">保持专注，<br>顺其自然。</div>
+                    </div>
+                    <div class="widget widget-square flex-center col-layout weather-widget">
+                        <i data-lucide="cloud" class="weather-icon"></i>
+                        <div class="weather-temp">18°</div>
+                        <div class="weather-city">Tokyo / Cloudy</div>
+                    </div>
                 </div>
 
-                <!-- 2. 第二页 App 网格 (8个) -->
+                <!-- 2. 第二页 App 网格 (4x2) -->
                 <div class="app-grid">
                     <div class="app-item"><div class="app-icon"><i data-lucide="scan-search"></i></div><span>查手机</span></div>
                     <div class="app-item"><div class="app-icon"><i data-lucide="smartphone"></i></div><span>小手机</span></div>
@@ -155,7 +147,7 @@
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="phone"></i></div></div>
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="users"></i></div></div>
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="message-square"></i></div></div>
-                <div class="dock-item"><div class="dock-icon"><i data-lucide="layout-grid"></i></div></div>
+                <div class="dock-item"><div class="dock-icon"><i data-lucide="more-horizontal"></i></div></div>
             </div>
         </nav>
 
