@@ -1411,3 +1411,87 @@ body {
 #beautify-app {
     overscroll-behavior: none;
 }
+/* ==========================================
+   📱 WUYO 主页宽度修复
+   保持手机屏幕宽度，不允许内容横向溢出
+========================================== */
+
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#home-screen {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* 桌面滑动区域 */
+.desktop-swiper {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+/* 每一页严格等于屏幕宽度 */
+.desktop-page {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* App 区域重新使用真正的四列 Grid */
+#home-screen .app-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+
+    column-gap: 0 !important;
+    row-gap: 20px !important;
+
+    box-sizing: border-box !important;
+}
+
+/* 每个 App 不允许把自己的宽度撑出去 */
+#home-screen .app-grid .app-item {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: none !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex-direction: column !important;
+
+    box-sizing: border-box !important;
+}
+
+/* 图标固定大小 */
+#home-screen .app-icon {
+    width: 58px !important;
+    height: 58px !important;
+    flex-shrink: 0 !important;
+}
+
+/* App 名称不要把列撑宽 */
+#home-screen .app-item span {
+    max-width: 80px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
