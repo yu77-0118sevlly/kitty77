@@ -19,22 +19,27 @@
         <!-- 桌面滑动分页区 -->
         <div class="desktop-swiper" id="desktop-swiper">
             
-                            <!-- 🟢 强制左侧排成一排，并与右侧锁骨痣完美居中对齐 -->
-                <header class="top-header" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; margin-top: -20px; margin-bottom: 24px; padding: 0 4px;">
+                                            <!-- 🟢 强制左上角全部横向排成一排，并与右侧居中对齐 -->
+                <header class="top-header" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; margin-top: 10px; margin-bottom: 24px; padding: 0 16px;">
                     
                     <div class="header-left" style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 8px !important;">
                         <span class="brand-name" style="font-size: 16px !important; font-weight: 800 !important; color: #1c1c1e !important; margin: 0 !important; line-height: 1 !important;">WUYO</span>
-                        <span class="day" id="current-day" style="font-size: 13px !important; color: #8E8E93 !important; font-weight: 500 !important; line-height: 1 !important;">星期四</span>
-                        <span class="date" id="current-date" style="font-size: 15px !important; font-weight: 700 !important; color: #1C1C1E !important; line-height: 1 !important;">9月3日</span>
+                        
+                        <!-- 核心修复：强制这个内部盒子也横向排布 -->
+                        <div class="date-display" style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 6px !important; margin: 0 !important;">
+                            <span class="day" id="current-day" style="font-size: 12px !important; color: #8E8E93 !important; font-weight: 600 !important; line-height: 1 !important;">星期四</span>
+                            <span class="date" id="current-date" style="font-size: 14px !important; font-weight: 700 !important; color: #1C1C1E !important; line-height: 1 !important;">9月3日</span>
+                        </div>
                     </div>
 
                     <div class="header-right" style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 10px !important;">
-                        <span class="user-nickname" id="user-nickname" style="font-size: 15px !important; font-weight: 600 !important; color: #1C1C1E !important; margin: 0 !important;">锁骨痣</span>
-                        <div class="profile-widget uploadable" id="profile-pic" style="width: 36px !important; height: 36px !important; border-radius: 50% !important; background: #F2F2F7 !important; display: flex !important; justify-content: center !important; align-items: center !important; overflow: hidden !important;">
+                        <span class="user-nickname" id="user-nickname" style="font-size: 14px !important; font-weight: 600 !important; color: #1C1C1E !important; margin: 0 !important;">锁骨痣</span>
+                        <div class="profile-widget uploadable" id="profile-pic" style="width: 36px !important; height: 36px !important; border-radius: 50% !important; background: #F2F2F7 !important; display: flex !important; justify-content: center !important; align-items: center !important; overflow: hidden !important; margin: 0 !important;">
                             <i data-lucide="user" class="placeholder-icon" style="width: 20px; height: 20px; color: #8E8E93;"></i>
                         </div>
                     </div>
                 </header>
+
 
 
                 <div class="widget-row-main">
@@ -152,23 +157,26 @@
 
 
         </div>
-
-                <!-- 🟢 强制将小圆点下移，避免遮挡 App -->
-        <div class="pagination-dots" id="pagination-dots" style="position: fixed !important; bottom: calc(env(safe-area-inset-bottom, 12px) + 85px) !important; left: 0 !important; width: 100% !important; display: flex !important; justify-content: center !important; z-index: 99 !important;">
+        <!-- 🟢 强制固定小圆点高度，不再受上面的内容挤压 -->
+        <div class="pagination-dots" id="pagination-dots" style="position: fixed !important; bottom: 95px !important; left: 0 !important; width: 100% !important; display: flex !important; justify-content: center !important; z-index: 99 !important; padding: 0 !important; margin: 0 !important;">
             <div class="dot active"></div>
             <div class="dot"></div>
             <div class="dot"></div>
         </div>
 
-        <!-- 🟢 强制将 Dock 栏沉底，贴紧底部安全区/黑线 -->
-        <nav id="dock" style="position: fixed !important; bottom: env(safe-area-inset-bottom, 12px) !important; left: 0 !important; width: 100% !important; display: flex !important; justify-content: center !important; z-index: 100 !important;">
-            <div class="dock-container" style="margin-bottom: 0 !important;">
+        <!-- 🟢 强制清空容器边距，并用绝对数值把 Dock 压到底部黑线处 -->
+        <nav id="dock" style="position: fixed !important; bottom: 15px !important; left: 0 !important; width: 100% !important; display: flex !important; justify-content: center !important; z-index: 100 !important; padding: 0 !important; margin: 0 !important;">
+            
+            <!-- 核心修复：margin: 0 杀掉旧 CSS 里的悬空边距 -->
+            <div class="dock-container" style="margin: 0 !important;">
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="phone"></i></div></div>
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="users"></i></div></div>
                 <div class="dock-item" onclick="window.openApp('chat')"><div class="dock-icon"><i data-lucide="message-square"></i></div></div>
                 <div class="dock-item"><div class="dock-icon"><i data-lucide="more-horizontal"></i></div></div>
             </div>
         </nav>
+
+                
 
     </main>
 
