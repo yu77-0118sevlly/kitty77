@@ -6,7 +6,7 @@
     container.innerHTML = `
         <div class="ct-page root active" id="ct-page-list">
             <header class="ct-header">
-                <div style="width:32px;"></div>
+                <button class="ct-icon-btn" onclick="window.closeApp('contacts')"><i data-lucide="chevron-left"></i></button>
                 <span class="ct-header-title">通讯录</span>
                 <button class="ct-icon-btn" id="btn-goto-create"><i data-lucide="user-plus"></i></button>
             </header>
@@ -52,11 +52,11 @@
                     </div>
                     <div class="ct-form-row">
                         <span class="ct-form-label">昵称</span>
-                        <input type="text" class="ct-input" id="role-name" placeholder="昵称">
+                        <input type="text" class="ct-input" id="role-name" placeholder="填写昵称">
                     </div>
                     <div class="ct-form-row">
                         <span class="ct-form-label">备注</span>
-                        <input type="text" class="ct-input" id="role-remark" placeholder="备注">
+                        <input type="text" class="ct-input" id="role-remark" placeholder="填写备注">
                     </div>
                     <div class="ct-form-row">
                         <span class="ct-form-label">当前关系</span>
@@ -69,7 +69,7 @@
                     </div>
                     <div class="ct-form-row">
                         <span class="ct-form-label">所在地</span>
-                        <input type="text" class="ct-input" id="role-city" placeholder="所在地">
+                        <input type="text" class="ct-input" id="role-city" placeholder="填写所在城市">
                     </div>
                 </div>
 
@@ -77,19 +77,19 @@
                 <div class="ct-form-group">
                     <div class="ct-form-row">
                         <span class="ct-form-label">微信号</span>
-                        <input type="text" class="ct-input" id="role-wechat" placeholder="微信号">
+                        <input type="text" class="ct-input" id="role-wechat" placeholder="填写微信号">
                     </div>
                     <div class="ct-form-row">
                         <span class="ct-form-label">手机号</span>
-                        <input type="text" class="ct-input" id="role-phone" placeholder="手机号">
+                        <input type="text" class="ct-input" id="role-phone" placeholder="填写手机号">
                     </div>
                     <div class="ct-form-row">
                         <span class="ct-form-label">身份证号</span>
-                        <input type="text" class="ct-input" id="role-idcard" placeholder="身份证号">
+                        <input type="text" class="ct-input" id="role-idcard" placeholder="填写身份证号">
                     </div>
                     <div class="ct-form-row">
                         <span class="ct-form-label">银行卡信息</span>
-                        <input type="text" class="ct-input" id="role-bank" placeholder="银行卡信息">
+                        <input type="text" class="ct-input" id="role-bank" placeholder="填写银行卡信息">
                     </div>
                 </div>
                 
@@ -97,11 +97,11 @@
                 <div class="ct-form-group">
                     <div class="ct-form-row vertical">
                         <span class="ct-form-label">性格与说话方式</span>
-                        <textarea class="ct-textarea" id="role-personality" placeholder="例如：高冷、毒舌，但内心柔软..."></textarea>
+                        <textarea class="ct-textarea" id="role-personality" placeholder="描述角色的性格特征..."></textarea>
                     </div>
                     <div class="ct-form-row vertical">
                         <span class="ct-form-label">背景故事/职业</span>
-                        <textarea class="ct-textarea" id="role-bgstory" placeholder="例如：跨国集团的CEO..."></textarea>
+                        <textarea class="ct-textarea" id="role-bgstory" placeholder="描述角色的背景和经历..."></textarea>
                     </div>
                 </div>
                 
@@ -164,6 +164,19 @@
                 ${role.phone ? `<div class="ct-row"><div class="ct-row-label">手机号</div><div class="ct-row-value">${role.phone}</div></div>` : ''}
                 ${role.idcard ? `<div class="ct-row"><div class="ct-row-label">身份证号</div><div class="ct-row-value">${role.idcard}</div></div>` : ''}
                 ${role.bank ? `<div class="ct-row"><div class="ct-row-label">银行卡</div><div class="ct-row-value">${role.bank}</div></div>` : ''}
+            </div>
+
+            <!-- 💥 朋友圈展示入口 -->
+            <div class="ct-group">
+                <div class="ct-row" style="align-items: center; justify-content: space-between; cursor: pointer;" onclick="alert('进入角色朋友圈...')">
+                    <div style="display:flex; align-items:center; gap: 16px;">
+                        <span style="font-size:15px; color:#1C1C1E; font-weight: 500;">朋友圈</span>
+                        <div style="display:flex; gap:8px;">
+                            ${role.faceImg ? `<div style="width:40px; height:40px; border-radius:8px; background:#E5E5EA; background-image:url(${role.faceImg}); background-size:cover;"></div>` : `<div style="width:40px; height:40px; border-radius:8px; background:#F2F2F7; display:flex; justify-content:center; align-items:center; color:#8E8E93; font-size:12px;">...</div>`}
+                        </div>
+                    </div>
+                    <i data-lucide="chevron-right" style="width:16px; height:16px; color:#8E8E93;"></i>
+                </div>
             </div>
 
             <div class="ct-group">
