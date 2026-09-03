@@ -2,7 +2,7 @@
     const container = document.getElementById('contacts-app');
     if (!container) return;
 
-    // 1. 初始化 DOM：纯中文界面，纯英文底部 Tab
+    // 1. 初始化 DOM
     container.innerHTML = `
         <div class="ct-page root active" id="ct-page-list">
             <header class="ct-header">
@@ -145,6 +145,11 @@
         const displayName = role.remark || role.name;
         const realNameHtml = role.remark ? `<div class="ct-profile-remark">昵称：${role.name}</div>` : '';
         
+        // 💥 保证朋友圈代码结构化拼接
+        let faceBox = role.faceImg 
+            ? `<div style="width:40px; height:40px; border-radius:8px; background-color:#E5E5EA; background-image:url(${role.faceImg}); background-size:cover; background-position:center;"></div>` 
+            : `<div style="width:40px; height:40px; border-radius:8px; background-color:#F2F2F7; display:flex; justify-content:center; align-items:center; color:#8E8E93; font-size:12px;">...</div>`;
+
         const profileArea = document.getElementById('ct-profile-render-area');
         profileArea.innerHTML = `
             <div class="ct-profile-top">
@@ -166,14 +171,12 @@
                 ${role.bank ? `<div class="ct-row"><div class="ct-row-label">银行卡</div><div class="ct-row-value">${role.bank}</div></div>` : ''}
             </div>
 
-            <!-- 💥 朋友圈展示入口 -->
+            <!-- 💥 朋友圈绝对强制展示区 -->
             <div class="ct-group">
-                <div class="ct-row" style="align-items: center; justify-content: space-between; cursor: pointer;" onclick="alert('进入角色朋友圈...')">
+                <div class="ct-row" style="align-items: center; justify-content: space-between; cursor: pointer;" onclick="alert('朋友圈功能开发中...')">
                     <div style="display:flex; align-items:center; gap: 16px;">
-                        <span style="font-size:15px; color:#1C1C1E; font-weight: 500;">朋友圈</span>
-                        <div style="display:flex; gap:8px;">
-                            ${role.faceImg ? `<div style="width:40px; height:40px; border-radius:8px; background:#E5E5EA; background-image:url(${role.faceImg}); background-size:cover;"></div>` : `<div style="width:40px; height:40px; border-radius:8px; background:#F2F2F7; display:flex; justify-content:center; align-items:center; color:#8E8E93; font-size:12px;">...</div>`}
-                        </div>
+                        <span class="ct-row-label">朋友圈</span>
+                        <div style="display:flex; gap:8px;">${faceBox}</div>
                     </div>
                     <i data-lucide="chevron-right" style="width:16px; height:16px; color:#8E8E93;"></i>
                 </div>
@@ -229,7 +232,6 @@
     document.getElementById('btn-goto-edit').addEventListener('click', () => openEditor(currentProfileRoleId));
     document.querySelectorAll('.ct-back-btn').forEach(btn => { btn.addEventListener('click', (e) => e.target.closest('.ct-page').classList.remove('active')); });
 
-    // 头像与锁脸上传
     let tempAvatar = ''; let tempFace = '';
     document.getElementById('role-avatar-preview').addEventListener('click', () => document.getElementById('ct-avatar-uploader').click());
     document.getElementById('ct-avatar-uploader').addEventListener('change', (e) => {
