@@ -154,7 +154,7 @@
             </nav>
         </div>
 
-        <!-- 🟢 独立私聊页面 (默认隐藏，点击列表项时切入) -->
+        <!-- 独立私聊页面 (默认隐藏，点击列表项时切入) -->
         <div id="chat-room-page" class="chat-room-container">
             <header class="chat-room-header">
                 <button class="chat-room-back" id="room-back-btn">
@@ -166,13 +166,14 @@
                 </div>
                 <div class="chat-room-placeholder"></div>
             </header>
-            <div class="chat-room-body">
-                <!-- 预留消息展示区 -->
-            </div>
+            <div class="chat-room-body" id="room-messages-body"></div>
             <div class="chat-room-footer">
                 <div class="chat-room-input-box">
-                    <span>Message...</span>
+                    <input type="text" id="room-input" placeholder="Message..." />
                 </div>
+                <button class="chat-room-send-btn" id="room-send-btn" disabled>
+                    <i data-lucide="arrow-up"></i>
+                </button>
             </div>
         </div>
     `;
@@ -180,7 +181,9 @@
     // 渲染 Lucide 图标
     lucide.createIcons({ root: container });
 
+    // ============================================
     // 1. Tab 切换逻辑
+    // ============================================
     const navItems = container.querySelectorAll('.chat-nav-item');
     const pages = container.querySelectorAll('.chat-page');
 
@@ -195,7 +198,98 @@
         });
     });
 
-    // 2. 🟢 点击聊天列表项进入私聊页面逻辑
+    // ============================================
+    // 2. 消息收发逻辑（先声明，供下面点击事件调用）
+    // ============================================
+    const STORAGE_KEY = 'wuyo_chat_messages';
+    const roomBody = document.getElementById('room-messages-body');
+    const roomInput = document.getElementById('room-input');
+    const sendBtn = document.getElementById('room-send-btn');
+    let currentContact = null;
+
+    // 默认预置消息（首次进入时用，之后全部走 localStorage）
+    const defaultMessages = {
+        'Alex Chen': [
+            { from: 'them', text: 'Hey! Are we still on for tmrw?', time: '10:24' }
+        ],
+        'Design Team': [
+            { from: 'them', text: 'Figma link updated.', time: '09:10' }
+        ],
+        'Sarah': [
+            { from: 'me', text: 'Sent you the files', time: '08:40' },
+            { from: 'them', text: 'Thanks!', time: '08:41' }
+        ],
+        'Mom': [
+            { from: 'them', text: 'Call me when you are free.', time: 'Yesterday' }
+        ]
+    };
+
+    function loadAllMessages() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+    }
+
+    function saveAllMessages(all) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+    }
+
+    function getMessages(name) {
+        const all = loadAllMessages();
+        if (!all[name]) {
+            all[name] = defaultMessages[name] || [];
+            saveAllMessages(all);
+        }
+        return all[name];
+    }
+
+    function addMessage(name, msg) {
+        const all = loadAllMessages();
+        if (!all[name]) all[name] = [];
+        all[name].push(msg);
+        saveAllMessages(all);
+        return all[name];
+    }
+
+    function renderMessages(name) {
+        const list = getMessages(name);
+        roomBody.innerHTML = list.map(m => `
+            <div class="msg-row ${m.from === 'me' ? 'me' : 'them'}">
+                <div class="msg-bubble">${m.text}</div>
+            </div>
+        `).join('');
+        roomBody.scrollTop = roomBody.scrollHeight;
+    }
+
+    function sendCurrentMessage() {
+        const text = roomInput.value.trim();
+        if (!text || !currentContact) return;
+
+        const now = new Date();
+        const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+        addMessage(currentContact, { from: 'me', text, time });
+        renderMessages(currentContact);
+
+        roomInput.value = '';
+        sendBtn.disabled = true;
+    }
+
+    roomInput.addEventListener('input', () => {
+        sendBtn.disabled = roomInput.value.trim().length === 0;
+    });
+
+    roomInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendCurrentMessage();
+        }
+    });
+
+    sendBtn.addEventListener('click', sendCurrentMessage);
+
+    // ============================================
+    // 3. 点击聊天列表项进入私聊页面逻辑
+    // ============================================
     const mainTabs = document.getElementById('chat-main-tabs');
     const roomPage = document.getElementById('chat-room-page');
     const roomNameEl = document.getElementById('room-target-name');
@@ -205,16 +299,18 @@
     chatItems.forEach(item => {
         item.addEventListener('click', () => {
             const contactName = item.getAttribute('data-name');
-            // 设置聊天对象的昵称
             roomNameEl.textContent = contactName;
+            currentContact = contactName;
+            renderMessages(contactName);
 
-            // 隐藏主 Tab，显示聊天室页面
             mainTabs.style.display = 'none';
             roomPage.style.display = 'flex';
         });
     });
 
-    // 3. 🟢 点击返回按钮回到列表
+    // ============================================
+    // 4. 点击返回按钮回到列表
+    // ============================================
     backBtn.addEventListener('click', () => {
         roomPage.style.display = 'none';
         mainTabs.style.display = 'block';
