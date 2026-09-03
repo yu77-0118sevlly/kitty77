@@ -14,7 +14,7 @@
 .chat-title-area { display: flex; flex-direction: column; align-items: center; }
 .chat-status { font-size: 11px; color: #8E8E93; font-weight: 500; margin-top: 2px;}
 
-/* 💥 统一底栏 (Chats与Contacts高度绝对一致) */
+/* 💥 统一英文底栏 (高度与 Contacts 绝对对齐) */
 .wechat-bottom-nav {
     position: absolute; bottom: 0; left: 0; width: 100%;
     height: calc(54px + env(safe-area-inset-bottom, 20px));
@@ -34,6 +34,7 @@
 .chat-search-bar i { width: 16px; height: 16px; color: #8E8E93; margin-right: 8px; }
 .chat-search-input { flex: 1; background: transparent; border: none; font-size: 14px; outline: none; color: #1C1C1E; }
 .chat-search-input::placeholder { color: #8E8E93; }
+
 .chat-list-item { display: flex; align-items: center; padding: 12px 16px; background: #FFF; border-bottom: 0.5px solid #F2F2F7; cursor: pointer; transition: background 0.2s; }
 .chat-list-item:active { background: #F2F2F7; }
 .chat-list-avatar { width: 48px; height: 48px; border-radius: 12px; background: #E5E5EA; background-size: cover; background-position: center; margin-right: 12px; display: flex; justify-content: center; align-items: center; color: #8E8E93; }
@@ -64,7 +65,7 @@
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-/* 底部输入框 */
+/* 底部输入框：黑白灰 */
 .chat-input-area { flex-shrink: 0; padding: 10px 12px calc(env(safe-area-inset-bottom, 20px) + 10px) 12px; background: #F4F4F7; border-top: 0.5px solid rgba(0,0,0,0.05); display: flex; align-items: flex-end; gap: 8px; z-index: 10; }
 .chat-ext-btn { background: none; border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #1C1C1E; flex-shrink: 0; margin-bottom: 3px; cursor: pointer; }
 .chat-input { flex: 1; background: #FFFFFF; border: none; border-radius: 20px; padding: 10px 16px; font-size: 15px; color: #1C1C1E; max-height: 120px; resize: none; outline: none; line-height: 1.4; margin: 0 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
@@ -78,10 +79,10 @@
 .ctx-item:last-child { border-right: none; }
 .ctx-item i { width: 18px; height: 18px; color: #1C1C1E; }
 
-/* 右上角面板 */
-.chat-drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10001; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-.chat-drawer-overlay.show { opacity: 1; pointer-events: auto; }
-.chat-drawer { position: absolute; bottom: 0; left: 0; width: 100%; background: #F2F2F7; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px 16px env(safe-area-inset-bottom, 20px) 16px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; gap: 8px; }
-.chat-drawer-overlay.show .chat-drawer { transform: translateY(0); }
-.drawer-btn { width: 100%; padding: 16px; background: #FFF; border: none; font-size: 16px; font-weight: 500; color: #1C1C1E; border-radius: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-.drawer-btn.cancel { margin-top: 8px; font-weight: 600; }
+/* 💥 新增：独立设置页面样式 (取代抽屉) */
+.settings-list-group { background: #FFFFFF; border-radius: 16px; margin: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); overflow: hidden; }
+.settings-list-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 0.5px solid #F2F2F7; cursor: pointer; font-size: 15px; color: #1C1C1E; font-weight: 500; transition: background 0.2s;}
+.settings-list-item:active { background: #F2F2F7; }
+.settings-list-item:last-child { border-bottom: none; }
+.settings-list-item i { width: 18px; height: 18px; color: #8E8E93; }
+.settings-list-item.danger { color: #1C1C1E; justify-content: center; font-weight: 700; }
