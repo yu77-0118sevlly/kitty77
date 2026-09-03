@@ -53,13 +53,14 @@
                 <button class="chat-send-btn" id="chat-send-btn">发送</button>
             </div>
             
+            <!-- 💥 精致两排式纯文本小浮窗菜单 (无任何图标/emoji) -->
             <div class="chat-context-menu" id="chat-context-menu">
-                <div class="ctx-item" id="ctx-btn-quote"><i data-lucide="quote"></i>引用</div>
-                <div class="ctx-item" id="ctx-btn-copy"><i data-lucide="copy"></i>复制</div>
-                <div class="ctx-item" id="ctx-btn-recall"><i data-lucide="rotate-ccw"></i>撤回</div>
-                <div class="ctx-item" id="ctx-btn-delete"><i data-lucide="trash-2"></i>删除</div>
-                <div class="ctx-item" id="ctx-btn-purge" style="color:#FF6B6B;"><i data-lucide="ban" style="color:#FF6B6B;"></i>彻底删除</div>
-                <div class="ctx-item" id="ctx-btn-multiselect"><i data-lucide="check-square"></i>多选</div>
+                <div class="ctx-item" id="ctx-btn-quote">引用</div>
+                <div class="ctx-item" id="ctx-btn-copy">复制</div>
+                <div class="ctx-item" id="ctx-btn-recall">撤回</div>
+                <div class="ctx-item" id="ctx-btn-delete">删除</div>
+                <div class="ctx-item" id="ctx-btn-purge" style="color:#FF3B30;">彻底删除</div>
+                <div class="ctx-item" id="ctx-btn-multiselect">多选</div>
             </div>
 
             <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none;">
@@ -68,7 +69,6 @@
             </div>
         </div>
 
-        <!-- 💥 完整的独立美化设置页面 (绝不丢失) -->
         <div class="chat-page" id="chat-page-settings">
             <header class="chat-header">
                 <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
@@ -401,7 +401,7 @@
             timeSub.className = 'bubble-time-sub';
             timeSub.textContent = formatTime(msg.time);
 
-            // 双击弹出精致浮窗菜单
+            // 💥 完美替代：双击气泡下方弹出两排式纯文本小浮窗
             bubble.addEventListener('dblclick', (e) => {
                 if(isMultiSelectMode) return;
                 selectedMsgIndex = index; 
@@ -409,7 +409,7 @@
                 const containerRect = msgList.getBoundingClientRect();
                 
                 ctxMenu.style.left = `${rect.left + rect.width / 2}px`; 
-                ctxMenu.style.top = `${rect.top - containerRect.top + msgList.scrollTop - 8}px`; 
+                ctxMenu.style.top = `${rect.bottom - containerRect.top + msgList.scrollTop + 6}px`; 
                 ctxMenu.classList.add('show');
             });
 
