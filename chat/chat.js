@@ -243,7 +243,7 @@
 
         const apiKey = getApiKey();
         if (!apiKey) {
-            addMessage(currentContact, { from: 'system', text: '⚠️ 尚未配置 API，无法获取 AI 回复' });
+            addMessage(currentContact, { from: 'system', text: '尚未配置 API，无法获取 AI 回复' });
         } else {
             addMessage(currentContact, { from: 'system', text: 'AI 接口已配置，但回复逻辑尚未开发' });
         }
