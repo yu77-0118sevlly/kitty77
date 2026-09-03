@@ -1,0 +1,88 @@
+/* ==========================================
+   Settings App 专属样式隔离
+========================================== */
+#settings-app {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #F4F4F7; color: #1C1C1E; z-index: 9999;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+    overflow: hidden; -webkit-tap-highlight-color: transparent;
+}
+
+.settings-page {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #F4F4F7; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transform: translateX(100%); z-index: 10;
+}
+.settings-page.active { transform: translateX(0); }
+.settings-page.root { transform: translateX(0); z-index: 5; } /* 首页永远在底层 */
+
+/* 顶部导航 */
+.st-nav-bar {
+    position: sticky; top: 0; left: 0; width: 100%; 
+    height: calc(env(safe-area-inset-top, 44px) + 56px);
+    padding-top: env(safe-area-inset-top, 44px); padding-left: 16px; padding-right: 16px;
+    background: rgba(244, 244, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    display: flex; justify-content: space-between; align-items: center; z-index: 100;
+    border-bottom: 0.5px solid rgba(0,0,0,0.05);
+}
+.st-nav-title { font-size: 17px; font-weight: 600; }
+.st-icon-btn, .st-text-btn { background: none; border: none; font-size: 16px; color: #1C1C1E; cursor: pointer; font-weight: 500; display: flex; align-items: center; padding: 0; }
+.st-text-btn.save { font-weight: 600; color: #000; }
+
+/* 容器与列表 */
+.st-container { padding: 20px 16px 80px 16px; max-width: 600px; margin: 0 auto; }
+.st-section-title { font-size: 13px; color: #8E8E93; margin: 24px 0 8px 16px; text-transform: uppercase; font-weight: 600; }
+.st-group { background: #FFFFFF; border-radius: 16px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+.st-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 0.5px solid #F2F2F7; cursor: pointer; }
+.st-item:last-child { border-bottom: none; }
+.st-item.no-click { cursor: default; }
+.st-item.vertical { flex-direction: column; align-items: flex-start; gap: 8px; }
+
+/* 文本与输入 */
+.st-label { font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 12px; }
+.st-label i { width: 20px; height: 20px; color: #8E8E93; }
+.st-value { font-size: 15px; color: #8E8E93; display: flex; align-items: center; gap: 8px; }
+.st-value i { width: 18px; height: 18px; }
+
+.st-input, .st-textarea, .st-select {
+    width: 100%; border: none; background: #F2F2F7; padding: 12px 14px;
+    border-radius: 10px; font-size: 15px; outline: none; color: #1C1C1E;
+}
+.st-textarea { min-height: 100px; resize: none; }
+.st-input-row { display: flex; width: 100%; gap: 8px; }
+.st-input-row .st-input { flex: 1; }
+.st-btn-small { background: #E5E5EA; border: none; padding: 0 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1C1C1E; cursor: pointer; white-space: nowrap; }
+.st-btn-small.action { background: #1C1C1E; color: #FFF; }
+
+/* iOS 风格开关 */
+.st-toggle {
+    appearance: none; width: 50px; height: 30px; border-radius: 30px; background: #E5E5EA; outline: none; cursor: pointer; position: relative; transition: background 0.3s;
+}
+.st-toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 26px; height: 26px; background: #FFF; border-radius: 50%; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.st-toggle:checked { background: #1C1C1E; }
+.st-toggle:checked::after { transform: translateX(20px); }
+
+/* 滑块 */
+.st-slider { width: 100%; appearance: none; height: 4px; border-radius: 4px; background: #E5E5EA; outline: none; margin: 10px 0; }
+.st-slider::-webkit-slider-thumb { appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #FFF; box-shadow: 0 2px 6px rgba(0,0,0,0.15); cursor: pointer; border: 0.5px solid rgba(0,0,0,0.05); }
+
+/* 头像预览 */
+.st-avatar-preview { width: 64px; height: 64px; border-radius: 50%; background: #E5E5EA; background-size: cover; background-position: center; flex-shrink: 0; }
+
+/* 内存图表 */
+.mem-chart-container { display: flex; justify-content: center; margin: 30px 0; }
+.mem-chart {
+    width: 180px; height: 180px; border-radius: 50%;
+    background: conic-gradient(#1c1c1e 0% 25%, #8e8e93 25% 45%, #c7c7cc 45% 70%, #e5e5ea 70% 100%);
+    display: flex; justify-content: center; align-items: center; position: relative;
+}
+.mem-chart-inner {
+    width: 140px; height: 140px; border-radius: 50%; background: #F4F4F7;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+}
+.mem-total-val { font-size: 24px; font-weight: 700; color: #1C1C1E; }
+.mem-total-label { font-size: 12px; color: #8E8E93; }
+.mem-legend-box { width: 12px; height: 12px; border-radius: 3px; display: inline-block; margin-right: 8px; }
