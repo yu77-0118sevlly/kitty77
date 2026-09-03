@@ -48,7 +48,6 @@ window.ChatViewTemplate = `
             <button class="chat-send-btn" id="chat-send-btn">发送</button>
         </div>
         
-        <!-- 精致防溢出小浮窗菜单 (无图标两排网格) -->
         <div class="chat-context-menu" id="chat-context-menu">
             <div class="ctx-item" id="ctx-btn-quote">引用</div>
             <div class="ctx-item" id="ctx-btn-copy">复制</div>
@@ -58,60 +57,32 @@ window.ChatViewTemplate = `
             <div class="ctx-item" id="ctx-btn-multiselect">多选</div>
         </div>
 
-        <!-- 多选底部操作栏 -->
         <div class="chat-multiselect-bar" id="chat-multiselect-bar" style="display:none;">
             <button class="ms-action-btn" id="ms-btn-delete-all">删除所选</button>
             <button class="ms-action-btn cancel" id="ms-btn-cancel">取消</button>
         </div>
     </div>
 
-    <!-- 3. 设置页面 -->
-    <div class="chat-page" id="chat-page-settings">
+    <!-- 3. 主设置页面 (干净清爽) -->
+    <div class="chat-page" id="chat-page-settings" style="z-index: 20;">
         <header class="chat-header">
             <button class="chat-icon-btn" id="chat-settings-back"><i data-lucide="chevron-left"></i></button>
             <span class="chat-header-title">聊天与气泡美化</span>
             <button id="settings-save-btn" style="font-size:16px; font-weight:600; color:#1C1C1E; background:none; border:none; cursor:pointer; padding:4px;">保存</button>
         </header>
         <div style="flex:1; overflow-y:auto; padding-top:16px; padding-bottom:40px;">
+            
             <div class="settings-list-group">
                 <div class="settings-list-item" id="settings-btn-profile"><span>角色主页</span><i data-lucide="chevron-right"></i></div>
                 <div class="settings-list-item" id="settings-btn-memory"><span>AI 长期记忆</span><i data-lucide="chevron-right"></i></div>
+                <!-- 💥 独立的二级菜单入口：异地模式与感知 -->
+                <div class="settings-list-item" id="settings-btn-advanced"><span>异地模式与翻译设置</span><i data-lucide="chevron-right"></i></div>
             </div>
 
             <div style="padding: 0 16px 8px 24px; font-size:12px; color:#8E8E93;">聊天常规设置 (置顶与免打扰)</div>
             <div class="settings-list-group">
                 <div class="settings-list-item"><span>置顶聊天</span><label class="ios-switch"><input type="checkbox" id="chat-pinned-toggle"><span class="ios-slider"></span></label></div>
                 <div class="settings-list-item"><span>消息免打扰</span><label class="ios-switch"><input type="checkbox" id="chat-mute-toggle"><span class="ios-slider"></span></label></div>
-            </div>
-
-            <div style="padding: 0 16px 8px 24px; font-size:12px; color:#8E8E93;">异地模式与时间感知 (同步当地天气)</div>
-            <div class="settings-list-group">
-                <div class="settings-list-item"><span>我的时区</span>
-                    <select id="user-timezone-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
-                        <option value="Asia/Shanghai">北京时间 (中国)</option>
-                        <option value="Asia/Tokyo">东京时间 (日本)</option>
-                        <option value="America/New_York">纽约时间 (美东)</option>
-                        <option value="Europe/London">伦敦时间 (英国)</option>
-                    </select>
-                </div>
-                <div class="settings-list-item"><span>TA 的时区</span>
-                    <select id="ai-timezone-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
-                        <option value="Asia/Shanghai">北京时间 (中国)</option>
-                        <option value="Asia/Tokyo">东京时间 (日本)</option>
-                        <option value="America/New_York">纽约时间 (美东)</option>
-                        <option value="Europe/London">伦敦时间 (英国)</option>
-                    </select>
-                </div>
-                <div class="settings-list-item"><span>TA 的语言</span>
-                    <select id="ai-language-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
-                        <option value="default">默认 (中文)</option>
-                        <option value="English">英语</option>
-                        <option value="Japanese">日语</option>
-                        <option value="Korean">韩语</option>
-                        <option value="French">法语</option>
-                    </select>
-                </div>
-                <div class="settings-list-item"><span>自动翻译</span><label class="ios-switch"><input type="checkbox" id="auto-translate-toggle"><span class="ios-slider"></span></label></div>
             </div>
 
             <div style="padding: 0 16px 8px 24px; font-size:12px; color:#8E8E93;">顶部双头像与浪漫签名自定义</div>
@@ -148,7 +119,55 @@ window.ChatViewTemplate = `
             </div>
             <div class="settings-list-group"><div class="settings-list-item danger" id="settings-btn-clear">清空聊天记录</div></div>
         </div>
-        <input type="file" id="couple-avatar-uploader" accept="image/*" style="display:none;">
-        <input type="file" id="chat-bg-uploader" accept="image/*" style="display:none;">
     </div>
+
+    <!-- 💥 4. 独立的二级设置页：异地模式与多语言翻译 -->
+    <div class="chat-page" id="chat-page-advanced-settings" style="z-index: 30;">
+        <header class="chat-header">
+            <button class="chat-icon-btn" id="advanced-settings-back"><i data-lucide="chevron-left"></i></button>
+            <span class="chat-header-title">异地模式与感知</span>
+            <div style="width:32px;"></div>
+        </header>
+        <div style="flex:1; overflow-y:auto; padding-top:16px; padding-bottom:40px;">
+            <div style="padding: 0 16px 8px 24px; font-size:12px; color:#8E8E93;">异地模式与时间感知 (同步当地天气)</div>
+            <div class="settings-list-group">
+                <div class="settings-list-item"><span>我的时区</span>
+                    <select id="user-timezone-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
+                        <option value="Asia/Shanghai">北京时间 (中国)</option>
+                        <option value="Asia/Tokyo">东京时间 (日本)</option>
+                        <option value="America/New_York">纽约时间 (美东)</option>
+                        <option value="Europe/London">伦敦时间 (英国)</option>
+                    </select>
+                </div>
+                <div class="settings-list-item"><span>TA 的时区</span>
+                    <select id="ai-timezone-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
+                        <option value="Asia/Shanghai">北京时间 (中国)</option>
+                        <option value="Asia/Tokyo">东京时间 (日本)</option>
+                        <option value="America/New_York">纽约时间 (美东)</option>
+                        <option value="Europe/London">伦敦时间 (英国)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="padding: 0 16px 8px 24px; font-size:12px; color:#8E8E93;">跨语言与翻译功能</div>
+            <div class="settings-list-group">
+                <div class="settings-list-item"><span>TA 的语言</span>
+                    <select id="ai-language-select" style="border:none; background:transparent; font-size:14px; color:#8E8E93; outline:none; text-align:right;">
+                        <option value="default">默认 (中文)</option>
+                        <option value="English">英语 (English)</option>
+                        <option value="Japanese">日语 (日本語)</option>
+                        <option value="Korean">韩语 (한국어)</option>
+                        <option value="French">法语 (Français)</option>
+                    </select>
+                </div>
+                <div class="settings-list-item"><span>自动翻译</span><label class="ios-switch"><input type="checkbox" id="auto-translate-toggle"><span class="ios-slider"></span></label></div>
+            </div>
+            <div style="padding: 8px 24px; font-size:11px; color:#8E8E93; line-height:1.4;">
+                配置修改后，请在返回主设置页面并点击「保存」以生效。未开启自动翻译时，点击气泡即可触发云端实时翻译。
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="couple-avatar-uploader" accept="image/*" style="display:none;">
+    <input type="file" id="chat-bg-uploader" accept="image/*" style="display:none;">
 `;
