@@ -75,7 +75,7 @@
                     <div class="app-item"><div class="app-icon"><i data-lucide="music"></i></div><span>音乐</span></div>
                     <div class="app-item" onclick="window.openApp('calendar')"><div class="app-icon"><i data-lucide="calendar"></i></div><span>日历</span></div>
                     <div class="app-item" onclick="window.openApp('settings')"><div class="app-icon"><i data-lucide="settings"></i></div><span>设置</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="heart"></i></div><span>情侣空间</span></div>
+                    <div class="app-item" onclick="window.openApp('heart')"><div class="app-icon"><i data-lucide="heart"></i></div><span>情侣空间</span></div>
                 </div>
             </div>
 
@@ -176,150 +176,40 @@
     <section id="contacts-app" class="app-view" style="display: none;"></section>
     <section id="memory-app" class="app-view" style="display: none;"></section>
     
-    <!-- 💥 日历模块独立容器 (自带行内强制隐藏属性，彻底杜绝弹窗外露) -->
+    <!-- 💥 纯净日历模块容器 -->
     <section id="calendar-app" class="app-view" style="display: none;">
-        <div class="calendar-app active" id="calendar-app-main">
+        <div class="calendar-app" id="calendar-app-main">
             <!-- 顶部导航 -->
             <header class="cal-header">
                 <div class="cal-header-left">
-                    <button class="cal-icon-btn" id="cal-back-btn" onclick="window.closeApp('calendar')"><i data-lucide="chevron-left"></i></button>
+                    <button class="cal-icon-btn" onclick="window.closeCalendar()">◀ 返回</button>
                     <span class="cal-title" id="cal-header-month-title">2026年9月</span>
-                </div>
-                <div class="cal-header-right">
-                    <button class="cal-icon-btn" id="cal-search-btn" title="搜索日程"><i data-lucide="search"></i></button>
-                    <button class="cal-icon-btn" id="cal-todo-btn" title="待办事项"><i data-lucide="check-square"></i></button>
-                    <button class="cal-icon-btn" id="cal-add-btn" title="新建日程"><i data-lucide="plus"></i></button>
                 </div>
             </header>
 
-            <!-- 工具栏：视图切换与日期导航 -->
+            <!-- 工具栏：导航 -->
             <div class="cal-toolbar">
-                <div class="cal-view-switch">
-                    <button class="cal-view-btn active" data-view="month">月</button>
-                    <button class="cal-view-btn" data-view="week">周</button>
-                    <button class="cal-view-btn" data-view="day">日</button>
-                </div>
+                <button class="cal-today-btn" id="cal-today-jump">今天</button>
                 <div class="cal-nav-group">
-                    <button class="cal-today-btn" id="cal-today-jump">今天</button>
-                    <button class="cal-icon-btn" id="cal-prev-btn"><i data-lucide="chevron-left"></i></button>
-                    <button class="cal-icon-btn" id="cal-next-btn"><i data-lucide="chevron-right"></i></button>
+                    <button class="cal-today-btn" id="cal-prev-btn">◀ 上月</button>
+                    <button class="cal-today-btn" id="cal-next-btn">下月 ▶</button>
                 </div>
             </div>
 
             <!-- 主体渲染滚动区 -->
-            <div class="cal-body" id="cal-main-scroll-area">
-                <!-- 1. 月视图默认容器 -->
-                <div id="cal-view-month-container" class="cal-month-view">
+            <div class="cal-body">
+                <!-- 月视图网格容器 -->
+                <div class="cal-month-view">
                     <div class="cal-weekdays-header">
                         <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
                     </div>
                     <div class="cal-days-grid" id="cal-days-grid"></div>
                 </div>
 
-                <!-- 2. 周视图容器 -->
-                <div id="cal-view-week-container" class="cal-week-view" style="display:none;"></div>
-
-                <!-- 3. 日视图容器 -->
-                <div id="cal-view-day-container" class="cal-day-timeline-view" style="display:none;"></div>
-
-                <!-- 当天日程与待办展示区 -->
+                <!-- 下方日期详情查看区 -->
                 <div class="cal-agenda-section">
-                    <div class="cal-agenda-header">
-                        <span id="cal-selected-date-label">2026年9月4日 星期五</span>
-                        <button class="cal-icon-btn" id="cal-add-quick-btn" style="font-size: 14px; gap: 4px;"><i data-lucide="plus" style="width:14px;height:14px;"></i> 新建</button>
-                    </div>
-                    <div class="cal-agenda-list" id="cal-agenda-list-area"></div>
-                </div>
-            </div>
-
-            <!-- 新建/编辑日程弹窗 (加了 style="display: none;" 彻底隐形) -->
-            <div class="cal-modal" id="cal-event-modal" style="display: none;">
-                <div class="cal-modal-box">
-                    <div class="cal-modal-header">
-                        <span class="cal-modal-title" id="cal-modal-title">新建日程</span>
-                        <button class="cal-icon-btn" id="cal-modal-close-btn"><i data-lucide="x"></i></button>
-                    </div>
-                    <input type="hidden" id="cal-edit-event-id">
-                    <div class="cal-form-group">
-                        <label class="cal-form-label">标题</label>
-                        <input type="text" class="cal-input" id="cal-form-title" placeholder="输入日程标题...">
-                    </div>
-                    <div style="display: flex; gap: 12px;">
-                        <div class="cal-form-group" style="flex:1;">
-                            <label class="cal-form-label">日期</label>
-                            <input type="date" class="cal-input" id="cal-form-date">
-                        </div>
-                        <div class="cal-form-group" style="flex:1;">
-                            <label class="cal-form-label">分类</label>
-                            <select class="cal-select" id="cal-form-category">
-                                <option value="工作">工作</option>
-                                <option value="学习">学习</option>
-                                <option value="生活">生活</option>
-                                <option value="约会" selected>约会</option>
-                                <option value="旅行">旅行</option>
-                                <option value="生日">生日</option>
-                                <option value="纪念日">纪念日</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 12px;">
-                        <div class="cal-form-group" style="flex:1;">
-                            <label class="cal-form-label">开始时间</label>
-                            <input type="time" class="cal-input" id="cal-form-start" value="09:00">
-                        </div>
-                        <div class="cal-form-group" style="flex:1;">
-                            <label class="cal-form-label">结束时间</label>
-                            <input type="time" class="cal-input" id="cal-form-end" value="10:00">
-                        </div>
-                    </div>
-                    <div class="cal-form-group">
-                        <label class="cal-form-label">提醒</label>
-                        <select class="cal-select" id="cal-form-reminder">
-                            <option value="0">不提醒</option>
-                            <option value="start">事件开始时</option>
-                            <option value="5" selected>5 分钟前</option>
-                            <option value="10">10 分钟前</option>
-                            <option value="30">30 分钟前</option>
-                            <option value="60">1 小时前</option>
-                            <option value="1440">1 天前</option>
-                        </select>
-                    </div>
-                    <div class="cal-form-group">
-                        <label class="cal-form-label">地点与备注</label>
-                        <input type="text" class="cal-input" id="cal-form-location" placeholder="地点 (可选)" style="margin-bottom:6px;">
-                        <textarea class="cal-textarea" id="cal-form-note" rows="2" placeholder="备注信息..."></textarea>
-                    </div>
-                    <div style="display: flex; gap: 12px; margin-top: 8px;">
-                        <button class="cal-btn-primary" id="cal-form-save-btn" style="flex:1;">保存日程</button>
-                        <button class="cal-btn-primary" id="cal-form-delete-btn" style="flex:0.4; background:#FF3B30; display:none;">删除</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Todo 待办事项管理弹窗 (加了 style="display: none;" 彻底隐形) -->
-            <div class="cal-modal" id="cal-todo-modal" style="display: none;">
-                <div class="cal-modal-box" style="height: 70vh;">
-                    <div class="cal-modal-header">
-                        <span class="cal-modal-title">待办事项 (Todo)</span>
-                        <button class="cal-icon-btn" id="cal-todo-close-btn"><i data-lucide="x"></i></button>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" class="cal-input" id="cal-new-todo-input" placeholder="添加新待办..." style="flex:1;">
-                        <button class="cal-btn-primary" id="cal-add-todo-btn" style="padding: 10px 16px;">添加</button>
-                    </div>
-                    <div class="cal-agenda-list" id="cal-todo-list-container" style="flex:1; overflow-y:auto;"></div>
-                </div>
-            </div>
-
-            <!-- 搜索弹窗 (加了 style="display: none;" 彻底隐形) -->
-            <div class="cal-modal" id="cal-search-modal" style="display: none;">
-                <div class="cal-modal-box" style="height: 70vh;">
-                    <div class="cal-modal-header">
-                        <span class="cal-modal-title">搜索日程</span>
-                        <button class="cal-icon-btn" id="cal-search-close-btn"><i data-lucide="x"></i></button>
-                    </div>
-                    <input type="text" class="cal-input" id="cal-search-input" placeholder="输入日程标题、地点或备注关键字...">
-                    <div class="cal-agenda-list" id="cal-search-results-container" style="flex:1; overflow-y:auto;"></div>
+                    <div class="cal-agenda-header" id="cal-selected-date-label">2026年9月4日 星期五</div>
+                    <div class="cal-agenda-box" id="cal-agenda-box">暂无安排</div>
                 </div>
             </div>
         </div>
