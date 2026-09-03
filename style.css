@@ -306,3 +306,30 @@ html, body {
 .listen-artist { font-size: 12px; font-weight: 500; color: #8E8E93; margin-bottom: 6px; }
 .listen-bottom { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; color: #1C1C1E; }
 .listen-bottom span:first-child { color: #8E8E93; }
+/* ==========================================
+   强制下移 Dock 栏与分页圆点 (贴近底部黑线)
+========================================== */
+#dock {
+    position: fixed !important;
+    bottom: env(safe-area-inset-bottom, 12px) !important; /* 紧贴底部黑线 */
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 100;
+}
+
+.dock-container {
+    margin-bottom: 0 !important; /* 清除原本多余的底部外边距 */
+}
+
+/* 同步下移分页圆点，避免悬浮在半空中遮挡 App */
+.pagination-dots {
+    position: fixed !important;
+    bottom: calc(env(safe-area-inset-bottom, 12px) + 80px) !important; 
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 99;
+}
