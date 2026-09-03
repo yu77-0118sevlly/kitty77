@@ -1,0 +1,156 @@
+/* ==========================================
+   Chat App 专属样式隔离
+========================================== */
+#chat-app {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #FFFFFF; /* 纯白背景 */
+    color: #1C1C1E; /* 纯正深灰/黑 */
+    z-index: 9999;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden; /* 防止外层滚动 */
+}
+
+/* 统一小工具和容器规则 */
+.flex-center { display: flex; justify-content: center; align-items: center; }
+#chat-app i { stroke-width: 1.5; }
+
+/* 模拟系统的返回按钮 */
+.chat-system-close {
+    position: fixed; 
+    top: calc(env(safe-area-inset-top, 44px) + 8px); 
+    left: 16px; 
+    width: 32px; height: 32px; 
+    border-radius: 50%;
+    background: rgba(242, 242, 247, 0.8);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 10001; cursor: pointer;
+}
+.chat-system-close i { width: 20px; height: 20px; color: #1C1C1E; }
+
+/* 每个 Tab 页面均满屏并支持独立滚动 */
+.chat-page {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding-bottom: 90px; /* 留出底部导航栏的空间 */
+    opacity: 0; pointer-events: none; visibility: hidden;
+    transition: opacity 0.2s ease;
+}
+.chat-page.active {
+    opacity: 1; pointer-events: auto; visibility: visible;
+}
+
+/* 通用 Header */
+.chat-header {
+    padding: calc(env(safe-area-inset-top, 44px) + 40px) 24px 16px 24px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+}
+.chat-title {
+    margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px; color: #1C1C1E;
+}
+.chat-icon-btn {
+    background: none; border: none; padding: 0;
+    color: #1C1C1E; cursor: pointer;
+}
+.chat-icon-btn i { width: 26px; height: 26px; }
+
+/* 通用搜索框 */
+.chat-search-wrap { padding: 0 24px 16px 24px; }
+.chat-search {
+    background: #F7F7F9; border-radius: 10px; padding: 10px 12px;
+    display: flex; align-items: center; gap: 8px; color: #8E8E93;
+}
+.chat-search i { width: 18px; height: 18px; }
+.chat-search span { font-size: 15px; }
+
+/* 通用列表行 (通栏设计) */
+.chat-list { display: flex; flex-direction: column; }
+.chat-list-item {
+    display: flex; align-items: center; padding: 12px 24px;
+}
+.chat-item-content {
+    flex: 1; margin-left: 16px;
+    padding-bottom: 12px; border-bottom: 0.5px solid #F2F2F7; /* 极简发丝线 */
+}
+.chat-list-item:last-child .chat-item-content { border-bottom: none; }
+
+/* ================= 1. Chats ================= */
+.chat-avatar { width: 48px; height: 48px; border-radius: 14px; background: #F2F2F7; flex-shrink: 0; }
+.chat-item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.chat-name { font-size: 16px; font-weight: 600; color: #1C1C1E; }
+.chat-time { font-size: 13px; color: #8E8E93; font-weight: 500; }
+.chat-item-bottom { display: flex; }
+.chat-msg { font-size: 15px; color: #8E8E93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+
+/* ================= 2. Contacts ================= */
+.chat-avatar-small { width: 40px; height: 40px; border-radius: 12px; background: #F2F2F7; flex-shrink: 0; color: #1C1C1E; }
+.chat-avatar-small i { width: 20px; height: 20px; }
+.chat-contacts-special { margin-bottom: 16px; }
+.chat-contacts-special .chat-item-content { padding-bottom: 0; border-bottom: none; height: 40px; display: flex; align-items: center; }
+.chat-contacts-list .chat-item-content { padding-bottom: 0; border-bottom: none; height: 40px; display: flex; align-items: center; }
+.chat-letter-divider { padding: 16px 24px 8px 24px; font-size: 13px; font-weight: 700; color: #1C1C1E; }
+
+/* 右侧极小索引栏 */
+.chat-index-bar {
+    position: fixed; right: 8px; top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.chat-index-bar span { font-size: 10px; font-weight: 600; color: #8E8E93; }
+
+/* ================= 3. Moments ================= */
+.chat-moments-cover { height: 260px; background: #F7F7F9; position: relative; margin-bottom: 40px; }
+.chat-moments-avatar {
+    position: absolute; right: 24px; bottom: -20px;
+    width: 64px; height: 64px; border-radius: 16px; background: #E5E5EA;
+    border: 3px solid #FFFFFF;
+}
+.chat-moments-feed { display: flex; flex-direction: column; }
+.chat-feed-item { display: flex; padding: 24px; border-bottom: 0.5px solid #F2F2F7; }
+.chat-feed-avatar { width: 44px; height: 44px; border-radius: 12px; background: #F2F2F7; flex-shrink: 0; }
+.chat-feed-content { flex: 1; margin-left: 16px; }
+.chat-feed-name { font-size: 16px; font-weight: 600; color: #1C1C1E; margin-bottom: 8px; }
+.chat-feed-text { font-size: 15px; color: #1C1C1E; line-height: 1.5; margin-bottom: 12px; }
+.chat-feed-images { display: flex; gap: 8px; margin-bottom: 12px; }
+.chat-feed-img { width: 100px; height: 100px; background: #F2F2F7; border-radius: 8px; }
+.chat-feed-footer { display: flex; justify-content: space-between; align-items: center; }
+.chat-feed-time { font-size: 13px; color: #8E8E93; }
+.chat-feed-actions { display: flex; gap: 16px; color: #1C1C1E; }
+.chat-feed-actions i { width: 20px; height: 20px; }
+
+/* ================= 4. Me ================= */
+.chat-me-header { padding: calc(env(safe-area-inset-top, 44px) + 60px) 24px 40px 24px; display: flex; justify-content: space-between; align-items: center; }
+.chat-me-info { display: flex; align-items: center; gap: 20px; }
+.chat-me-avatar { width: 72px; height: 72px; border-radius: 20px; background: #F2F2F7; }
+.chat-me-text { display: flex; flex-direction: column; gap: 4px; }
+.chat-me-name { margin: 0; font-size: 24px; font-weight: 700; color: #1C1C1E; }
+.chat-me-id { font-size: 14px; color: #8E8E93; }
+.chat-me-qr { width: 24px; height: 24px; color: #1C1C1E; }
+
+.chat-me-menu { display: flex; flex-direction: column; padding: 0 24px; }
+.chat-menu-item {
+    display: flex; align-items: center; gap: 16px; padding: 18px 0;
+    border-bottom: 0.5px solid #F2F2F7; cursor: pointer;
+}
+.chat-menu-item i { width: 22px; height: 22px; color: #1C1C1E; }
+.chat-menu-item span { font-size: 16px; font-weight: 500; color: #1C1C1E; }
+
+/* ================= 底部导航栏 ================= */
+.chat-bottom-bar {
+    position: fixed; bottom: 0; left: 0; width: 100%;
+    height: calc(env(safe-area-inset-bottom, 34px) + 56px);
+    padding-bottom: env(safe-area-inset-bottom, 34px);
+    background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-top: 0.5px solid rgba(0,0,0,0.05); /* 去掉浓重的阴影，使用极淡的线 */
+    display: flex; justify-content: space-around; align-items: center;
+    z-index: 10000;
+}
+.chat-nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: #C7C7CC; /* 默认浅灰 */
+    cursor: pointer; transition: color 0.2s;
+}
+.chat-nav-item i { width: 24px; height: 24px; }
+.chat-nav-item span { font-size: 10px; font-weight: 600; }
+.chat-nav-item.active {
+    color: #1C1C1E; /* 选中纯黑，无跳跃动画 */
+}
