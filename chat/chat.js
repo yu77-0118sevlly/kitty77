@@ -2,7 +2,6 @@
     const container = document.getElementById('chat-app');
     if (!container) return;
 
-    // 1. 初始化 DOM
     container.innerHTML = `
         <div class="chat-page root active" id="chat-page-list">
             <header class="chat-header">
@@ -25,7 +24,6 @@
         </div>
 
         <div class="chat-page" id="chat-page-detail">
-            <!-- 💥 左上角带头像 + 备注名 + 下方个性签名导航栏 -->
             <header class="chat-header">
                 <div class="chat-header-left" id="chat-back-to-list">
                     <button class="chat-icon-btn" style="padding:0;"><i data-lucide="chevron-left"></i></button>
@@ -173,7 +171,6 @@
         document.getElementById('chat-char-name').textContent = roleInfo.name;
         document.getElementById('chat-status-text').textContent = roleInfo.sub;
         
-        // 渲染左上角小头像
         const headerAv = document.getElementById('header-ai-avatar');
         if(roleInfo.avatar) { headerAv.style.backgroundImage = `url(${roleInfo.avatar})`; headerAv.innerHTML = ''; }
         else { headerAv.style.backgroundImage = ''; headerAv.innerHTML = '<i data-lucide="bot" style="width:18px;height:18px;"></i>'; lucide.createIcons({ root: headerAv }); }
@@ -198,7 +195,7 @@
     const scrollToBottom = () => { setTimeout(() => { msgList.scrollTop = msgList.scrollHeight; }, 50); };
 
     // ==========================================
-    // 💥 完美渲染：双头像紧贴 + 左上角头像导航 + 气泡下时间戳
+    // 💥 完美渲染：双头像无爱心紧贴 + 气泡下时间戳 + 灰白色细气泡
     // ==========================================
     const renderMessages = () => {
         if(!currentChatId) return; 
@@ -208,7 +205,7 @@
         const roleInfo = getCurrentRoleInfo();
         const coupleConf = getCoupleConfig();
 
-        // 1. 顶部双头像横幅 (去掉爱心，完美紧贴)
+        // 顶部双头像：去掉爱心，紧密挨在一起
         const bannerEl = document.createElement('div');
         bannerEl.className = 'chat-couple-banner';
         
@@ -252,7 +249,7 @@
             col.className = 'bubble-column';
 
             const bubble = document.createElement('div');
-            bubble.className = `chat-bubble ${isUser ? 'user' : 'ai'}`;
+            bubble.className = `chat-bubble`; // 统一为灰白色
             bubble.innerHTML = msg.content.replace(/\n/g, '<br>');
 
             const timeSub = document.createElement('div');
