@@ -1,3 +1,6 @@
+// ==========================================
+// 📱 WUYO 系统级交互：App 打开与模块动态加载
+// ==========================================
 window.openApp = (appId) => {
     const homeScreen = document.getElementById('home-screen');
     if (homeScreen) homeScreen.style.display = 'none';
@@ -5,29 +8,39 @@ window.openApp = (appId) => {
     const appContainer = document.getElementById(`${appId}-app`);
     if (appContainer) appContainer.style.display = 'block';
 
+    // 1. 加载美化模块
     if (appId === 'beautify' && !window.beautifyLoaded) {
         const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'beautify/beautify.css'; document.head.appendChild(link);
         const script = document.createElement('script'); script.src = 'beautify/beautify.js'; document.body.appendChild(script);
         window.beautifyLoaded = true;
     }
 
+    // 2. 加载聊天模块
     if (appId === 'chat' && !window.chatLoaded) {
         const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'chat/chat.css'; document.head.appendChild(link);
         const script = document.createElement('script'); script.src = 'chat/chat.js'; document.body.appendChild(script);
         window.chatLoaded = true;
     }
 
+    // 3. 加载设置模块
     if (appId === 'settings' && !window.settingsLoaded) {
         const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'settings/settings.css'; document.head.appendChild(link);
         const script = document.createElement('script'); script.src = 'settings/settings.js'; document.body.appendChild(script);
         window.settingsLoaded = true;
     }
 
-    // 🟢 动态加载世界书模块 (这里已经帮你加好了！)
+    // 4. 加载世界书模块
     if (appId === 'worldbook' && !window.worldbookLoaded) {
         const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'worldbook/worldbook.css'; document.head.appendChild(link);
         const script = document.createElement('script'); script.src = 'worldbook/worldbook.js'; document.body.appendChild(script);
         window.worldbookLoaded = true;
+    }
+
+    // 5. 加载通讯录多角色模块
+    if (appId === 'contacts' && !window.contactsLoaded) {
+        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'contacts/contacts.css'; document.head.appendChild(link);
+        const script = document.createElement('script'); script.src = 'contacts/contacts.js'; document.body.appendChild(script);
+        window.contactsLoaded = true;
     }
 };
 
@@ -38,12 +51,16 @@ window.closeApp = (appId) => {
     if (homeScreen) homeScreen.style.display = 'flex';
 };
 
+// ==========================================
+// 🎨 WUYO 美化数据同步引擎
+// ==========================================
 window.applyConfig = () => {
     const configStr = localStorage.getItem('wuyo_config');
     if (!configStr) return;
     const config = JSON.parse(configStr);
     const root = document.documentElement;
 
+    // 总体视觉同步
     if (config.style) {
         if (config.style.bgImage) {
             document.body.style.backgroundImage = `url(${config.style.bgImage})`;
@@ -55,6 +72,7 @@ window.applyConfig = () => {
         if (config.style.cardOpacity) root.style.setProperty('--glass-bg', `rgba(255, 255, 255, ${config.style.cardOpacity / 100})`);
     }
 
+    // 文字与 AI 头像同步
     if (config.texts) {
         const brandEl = document.querySelector('.brand-name'); if(brandEl && config.texts.brand) brandEl.textContent = config.texts.brand;
         const aiTitleEl = document.querySelector('.ai-info h2'); if(aiTitleEl && config.texts.aiTitle) aiTitleEl.textContent = config.texts.aiTitle;
@@ -70,12 +88,14 @@ window.applyConfig = () => {
         }
     }
 
+    // 右上角个人资料同步
     if (config.profile) {
         const nicknameEl = document.getElementById('user-nickname'); if (nicknameEl && config.profile.nickname) nicknameEl.textContent = config.profile.nickname;
         const profilePic = document.getElementById('profile-pic');
         if(profilePic && config.profile.avatar) { profilePic.style.backgroundImage = `url(${config.profile.avatar})`; profilePic.classList.add('has-image'); }
     }
 
+    // 桌面小组件同步
     if (config.widgets) {
         const memoryTag = document.querySelector('.polaroid-tag'); const memoryDesc = document.querySelector('.polaroid-desc'); const memoryPic = document.getElementById('memory-pic');
         if(memoryTag && config.widgets.memory) memoryTag.textContent = config.widgets.memory.title; 
@@ -107,6 +127,7 @@ window.applyConfig = () => {
         }
     }
 
+    // App 自定义图标同步
     if (config.apps) {
         document.querySelectorAll('.app-item span').forEach(span => {
             const appName = span.textContent;
@@ -121,10 +142,14 @@ window.applyConfig = () => {
     }
 };
 
+// ==========================================
+// 🚀 DOM 加载完成后初始化核心功能
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     window.applyConfig();
 
+    // 更新时钟与日期
     const updateDateTime = () => {
         const now = new Date(); const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
         const dayEl = document.getElementById('current-day'); if (dayEl) dayEl.textContent = days[now.getDay()];
@@ -136,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     updateDateTime(); setInterval(updateDateTime, 60000); 
 
+    // 桌面滑动与指示器联动
     const swiper = document.getElementById('desktop-swiper');
     const dots = document.querySelectorAll('.pagination-dots .dot');
     if (swiper) {
@@ -145,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 桌面组件点击上传图片
     const imageUploader = document.getElementById('image-uploader');
     let currentUploadTarget = null;
     if (imageUploader) {
