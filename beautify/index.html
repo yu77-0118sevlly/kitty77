@@ -3,13 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- 加上这三行，保证美化页面也是全屏，不跳回Safari浏览器 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
     <title>无忧机 · 美化</title>
     <link rel="stylesheet" href="beautify.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <header class="nav-bar">
-        <button class="icon-btn" onclick="window.history.back()"><i data-lucide="chevron-left"></i></button>
+        <button class="icon-btn" onclick="window.location.href='../index.html'"><i data-lucide="chevron-left"></i></button>
         <span class="nav-title">无忧机美化</span>
         <button class="text-btn" id="save-btn">保存</button>
     </header>
