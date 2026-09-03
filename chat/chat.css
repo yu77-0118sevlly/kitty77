@@ -1,5 +1,5 @@
 /* ==========================================
-   Chat App - 终极无BUG纯黑白灰极简样式
+   Chat App - 绝对稳定纯黑白灰极简样式
 ========================================== */
 #chat-app { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #F4F4F7; color: #1C1C1E; z-index: 9999; display: flex; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; -webkit-tap-highlight-color: transparent; }
 .chat-container { display: flex; flex-direction: column; height: 100%; position: relative; }
@@ -89,9 +89,9 @@
 .quote-bar-content { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
 .quote-close-btn { background: none; border: none; cursor: pointer; color: #8E8E93; display: flex; align-items: center; padding: 2px; }
 
-/* 💥 修复：必须使用 fixed 定位，绝对不能被屏幕边缘切掉 */
+/* 浮窗菜单 */
 .chat-context-menu { 
-    position: fixed; 
+    position: absolute; 
     background: #FFFFFF; 
     border: 0.5px solid rgba(0,0,0,0.08);
     border-radius: 12px; 
@@ -105,7 +105,7 @@
     pointer-events: none; 
     transition: opacity 0.15s, transform 0.15s; 
     transform: translateY(-4px) scale(0.95); 
-    width: 175px; /* 强制固定宽度 */
+    width: 170px;
 }
 .chat-context-menu.show { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
 .ctx-item { 
@@ -121,9 +121,24 @@
 }
 .ctx-item:active { background: #E5E5EA; }
 
-/* 多选底部操作栏 */
-.chat-multiselect-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: rgba(244,244,247,0.95); backdrop-filter: blur(20px); border-top: 0.5px solid rgba(0,0,0,0.1); display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: env(safe-area-inset-bottom, 20px); }
-.ms-action-btn { background: #FF3B30; color: #FFF; border: none; padding: 8px 24px; border-radius: 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
+/* 💥 完美修复的多选底部栏：强制悬浮，彻底解决切边问题 */
+.chat-multiselect-bar { 
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    right: 0; 
+    height: 60px; 
+    background: rgba(244,244,247,0.95); 
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-top: 0.5px solid rgba(0,0,0,0.1); 
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    z-index: 10000; 
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+    box-sizing: content-box; 
+}
+.ms-action-btn { background: #FF3B30; color: #FFF; border: none; padding: 10px 32px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; }
 .ms-action-btn.cancel { background: #E5E5EA; color: #1C1C1E; }
 
 /* iOS 开关 */
