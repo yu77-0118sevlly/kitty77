@@ -4,8 +4,10 @@
     --text-dark: #1c1c1e;
     --text-muted: #8e8e93;
     --border-color: rgba(0,0,0,0.05);
-    --blue: #007aff;
-    --red: #ff3b30;
+    
+    /* 去除了原本的蓝红，替换为高级灰黑色系 */
+    --accent-color: #1c1c1e; 
+    --danger-color: #4a4a4c;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, sans-serif; }
 body { margin: 0; background: var(--bg-color); color: var(--text-dark); padding-top: 60px; }
@@ -17,11 +19,11 @@ body { margin: 0; background: var(--bg-color); color: var(--text-dark); padding-
     padding: 0 16px; z-index: 100; border-bottom: 1px solid var(--border-color);
 }
 .nav-title { font-weight: 600; font-size: 17px; }
-.icon-btn, .text-btn { background: none; border: none; font-size: 16px; color: var(--blue); cursor: pointer; }
+.icon-btn, .text-btn { background: none; border: none; font-size: 16px; color: var(--accent-color); cursor: pointer; font-weight: 600; }
 .icon-btn { display: flex; align-items: center; }
 
 .settings-container { padding: 20px 16px 60px 16px; max-width: 500px; margin: 0 auto; }
-.section-title { font-size: 13px; color: var(--text-muted); margin: 24px 0 8px 16px; text-transform: uppercase; }
+.section-title { font-size: 13px; color: var(--text-muted); margin: 24px 0 8px 16px; text-transform: uppercase; font-weight: 600; }
 
 .setting-group {
     background: var(--card-bg); border-radius: 16px; overflow: hidden;
@@ -36,10 +38,10 @@ body { margin: 0; background: var(--bg-color); color: var(--text-dark); padding-
 
 input[type="text"], input[type="date"], textarea {
     width: 100%; border: none; background: #f2f2f7; padding: 10px 12px;
-    border-radius: 8px; font-size: 15px; outline: none;
+    border-radius: 8px; font-size: 15px; outline: none; color: var(--text-dark);
 }
 input[type="color"] { border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; }
-.upload-btn { background: #e5e5ea; border: none; padding: 6px 12px; border-radius: 12px; font-size: 13px; cursor: pointer; }
+.upload-btn { background: #e5e5ea; color: var(--text-dark); border: none; padding: 6px 12px; border-radius: 12px; font-size: 13px; font-weight: 500; cursor: pointer; }
 
 details.widget-details summary {
     padding: 14px 16px; font-weight: 500; cursor: pointer; outline: none;
@@ -50,6 +52,6 @@ details.widget-details summary {
 .avatar-preview { width: 36px; height: 36px; border-radius: 50%; background: #eaeaf0; background-size: cover; }
 .danger-btn {
     width: 100%; padding: 16px; border: none; background: var(--card-bg);
-    color: var(--red); font-size: 16px; font-weight: 500; border-radius: 16px;
+    color: var(--danger-color); font-size: 16px; font-weight: 600; border-radius: 16px;
     margin-top: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.02); cursor: pointer;
 }
