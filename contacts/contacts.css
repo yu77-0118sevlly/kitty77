@@ -12,7 +12,7 @@
 .ct-icon-btn { background: none; border: none; font-size: 22px; color: #1C1C1E; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
 .ct-text-btn { background: none; border: none; font-size: 16px; font-weight: 600; color: #1C1C1E; cursor: pointer; }
 
-/* 💥 统一完美底栏 (高度与 Chat 绝对一致) */
+/* 💥 完美对齐底栏 (与 Chat 高度一模一样) */
 .wechat-bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0;
     height: 54px; padding-bottom: env(safe-area-inset-bottom, 20px);
