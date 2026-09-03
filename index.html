@@ -3,25 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AI 模拟手机</title>
+    
+    <!-- 全屏锁定与添加到桌面 (PWA) 配置 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="无忧机">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#f7f7f9">
+    
+    <title>无忧机</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+    <!-- 顶部状态栏 -->
     <header id="status-bar">
         <div class="time" id="clock">09:41</div>
-        <div class="status-icons">
-            <i data-lucide="bar-chart-2"></i>
-            <i data-lucide="wifi"></i>
-            <i data-lucide="battery-medium"></i>
+        <div class="status-right">
+            <!-- 最右上角的专属名称 -->
+            <span class="brand-name">WU YO</span>
+            <div class="status-icons">
+                <i data-lucide="bar-chart-2"></i>
+                <i data-lucide="wifi"></i>
+                <i data-lucide="battery-medium"></i>
+            </div>
         </div>
     </header>
 
+    <!-- 视图容器 (用于页面切换) -->
     <main id="view-container">
         
+        <!-- 1. 首页视图 -->
         <section id="view-home" class="view active">
             <div class="home-scroll-area">
                 
+                <!-- 顶部日期与用户头像 -->
                 <div class="header-section">
                     <div class="date-display">
                         <span class="day" id="current-day">星期三</span>
@@ -32,6 +48,7 @@
                     </div>
                 </div>
 
+                <!-- 拍立得风格装饰卡片 -->
                 <div class="polaroid-decoration">
                     <div class="polaroid-photo">
                         <i data-lucide="image" class="placeholder-icon"></i>
@@ -39,6 +56,7 @@
                     <div class="polaroid-text">Memory</div>
                 </div>
 
+                <!-- AI 角色信息卡 -->
                 <div class="ai-card">
                     <div class="ai-avatar">
                         <i data-lucide="bot"></i>
@@ -49,6 +67,7 @@
                     </div>
                 </div>
 
+                <!-- App 桌面网格 -->
                 <div class="app-grid">
                     <div class="app-item" data-target="view-chat">
                         <div class="app-icon"><i data-lucide="message-square"></i></div>
@@ -70,6 +89,7 @@
             </div>
         </section>
 
+        <!-- 2. 聊天视图 -->
         <section id="view-chat" class="view">
             <div class="nav-bar">
                 <button class="icon-btn back-btn" data-target="view-home">
@@ -85,6 +105,7 @@
             </div>
         </section>
 
+        <!-- 3. 世界书视图 -->
         <section id="view-worldbook" class="view">
             <div class="nav-bar">
                 <button class="icon-btn back-btn" data-target="view-home">
@@ -94,9 +115,11 @@
                 <button class="icon-btn"><i data-lucide="plus"></i></button>
             </div>
             <div class="page-content">
-                </div>
+                <!-- 预留世界书条目列表 -->
+            </div>
         </section>
 
+        <!-- 4. 设置视图 -->
         <section id="view-settings" class="view">
             <div class="nav-bar">
                 <button class="icon-btn back-btn" data-target="view-home">
@@ -106,9 +129,11 @@
                 <div class="icon-btn-placeholder"></div>
             </div>
             <div class="page-content">
-                </div>
+                <!-- 预留设置选项 -->
+            </div>
         </section>
 
+        <!-- 5. 个性美化视图 -->
         <section id="view-theme" class="view">
             <div class="nav-bar">
                 <button class="icon-btn back-btn" data-target="view-home">
@@ -118,11 +143,13 @@
                 <div class="icon-btn-placeholder"></div>
             </div>
             <div class="page-content">
-                </div>
+                <!-- 预留美化选项 -->
+            </div>
         </section>
 
     </main>
 
+    <!-- 底部半透明 Dock 栏 -->
     <nav id="dock">
         <div class="dock-container">
             <div class="dock-item"><i data-lucide="phone"></i></div>
@@ -132,6 +159,7 @@
         </div>
     </nav>
 
+    <!-- 底部操作条 (Home Indicator) -->
     <div id="home-indicator">
         <div class="indicator-bar" data-target="view-home"></div>
     </div>
