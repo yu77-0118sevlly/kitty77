@@ -1,5 +1,5 @@
 // ==========================================
-// 📱 WUYO 系统级交互：App 打开与模块动态加载
+// 📱 WUYO 系统级交互：App 打开与模块动态加载 (终极防缓存版)
 // ==========================================
 window.openApp = (appId) => {
     const homeScreen = document.getElementById('home-screen');
@@ -8,56 +8,56 @@ window.openApp = (appId) => {
     const appContainer = document.getElementById(`${appId}-app`);
     if (appContainer) appContainer.style.display = 'block';
 
+    // 💥 终极防缓存：每次打开都带上当前时间戳，逼迫浏览器读取最新代码！
+    const bust = '?v=' + Date.now();
+
     // 1. 加载美化模块
     if (appId === 'beautify' && !window.beautifyLoaded) {
-        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'beautify/beautify.css'; document.head.appendChild(link);
-        const script = document.createElement('script'); script.src = 'beautify/beautify.js'; document.body.appendChild(script);
+        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'beautify/beautify.css' + bust; document.head.appendChild(link);
+        const script = document.createElement('script'); script.src = 'beautify/beautify.js' + bust; document.body.appendChild(script);
         window.beautifyLoaded = true;
     }
 
     // 2. 加载聊天模块
     if (appId === 'chat' && !window.chatLoaded) {
-        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'chat/chat.css'; document.head.appendChild(link);
-        const script = document.createElement('script'); script.src = 'chat/chat.js?v=' + Date.now(); document.body.appendChild(script);
-
+        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'chat/chat.css' + bust; document.head.appendChild(link);
+        const script = document.createElement('script'); script.src = 'chat/chat.js' + bust; document.body.appendChild(script);
         window.chatLoaded = true;
     }
 
     // 3. 加载设置模块
     if (appId === 'settings' && !window.settingsLoaded) {
-        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'settings/settings.css'; document.head.appendChild(link);
-        const script = document.createElement('script'); script.src = 'settings/settings.js'; document.body.appendChild(script);
+        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'settings/settings.css' + bust; document.head.appendChild(link);
+        const script = document.createElement('script'); script.src = 'settings/settings.js' + bust; document.body.appendChild(script);
         window.settingsLoaded = true;
     }
 
     // 4. 加载世界书模块
     if (appId === 'worldbook' && !window.worldbookLoaded) {
-        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'worldbook/worldbook.css'; document.head.appendChild(link);
-        const script = document.createElement('script'); script.src = 'worldbook/worldbook.js'; document.body.appendChild(script);
+        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'worldbook/worldbook.css' + bust; document.head.appendChild(link);
+        const script = document.createElement('script'); script.src = 'worldbook/worldbook.js' + bust; document.body.appendChild(script);
         window.worldbookLoaded = true;
     }
 
-    // 5. 加载通讯录多角色模块
+    // 5. 💥 加载通讯录多角色模块 (加入了防缓存！)
     if (appId === 'contacts' && !window.contactsLoaded) {
-        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'contacts/contacts.css'; document.head.appendChild(link);
-        const script = document.createElement('script'); script.src = 'contacts/contacts.js'; document.body.appendChild(script);
+        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'contacts/contacts.css' + bust; document.head.appendChild(link);
+        const script = document.createElement('script'); script.src = 'contacts/contacts.js' + bust; document.body.appendChild(script);
         window.contactsLoaded = true;
     }
 
     // 6. 动态加载记忆模块
     if (appId === 'memory' && !window.memoryLoaded) {
-        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'memory/memory.css'; document.head.appendChild(link);
-        const script = document.createElement('script'); script.src = 'memory/memory.js'; document.body.appendChild(script);
+        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'memory/memory.css' + bust; document.head.appendChild(link);
+        const script = document.createElement('script'); script.src = 'memory/memory.js' + bust; document.body.appendChild(script);
         window.memoryLoaded = true;
     }
 
-    // 7. 💥 纯净版日历模块打开触发
+    // 7. 纯净版日历模块打开触发
     if (appId === 'calendar') {
         const mainAppBox = document.getElementById('calendar-app-main');
         if (mainAppBox) {
-            setTimeout(() => {
-                mainAppBox.classList.add('active');
-            }, 10);
+            setTimeout(() => { mainAppBox.classList.add('active'); }, 10);
         }
         if (window.renderCalendarInstance) {
             window.renderCalendarInstance();
