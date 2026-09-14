@@ -2,11 +2,15 @@
 // 📱 WUYO 系统级交互：App 打开与模块动态加载 (终极防缓存版)
 // ==========================================
 window.openApp = (appId) => {
+    const appContainer = document.getElementById(`${appId}-app`);
+    if (!appContainer) {
+        alert('该功能暂未开放。');
+        return;
+    }
+
     const homeScreen = document.getElementById('home-screen');
     if (homeScreen) homeScreen.style.display = 'none';
-    
-    const appContainer = document.getElementById(`${appId}-app`);
-    if (appContainer) appContainer.style.display = 'block';
+    appContainer.style.display = 'block';
 
     // 💥 终极防缓存：每次打开都带上当前时间戳，逼迫浏览器读取最新代码！
     const bust = '?v=' + Date.now();
@@ -69,7 +73,7 @@ window.closeApp = (appId) => {
     const appContainer = document.getElementById(`${appId}-app`);
     if (appContainer) appContainer.style.display = 'none';
     const homeScreen = document.getElementById('home-screen');
-    if (homeScreen) homeScreen.style.display = 'flex';
+    if (homeScreen) homeScreen.style.display = 'block';
 };
 
 // ==========================================

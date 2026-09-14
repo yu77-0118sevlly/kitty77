@@ -81,7 +81,8 @@
                 <div class="st-group">
                     <div class="st-item vertical no-click">
                         <span class="st-label">API URL</span>
-                        <input type="text" class="st-input" id="api-chat-url" placeholder="https://api.example.com">
+                        <input type="url" class="st-input" id="api-chat-url" placeholder="https://api.example.com 或完整 /v1/chat/completions 地址" autocomplete="url">
+                        <span class="st-field-hint">可填写服务根地址、/v1 地址，或完整的 chat completions 地址。</span>
                     </div>
                     <div class="st-item vertical no-click">
                         <span class="st-label">API Key</span>
@@ -118,7 +119,7 @@
                     <div id="image-api-details" style="display: none; border-top: 0.5px solid #F2F2F7;">
                         <div class="st-item vertical no-click">
                             <span class="st-label">API URL</span>
-                            <input type="text" class="st-input" id="api-img-url" placeholder="https://api.example.com">
+                            <input type="url" class="st-input" id="api-img-url" placeholder="https://api.example.com" autocomplete="url">
                         </div>
                         <div class="st-item vertical no-click">
                             <span class="st-label">API Key</span>
@@ -311,13 +312,22 @@
         document.getElementById('image-api-details').style.display = e.target.checked ? 'block' : 'none';
     });
 
+    const apiEndpoint = (baseUrl, resource) => {
+        const url = baseUrl.trim().replace(/\/+$/, '');
+        if (!url) return '';
+        if (url.endsWith(resource)) return url;
+        const root = url.replace(/\/(?:chat\/completions|models)$/, '');
+        const versionRoot = root.endsWith('/v1') ? root : `${root}/v1`;
+        return `${versionRoot}/${resource}`;
+    };
+
     const pullModels = async (urlStr, keyStr, selectId) => {
         const url = document.getElementById(urlStr).value.trim();
         const key = document.getElementById(keyStr).value.trim();
         if(!url || !key) return alert('失败：请先填写完整的 API URL 和 API Key');
         
         try {
-            const cleanUrl = url.replace(/\/+$/, '') + '/v1/models';
+            const cleanUrl = apiEndpoint(url, 'models');
             const res = await fetch(cleanUrl, { headers: { 'Authorization': `Bearer ${key}` } });
             if(!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
@@ -339,7 +349,7 @@
         if(!url || !key || !model) return alert('测试失败：请确保 URL, Key 和模型均已填写/选择。');
         
         try {
-            const cleanUrl = url.replace(/\/+$/, '') + '/v1/chat/completions';
+            const cleanUrl = apiEndpoint(url, 'chat/completions');
             const res = await fetch(cleanUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
@@ -353,7 +363,7 @@
     });
 
     document.getElementById('save-api').addEventListener('click', () => {
-        apiConfig.chat.url = document.getElementById('api-chat-url').value;
+        apiConfig.chat.url = document.getElementById('api-chat-url').value.trim();
         apiConfig.chat.key = document.getElementById('api-chat-key').value;
         apiConfig.chat.model = document.getElementById('api-chat-model').value;
         apiConfig.chat.temp = document.getElementById('api-chat-temp').value;

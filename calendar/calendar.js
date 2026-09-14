@@ -20,7 +20,7 @@
         window.closeCalendar = function() {
             calApp.style.display = 'none';
             const homeScreen = document.getElementById('home-screen');
-            if (homeScreen) homeScreen.style.display = 'flex';
+            if (homeScreen) homeScreen.style.display = 'block';
         };
 
         const todayBtn = document.getElementById('cal-today-btn');
