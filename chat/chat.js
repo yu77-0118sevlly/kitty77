@@ -463,7 +463,22 @@
             } else {
                 finalPrompt += `- Reply in Simplified Chinese.\n\n`;
             }
+            const internalRules = localStorage.getItem('wuyo_internal_worldbook') || '';
+            const worldbooks = JSON.parse(localStorage.getItem('wuyo_worldbooks') || '[]');
+            const worldbookContext = worldbooks
+                .filter(book => book.active)
+                .flatMap(book => (book.entries || []).filter(entry => entry.active !== false)
+                    .map(entry => `【${book.name}${entry.keyword ? ` · ${entry.keyword}` : ''}】\n${entry.content}`));
+
+            if (internalRules) finalPrompt += `\n\n[CORE CONVERSATION RULES]\n${internalRules}`;
+            if (worldbookContext.length) finalPrompt += `\n\n[ACTIVE WORLDBOOK]\n${worldbookContext.join('\n\n')}`;
             return finalPrompt.trim();
+        };
+
+        const chatEndpoint = (baseUrl) => {
+            const url = baseUrl.trim().replace(/\/+$/, '');
+            if (url.endsWith('/chat/completions')) return url;
+            return `${url.endsWith('/v1') ? url : `${url}/v1`}/chat/completions`;
         };
 
         const triggerAiReply = async () => {
@@ -471,7 +486,7 @@
             const apiConfigStr = localStorage.getItem('wuyo_settings_api');
             if(!apiConfigStr) return alert("请先在设置中配置 API！");
             const apiConfig = JSON.parse(apiConfigStr);
-            if(!apiConfig.chat || !apiConfig.chat.url) return;
+            if(!apiConfig.chat || !apiConfig.chat.url) return alert("请先在设置中填写 API URL。");
 
             const statusText = document.getElementById('chat-status-text');
             if(statusText) statusText.textContent = '对方正在输入...';
@@ -489,12 +504,13 @@
             const apiMessages = [{ role: 'system', content: sysPrompt }, ...historyContext];
 
             try {
-                const cleanUrl = apiConfig.chat.url.replace(/\/+$/, '') + '/v1/chat/completions';
+                const cleanUrl = chatEndpoint(apiConfig.chat.url);
                 const response = await fetch(cleanUrl, {
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiConfig.chat.key}` },
-                    body: JSON.stringify({ model: apiConfig.chat.model, messages: apiMessages, temperature: 0.7, stream: true })
+                    body: JSON.stringify({ model: apiConfig.chat.model, messages: apiMessages, temperature: Number(apiConfig.chat.temp || 0.7), stream: true })
                 });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
                 const reader = response.body.getReader(); 
                 const decoder = new TextDecoder('utf-8'); 
