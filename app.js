@@ -1,6 +1,68 @@
 // ==========================================
-// 📱 WUYO 系统级交互：App 打开与模块动态加载 (终极防缓存版)
+// 📱 WUYO 系统级交互
 // ==========================================
+const defaultHomeApps = [
+    ['worldbook', '世界书', 'book-open'], ['beautify', '美化', 'sparkles'], ['chat', '聊天', 'message-circle'], ['contacts', '联系人', 'users'],
+    ['calendar', '日历', 'calendar-days'], ['settings', '设置', 'settings-2'], ['album', '相册', 'image'], ['notes', '备忘录', 'notebook-pen'],
+    ['music', '音乐', 'music-2'], ['memory', '记忆', 'brain-circuit'], ['heart', '情侣空间', 'heart'], ['weather', '天气', 'cloud-sun'],
+    ['clock', '时钟', 'clock-3'], ['map', '地图', 'map-pin'], ['camera', '相机', 'camera'], ['more', '更多', 'grid-2x2']
+];
+
+const readJson = (key, fallback) => {
+    try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch (error) { return fallback; }
+};
+
+window.renderHomeApps = () => {
+    const grid = document.getElementById('home-app-grid');
+    if (!grid) return;
+    const config = readJson('wuyo_config', {});
+    const appSettings = config.apps || {};
+    const customApps = readJson('wuyo_custom_apps', []);
+    const apps = [...defaultHomeApps.map(([id, name, icon]) => ({ id, name, icon })), ...customApps];
+    const savedOrder = readJson('wuyo_app_order', []);
+    const orderIndex = new Map(savedOrder.map((id, index) => [id, index]));
+    apps.sort((a, b) => (orderIndex.get(a.id) ?? 999) - (orderIndex.get(b.id) ?? 999));
+    grid.replaceChildren();
+    apps.forEach((app) => {
+        const settings = appSettings[app.id] || appSettings[app.name] || {};
+        const item = document.createElement('button');
+        item.type = 'button'; item.className = 'app-item'; item.dataset.appId = app.id; item.draggable = true;
+        const icon = document.createElement('span'); icon.className = 'app-icon';
+        if (settings.img) icon.style.backgroundImage = `url(${settings.img})`;
+        else icon.innerHTML = `<i data-lucide="${settings.icon || app.icon}"></i>`;
+        const label = document.createElement('span'); label.textContent = settings.name || app.name;
+        item.append(icon, label);
+        item.addEventListener('click', () => window.openApp(app.id));
+        grid.appendChild(item);
+    });
+    if (window.lucide) lucide.createIcons({ root: grid });
+    let dragged = null;
+    grid.addEventListener('dragstart', (event) => { dragged = event.target.closest('.app-item'); if (dragged) dragged.classList.add('dragging'); });
+    grid.addEventListener('dragend', () => { if (dragged) dragged.classList.remove('dragging'); dragged = null; });
+    grid.addEventListener('dragover', (event) => { event.preventDefault(); const target = event.target.closest('.app-item'); if (dragged && target && target !== dragged) target.classList.add('drag-over'); });
+    grid.addEventListener('dragleave', (event) => event.target.closest('.app-item')?.classList.remove('drag-over'));
+    grid.addEventListener('drop', (event) => { event.preventDefault(); const target = event.target.closest('.app-item'); if (!dragged || !target || target === dragged) return; target.classList.remove('drag-over'); grid.insertBefore(dragged, target); localStorage.setItem('wuyo_app_order', JSON.stringify([...grid.children].map(el => el.dataset.appId))); });
+    let touchItem = null;
+    grid.addEventListener('pointerdown', (event) => { touchItem = event.target.closest('.app-item'); });
+    grid.addEventListener('pointermove', (event) => { if (!touchItem) return; const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.app-item'); if (target && target !== touchItem && target.parentElement === grid) grid.insertBefore(touchItem, target); });
+    grid.addEventListener('pointerup', () => { if (!touchItem) return; localStorage.setItem('wuyo_app_order', JSON.stringify([...grid.children].map(el => el.dataset.appId))); touchItem = null; });
+};
+
+window.renderHomeWidgets = () => {
+    const area = document.getElementById('custom-widget-area');
+    if (!area) return;
+    const widgets = readJson('wuyo_config', {}).widgets || {};
+    area.replaceChildren();
+    Object.entries(widgets).filter(([, widget]) => widget.show).forEach(([id, widget]) => {
+        if (!widget.title && !widget.text) return;
+        const card = document.createElement('article'); card.className = 'custom-widget';
+        if (widget.background) card.style.backgroundImage = `url(${widget.background})`;
+        card.innerHTML = `<div class="custom-widget-content"><div class="custom-widget-title">${widget.title || 'WIDGET'}</div><div class="custom-widget-text">${widget.text || widget.sub || ''}</div></div><div class="custom-widget-icon"><i data-lucide="${widget.icon || 'sparkles'}"></i></div>`;
+        area.appendChild(card);
+    });
+    if (window.lucide) lucide.createIcons({ root: area });
+};
+
 window.openApp = (appId) => {
     const appContainer = document.getElementById(`${appId}-app`);
     if (!appContainer) {
@@ -120,51 +182,10 @@ window.applyConfig = () => {
         if(profilePic && config.profile.avatar) { profilePic.style.backgroundImage = `url(${config.profile.avatar})`; profilePic.classList.add('has-image'); }
     }
 
-    // 桌面小组件同步
-    if (config.widgets) {
-        const memoryTag = document.querySelector('.polaroid-tag'); const memoryDesc = document.querySelector('.polaroid-desc'); const memoryPic = document.getElementById('memory-pic');
-        if(memoryTag && config.widgets.memory) memoryTag.textContent = config.widgets.memory.title; 
-        if(memoryDesc && config.widgets.memory) memoryDesc.textContent = config.widgets.memory.sub;
-        if(memoryPic && config.widgets.memory?.img) { memoryPic.style.backgroundImage = `url(${config.widgets.memory.img})`; memoryPic.classList.add('has-image'); }
-        
-        const todayText = document.querySelector('.today-text'); 
-        if(todayText && config.widgets.today) todayText.innerHTML = config.widgets.today.text.replace(/\n/g, '<br>');
+    window.renderHomeWidgets();
+    window.renderHomeApps();
 
-        if (config.widgets.couple) {
-            if(config.widgets.couple.date) {
-                const diffDays = Math.ceil(Math.abs(new Date() - new Date(config.widgets.couple.date)) / (1000 * 60 * 60 * 24)); 
-                const coupleDaysEl = document.getElementById('w-couple-days-display'); if (coupleDaysEl) coupleDaysEl.textContent = `${diffDays} Days`;
-            }
-            const cTitle = document.getElementById('w-couple-title'); if(cTitle) cTitle.textContent = config.widgets.couple.text || 'LOVE';
-            const cUser = document.getElementById('w-couple-user-img'); if(cUser && config.widgets.couple.userAvatar) { cUser.innerHTML = ''; cUser.style.backgroundImage = `url(${config.widgets.couple.userAvatar})`; }
-            const cChar = document.getElementById('w-couple-char-img'); if(cChar && config.widgets.couple.charAvatar) { cChar.innerHTML = ''; cChar.style.backgroundImage = `url(${config.widgets.couple.charAvatar})`; }
-        }
 
-        if (config.widgets.listen) {
-            const lCover = document.getElementById('w-listen-cover'); if(lCover && config.widgets.listen.cover) { lCover.innerHTML = ''; lCover.style.backgroundImage = `url(${config.widgets.listen.cover})`; }
-            const lSong = document.getElementById('w-listen-song'); if(lSong) lSong.textContent = config.widgets.listen.song;
-            const lArtist = document.getElementById('w-listen-artist'); if(lArtist) lArtist.textContent = config.widgets.listen.artist;
-            const lTime = document.getElementById('w-listen-time'); if(lTime) lTime.textContent = config.widgets.listen.time;
-            const lText = document.getElementById('w-listen-text'); if(lText) lText.textContent = config.widgets.listen.text;
-            
-            const lUser = document.getElementById('l-avatar-user'); if(lUser && config.widgets.couple?.userAvatar) lUser.style.backgroundImage = `url(${config.widgets.couple.userAvatar})`;
-            const lChar = document.getElementById('l-avatar-char'); if(lChar && config.widgets.couple?.charAvatar) lChar.style.backgroundImage = `url(${config.widgets.couple.charAvatar})`;
-        }
-    }
-
-    // App 自定义图标同步
-    if (config.apps) {
-        document.querySelectorAll('.app-item span').forEach(span => {
-            const appName = span.textContent;
-            if (config.apps[appName]) {
-                if (config.apps[appName].name) span.textContent = config.apps[appName].name;
-                if (config.apps[appName].img) {
-                    const iconDiv = span.previousElementSibling;
-                    if(iconDiv) { iconDiv.innerHTML = ''; iconDiv.style.backgroundImage = `url(${config.apps[appName].img})`; iconDiv.style.backgroundSize = 'cover'; }
-                }
-            }
-        });
-    }
 };
 
 // ==========================================
@@ -186,15 +207,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     updateDateTime(); setInterval(updateDateTime, 60000); 
 
-    // 桌面滑动与指示器联动
-    const swiper = document.getElementById('desktop-swiper');
-    const dots = document.querySelectorAll('.pagination-dots .dot');
-    if (swiper) {
-        swiper.addEventListener('scroll', () => {
-            const pageIndex = Math.round(swiper.scrollLeft / swiper.clientWidth);
-            dots.forEach((dot, index) => { if (index === pageIndex) dot.classList.add('active'); else dot.classList.remove('active'); });
-        });
-    }
+    window.renderHomeApps();
+    window.renderHomeWidgets();
+    document.querySelectorAll('.dock-item[data-app-id]').forEach((item) => item.addEventListener('click', () => window.openApp(item.dataset.appId)));
 
     // 桌面组件点击上传图片
     const imageUploader = document.getElementById('image-uploader');

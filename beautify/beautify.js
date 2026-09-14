@@ -4,14 +4,13 @@
 
     // 默认配置模板 (包含你之前的所有设置项)
     const defaultConfigTemplate = {
-        style: { bgColor: '#f4f4f7', bgImage: '', cardRadius: '24', cardOpacity: '55' },
+        style: { bgColor: '#bfc1c5', bgImage: '', cardRadius: '25', cardOpacity: '55' },
         texts: { brand: 'WUYO', aiTitle: 'AI 伙伴', aiSubtitle: '随时准备与你交流…', aiAvatar: '' },
-        profile: { nickname: '锁骨痣', avatar: '' },
+        profile: { nickname: '', avatar: '' },
         widgets: {
-            memory: { show: true, title: 'MEMORY', sub: '美好的瞬间', img: '' },
-            today: { show: true, text: '保持专注，\n顺其自然。' },
-            couple: { show: true, date: '2024-01-01', text: 'LOVE', userAvatar: '', charAvatar: '' },
-            listen: { show: true, song: 'Midnight City', artist: 'M83', time: '01:24:36', text: '和你一起听歌', cover: '' }
+            focus: { show: false, title: 'FOCUS', text: '留一点时间给自己', icon: 'sparkles', background: '' },
+            note: { show: false, title: 'TODAY', text: '慢一点，也没关系', icon: 'quote', background: '' },
+            mood: { show: false, title: 'MOOD', text: '晴朗 · 24°', icon: 'cloud-sun', background: '' }
         },
         apps: {} 
     };
@@ -27,11 +26,11 @@
     
     // 确保旧版数据也拥有新的字段结构
     let wuyoConfig = JSON.parse(JSON.stringify(activePreset.config));
-    if (!wuyoConfig.widgets.couple) wuyoConfig.widgets.couple = defaultConfigTemplate.widgets.couple;
-    if (!wuyoConfig.widgets.listen) wuyoConfig.widgets.listen = defaultConfigTemplate.widgets.listen;
+    wuyoConfig.widgets = Object.fromEntries(Object.entries(defaultConfigTemplate.widgets).map(([id, widget]) => [id, { ...widget, ...((wuyoConfig.widgets || {})[id] || {}) }]));
+    wuyoConfig.apps = wuyoConfig.apps || {};
 
     // 完整的 App 列表 (包含新增的 15 个 App)
-    const appsList = ['世界书', '美化', '相册', '备忘录', '音乐', '日历', '设置', '情侣空间', '论坛', '直播', '小红书', '社交', '外卖', '购物', '闲鱼', '淘宝', '一起看', '见面吧', '在干嘛', '出行', '推特', '倒数日', '健康记录', '查手机', '小手机', '短信', '阅读', '时钟', '地图', '记忆总结', '小游戏'];
+    const appsList = [['worldbook','世界书','book-open'], ['beautify','美化','sparkles'], ['chat','聊天','message-circle'], ['contacts','联系人','users'], ['calendar','日历','calendar-days'], ['settings','设置','settings-2'], ['album','相册','image'], ['notes','备忘录','notebook-pen'], ['music','音乐','music-2'], ['memory','记忆','brain-circuit'], ['heart','情侣空间','heart'], ['weather','天气','cloud-sun'], ['clock','时钟','clock-3'], ['map','地图','map-pin'], ['camera','相机','camera'], ['more','更多','grid-2x2']];
 
     const renderUI = () => {
         container.innerHTML = `
@@ -83,44 +82,11 @@
                         <div class="beautify-avatar-preview" id="profile-avatar-preview"></div>
                         <button class="beautify-upload-btn" data-target="profile-avatar">更换</button>
                     </div>
-                    <div class="beautify-setting-item vertical"><span>昵称</span><input type="text" id="profile-nickname" value="锁骨痣"></div>
                 </div>
 
-                <div class="beautify-section-title">桌面组件管理</div>
-                <div class="beautify-setting-group" id="widget-settings">
-                    <details class="beautify-widget-details"><summary>高级情侣组件</summary>
-                        <div class="beautify-detail-content">
-                            <div class="beautify-setting-item vertical"><span>自定义标题</span><input type="text" id="w-couple-text" value="LOVE"></div>
-                            <div class="beautify-setting-item vertical"><span>相恋日期</span><input type="date" id="w-couple-date" value="2024-01-01"></div>
-                            <div class="beautify-setting-item"><span>User 头像</span><button class="beautify-upload-btn" data-target="w-couple-user-img">上传</button></div>
-                            <div class="beautify-setting-item"><span>Char 头像</span><button class="beautify-upload-btn" data-target="w-couple-char-img">上传</button></div>
-                        </div>
-                    </details>
-                    
-                    <details class="beautify-widget-details"><summary>一起听歌组件</summary>
-                        <div class="beautify-detail-content">
-                            <div class="beautify-setting-item vertical"><span>歌曲名</span><input type="text" id="w-listen-song" value="Midnight City"></div>
-                            <div class="beautify-setting-item vertical"><span>歌手</span><input type="text" id="w-listen-artist" value="M83"></div>
-                            <div class="beautify-setting-item vertical"><span>时长进度</span><input type="text" id="w-listen-time" value="01:24:36"></div>
-                            <div class="beautify-setting-item vertical"><span>底部文字</span><input type="text" id="w-listen-text" value="和你一起听歌"></div>
-                            <div class="beautify-setting-item"><span>歌曲封面</span><button class="beautify-upload-btn" data-target="w-listen-cover">上传</button></div>
-                        </div>
-                    </details>
-                    
-                    <details class="beautify-widget-details"><summary>Memory 记忆组件</summary>
-                        <div class="beautify-detail-content">
-                            <div class="beautify-setting-item vertical"><span>主标题</span><input type="text" id="w-memory-title" value="MEMORY"></div>
-                            <div class="beautify-setting-item vertical"><span>副标题</span><input type="text" id="w-memory-sub" value="美好的瞬间"></div>
-                            <div class="beautify-setting-item"><span>更换图片</span><button class="beautify-upload-btn" data-target="w-memory-img">上传</button></div>
-                        </div>
-                    </details>
-                    
-                    <details class="beautify-widget-details"><summary>Today 每日文字</summary>
-                        <div class="beautify-detail-content">
-                            <div class="beautify-setting-item vertical"><span>正文内容</span><textarea id="w-today-text" rows="3"></textarea></div>
-                        </div>
-                    </details>
-                </div>
+                <div class="beautify-section-title">自定义小组件</div>
+                <p class="beautify-helper">默认不显示。启用后可自定义卡片背景、标题、文字和图标。</p>
+                <div class="beautify-setting-group" id="widget-settings"></div>
 
                 <div class="beautify-section-title">App 图标自定义</div>
                 <div class="beautify-setting-group" id="app-icon-settings"></div>
@@ -130,18 +96,17 @@
             <input type="file" id="beautify-json-uploader" accept=".json" style="display:none;">
         `;
 
-        const appSettingsContainer = document.getElementById('app-icon-settings');
-        appsList.forEach(app => {
-            appSettingsContainer.innerHTML += `
-                <details class="beautify-widget-details">
-                    <summary>${app}</summary>
-                    <div class="beautify-detail-content">
-                        <div class="beautify-setting-item vertical"><span>重命名</span><input type="text" id="app-name-${app}" value="${wuyoConfig.apps[app]?.name || app}"></div>
-                        <div class="beautify-setting-item"><span>自定义图标</span><button class="beautify-upload-btn" data-target="app-img-${app}">上传</button></div>
-                    </div>
-                </details>
-            `;
+        const widgetContainer = document.getElementById('widget-settings');
+        Object.entries(wuyoConfig.widgets).forEach(([id, widget]) => {
+            widgetContainer.insertAdjacentHTML('beforeend', `<details class="beautify-widget-details"><summary>${widget.title || id}</summary><div class="beautify-detail-content"><label class="beautify-setting-item"><span>显示在主页</span><input type="checkbox" id="widget-show-${id}" ${widget.show ? 'checked' : ''}></label><div class="beautify-setting-item vertical"><span>标题</span><input type="text" id="widget-title-${id}" value="${widget.title || ''}"></div><div class="beautify-setting-item vertical"><span>文字</span><input type="text" id="widget-text-${id}" value="${widget.text || ''}"></div><div class="beautify-setting-item vertical"><span>图标名称</span><input type="text" id="widget-icon-${id}" value="${widget.icon || 'sparkles'}"></div><div class="beautify-setting-item"><span>组件整体背景图</span><button class="beautify-upload-btn" data-target="widget-bg-${id}">上传</button></div></div></details>`);
         });
+        const appSettingsContainer = document.getElementById('app-icon-settings');
+        appSettingsContainer.classList.add('app-editor-grid');
+        appsList.forEach(([id, name, icon]) => {
+            const setting = wuyoConfig.apps[id] || wuyoConfig.apps[name] || {};
+            appSettingsContainer.insertAdjacentHTML('beforeend', `<button type="button" class="app-editor-card" data-app-id="${id}" data-app-name="${name}" data-app-icon="${icon}"><span class="app-editor-preview" ${setting.img ? `style="background-image:url(${setting.img})"` : ''}><i data-lucide="${setting.icon || icon}"></i></span><span>${setting.name || name}</span></button>`);
+        });
+        appSettingsContainer.insertAdjacentHTML('beforeend', '<button type="button" class="app-editor-card app-editor-add" id="add-custom-app"><span><i data-lucide="plus"></i></span><span>添加图标</span></button>');
 
         renderThemeList(); bindDataToForms(); bindEvents(); lucide.createIcons({ root: container });
     };
@@ -173,20 +138,9 @@
         document.getElementById('text-ai-subtitle').value = wuyoConfig.texts.aiSubtitle;
 
         if(wuyoConfig.texts.aiAvatar) document.getElementById('ai-avatar-preview').style.backgroundImage = `url(${wuyoConfig.texts.aiAvatar})`;
-        document.getElementById('profile-nickname').value = wuyoConfig.profile.nickname;
         if(wuyoConfig.profile.avatar) document.getElementById('profile-avatar-preview').style.backgroundImage = `url(${wuyoConfig.profile.avatar})`;
         
-        document.getElementById('w-couple-text').value = wuyoConfig.widgets.couple.text;
-        document.getElementById('w-couple-date').value = wuyoConfig.widgets.couple.date;
-        
-        document.getElementById('w-listen-song').value = wuyoConfig.widgets.listen.song;
-        document.getElementById('w-listen-artist').value = wuyoConfig.widgets.listen.artist;
-        document.getElementById('w-listen-time').value = wuyoConfig.widgets.listen.time;
-        document.getElementById('w-listen-text').value = wuyoConfig.widgets.listen.text;
 
-        document.getElementById('w-memory-title').value = wuyoConfig.widgets.memory.title;
-        document.getElementById('w-memory-sub').value = wuyoConfig.widgets.memory.sub;
-        document.getElementById('w-today-text').value = wuyoConfig.widgets.today.text;
     };
 
     const bindEvents = () => {
@@ -223,6 +177,18 @@
             }
         });
 
+        document.getElementById('app-icon-settings').addEventListener('click', (e) => {
+            const add = e.target.closest('#add-custom-app');
+            if (add) { const name = prompt('新图标名称'); if (!name) return; const id = `custom_${Date.now()}`; const apps = JSON.parse(localStorage.getItem('wuyo_custom_apps') || '[]'); apps.push({ id, name, icon: 'sparkles' }); localStorage.setItem('wuyo_custom_apps', JSON.stringify(apps)); window.renderHomeApps?.(); renderUI(); return; }
+            const card = e.target.closest('.app-editor-card');
+            if (!card) return;
+            const id = card.dataset.appId; const name = prompt('图标名称', card.dataset.appName); if (name === null) return;
+            if (!wuyoConfig.apps[id]) wuyoConfig.apps[id] = {};
+            wuyoConfig.apps[id].name = name.trim() || card.dataset.appName;
+            const icon = prompt('Lucide 图标名称（例如 heart、camera、star）', wuyoConfig.apps[id].icon || card.dataset.appIcon); if (icon) wuyoConfig.apps[id].icon = icon.trim();
+            window.renderHomeApps?.(); renderUI();
+        });
+
         imgUploader.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file && currentTarget) {
@@ -237,6 +203,7 @@
                         if (currentTarget === 'w-couple-char-img') wuyoConfig.widgets.couple.charAvatar = compressedBase64;
                         if (currentTarget === 'w-listen-cover') wuyoConfig.widgets.listen.cover = compressedBase64;
                         if (currentTarget === 'w-memory-img') wuyoConfig.widgets.memory.img = compressedBase64;
+                        if (currentTarget.startsWith('widget-bg-')) wuyoConfig.widgets[currentTarget.replace('widget-bg-', '')].background = compressedBase64;
                         
                         if (currentTarget.startsWith('app-img-')) {
                             const appName = currentTarget.replace('app-img-', '');
@@ -287,26 +254,14 @@
             wuyoConfig.texts.brand = document.getElementById('text-brand').value;
             wuyoConfig.texts.aiTitle = document.getElementById('text-ai-title').value;
             wuyoConfig.texts.aiSubtitle = document.getElementById('text-ai-subtitle').value;
-            wuyoConfig.profile.nickname = document.getElementById('profile-nickname').value;
             
-            wuyoConfig.widgets.couple.text = document.getElementById('w-couple-text').value;
-            wuyoConfig.widgets.couple.date = document.getElementById('w-couple-date').value;
-            
-            wuyoConfig.widgets.listen.song = document.getElementById('w-listen-song').value;
-            wuyoConfig.widgets.listen.artist = document.getElementById('w-listen-artist').value;
-            wuyoConfig.widgets.listen.time = document.getElementById('w-listen-time').value;
-            wuyoConfig.widgets.listen.text = document.getElementById('w-listen-text').value;
-
-            wuyoConfig.widgets.memory.title = document.getElementById('w-memory-title').value;
-            wuyoConfig.widgets.memory.sub = document.getElementById('w-memory-sub').value;
-            wuyoConfig.widgets.today.text = document.getElementById('w-today-text').value;
-
-            appsList.forEach(app => {
-                const input = document.getElementById(`app-name-${app}`);
-                if(input && input.value !== app) {
-                    if(!wuyoConfig.apps[app]) wuyoConfig.apps[app] = {}; wuyoConfig.apps[app].name = input.value;
-                }
+            Object.keys(wuyoConfig.widgets).forEach((id) => {
+                wuyoConfig.widgets[id].show = document.getElementById(`widget-show-${id}`).checked;
+                wuyoConfig.widgets[id].title = document.getElementById(`widget-title-${id}`).value;
+                wuyoConfig.widgets[id].text = document.getElementById(`widget-text-${id}`).value;
+                wuyoConfig.widgets[id].icon = document.getElementById(`widget-icon-${id}`).value || 'sparkles';
             });
+
         };
 
         document.getElementById('beautify-save-btn').addEventListener('click', () => {
