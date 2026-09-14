@@ -19,132 +19,23 @@
 
     <!-- 主屏幕容器 -->
     <main id="home-screen">
-        <div class="desktop-swiper" id="desktop-swiper">
-            <!-- ====== 第一页：核心主屏幕 ====== -->
-            <div class="desktop-page">
-                <header class="top-header" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; margin-top: 10px; margin-bottom: 24px; padding: 0 16px;">
-                    <div class="header-left" style="display: flex !important; flex-direction: row !important; align-items: baseline !important; gap: 8px !important;">
-                        <span class="brand-name" style="font-size: 16px !important; font-weight: 800 !important; color: #1c1c1e !important; margin: 0 !important; line-height: 1 !important;">WUYO</span>
-                        <span class="day" id="current-day" style="font-size: 13px !important; color: #8E8E93 !important; font-weight: 600 !important; line-height: 1 !important; margin-left: 4px !important;">星期四</span>
-                        <span class="date" id="current-date" style="font-size: 15px !important; font-weight: 700 !important; color: #1C1C1E !important; line-height: 1 !important;">9月3日</span>
-                    </div>
-                    <div class="header-right" style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 10px !important;">
-                        <span class="user-nickname" id="user-nickname" style="font-size: 14px !important; font-weight: 600 !important; color: #1C1C1E !important; margin: 0 !important;">锁骨痣</span>
-                        <div class="profile-widget uploadable" id="profile-pic" style="width: 36px !important; height: 36px !important; border-radius: 50% !important; background: #F2F2F7 !important; display: flex !important; justify-content: center !important; align-items: center !important; overflow: hidden !important; margin: 0 !important;">
-                            <i data-lucide="user" class="placeholder-icon" style="width: 20px; height: 20px; color: #8E8E93;"></i>
-                        </div>
-                    </div>
-                </header>
-
-                <div class="widget-row-main">
-                    <div class="widget widget-square">
-                        <div class="polaroid-inner">
-                            <div class="polaroid-img uploadable" id="memory-pic"><i data-lucide="image" class="placeholder-icon"></i></div>
-                            <div class="polaroid-bottom"><span class="polaroid-tag">MEMORY</span><span class="polaroid-desc">美好的瞬间</span></div>
-                        </div>
-                    </div>
-                    <div class="widget widget-square flex-center col-layout">
-                        <div class="clock-time" id="widget-time">09:41</div>
-                        <div class="clock-date" id="widget-date-sub">9月3日</div>
-                    </div>
+        <div class="home-page">
+            <header class="top-header">
+                <div class="header-left">
+                    <span class="brand-name">WUYO</span>
+                    <span class="day" id="current-day">星期四</span>
+                    <span class="date" id="current-date">9月3日</span>
                 </div>
-
-                <div class="ai-card">
-                    <div class="ai-avatar"><i data-lucide="bot"></i></div>
-                    <div class="ai-info"><h2>AI 伙伴</h2><p>随时准备与你交流…</p></div>
-                </div>
-
-                <div class="app-grid">
-                    <div class="app-item" onclick="window.openApp('worldbook')"><div class="app-icon"><i data-lucide="book"></i></div><span>世界书</span></div>
-                    <div class="app-item" onclick="window.openApp('beautify')"><div class="app-icon"><i data-lucide="palette"></i></div><span>美化</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="image"></i></div><span>相册</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="file-text"></i></div><span>备忘录</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="music"></i></div><span>音乐</span></div>
-                    <div class="app-item" onclick="window.openApp('calendar')"><div class="app-icon"><i data-lucide="calendar"></i></div><span>日历</span></div>
-                    <div class="app-item" onclick="window.openApp('settings')"><div class="app-icon"><i data-lucide="settings"></i></div><span>设置</span></div>
-                    <div class="app-item" onclick="window.openApp('heart')"><div class="app-icon"><i data-lucide="heart"></i></div><span>情侣空间</span></div>
-                </div>
-            </div>
-            
-            <!-- ====== 第二页：情侣与社交桌面 ====== -->
-            <div class="desktop-page">
-                <div class="bento-grid">
-                    <div class="widget widget-2x1 couple-advanced-widget">
-                        <div class="couple-avatars">
-                            <div class="c-avatar uploadable" id="w-couple-user-img"><i data-lucide="user"></i></div>
-                            <div class="c-heart">♡</div>
-                            <div class="c-avatar uploadable" id="w-couple-char-img"><i data-lucide="bot"></i></div>
-                        </div>
-                        <div class="couple-text-area">
-                            <div class="c-title" id="w-couple-title">LOVE</div>
-                            <div class="c-days" id="w-couple-days-display">523 Days</div>
-                        </div>
-                    </div>
-
-                    <div class="widget widget-2x1 listen-together-widget">
-                        <div class="listen-cover uploadable" id="w-listen-cover"><i data-lucide="music"></i></div>
-                        <div class="listen-info">
-                            <div class="listen-avatars">
-                                <div class="l-avatar" id="l-avatar-user"></div>
-                                <div class="l-avatar" id="l-avatar-char"></div>
-                            </div>
-                            <div class="listen-song" id="w-listen-song">Midnight City</div>
-                            <div class="listen-artist" id="w-listen-artist">M83</div>
-                            <div class="listen-bottom">
-                                <span id="w-listen-time">01:24:36</span>
-                                <span id="w-listen-text">和你一起听歌</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="app-grid">
-                    <div class="app-item"><div class="app-icon"><i data-lucide="users"></i></div><span>社交</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="coffee"></i></div><span>见面吧</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="message-circle"></i></div><span>在干嘛</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="tv"></i></div><span>一起看</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="calendar-heart"></i></div><span>倒数日</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="scan-search"></i></div><span>查手机</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="smartphone"></i></div><span>小手机</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="message-square"></i></div><span>短信</span></div>
-                </div>
-            </div>
-
-            <!-- ====== 第三页：生活与工具桌面 ====== -->
-            <div class="desktop-page">
-                <div class="bento-grid">
-                    <div class="widget widget-1x1 flex-center col-layout weather-widget">
-                        <i data-lucide="cloud" class="weather-icon"></i>
-                        <div class="weather-temp">18°</div>
-                        <div class="weather-city">Tokyo / Cloudy</div>
-                    </div>
-                    <div class="widget widget-1x1" style="background: transparent; box-shadow: none;"></div>
-                </div>
-
-                <div class="app-grid">
-                    <div class="app-item"><div class="app-icon"><i data-lucide="message-square-plus"></i></div><span>论坛</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="video"></i></div><span>直播</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="hash"></i></div><span>小红书</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="shopping-bag"></i></div><span>购物</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="shopping-cart"></i></div><span>淘宝</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="package"></i></div><span>闲鱼</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="pizza"></i></div><span>外卖</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="plane"></i></div><span>出行</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="twitter"></i></div><span>推特</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="activity"></i></div><span>健康记录</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="book-open"></i></div><span>阅读</span></div>
-                    <div class="app-item"><div class="app-icon"><i data-lucide="map"></i></div><span>地图</span></div>
-                </div>
-            </div>
-
+                <div class="profile-widget uploadable" id="profile-pic" aria-label="更换头像"><i data-lucide="user" class="placeholder-icon"></i></div>
+            </header>
+            <section id="custom-widget-area" class="custom-widget-area" aria-label="自定义小组件"></section>
+            <section class="app-grid" id="home-app-grid" aria-label="应用"></section>
         </div>
-        
-        <nav id="dock" style="position: fixed !important; bottom: calc(env(safe-area-inset-bottom, 20px) + 10px) !important; left: 0 !important; width: 100% !important; display: flex !important; justify-content: center !important; z-index: 100 !important; padding: 0 !important; margin: 0 !important;">
-            <div class="dock-container" style="margin: 0 !important;">
-                <div class="dock-item"><div class="dock-icon"><i data-lucide="phone"></i></div></div>
-                <div class="dock-item" onclick="window.openApp('contacts')"><div class="dock-icon"><i data-lucide="users"></i></div></div>
-                <div class="dock-item" onclick="window.openApp('chat')"><div class="dock-icon"><i data-lucide="message-square"></i></div></div>
-                <div class="dock-item"><div class="dock-icon"><i data-lucide="more-horizontal"></i></div></div>
+        <nav id="dock" aria-label="快捷应用">
+            <div class="dock-container">
+                <button class="dock-item" type="button" data-app-id="contacts" aria-label="联系人"><i data-lucide="users"></i></button>
+                <button class="dock-item" type="button" data-app-id="chat" aria-label="聊天"><i data-lucide="message-square"></i></button>
+                <button class="dock-item" type="button" data-app-id="settings" aria-label="设置"><i data-lucide="settings"></i></button>
             </div>
         </nav>
     </main>
@@ -194,7 +85,7 @@
         </div>
     </section>
 
-    <script src="app.js⁠"></script>
+    <script src="app.js"></script>
     <script src="calendar/calendar.js"></script>
 
 </body>
