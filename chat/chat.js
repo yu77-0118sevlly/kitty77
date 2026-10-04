@@ -571,6 +571,90 @@
         // 绑定各类设置返回与保存按钮 (带非空判断)
         const bindClick = (id, fn) => { const el = document.getElementById(id); if(el) el.addEventListener('click', fn); };
         
+        // 绑定头像与背景图片上传器
+        let currentUploadType = '';
+        const coupleAvatarUploader = document.getElementById('couple-avatar-uploader');
+        const chatBgUploader = document.getElementById('chat-bg-uploader');
+
+        bindClick('set-user-avatar-btn', () => { currentUploadType = 'user'; coupleAvatarUploader?.click(); });
+        bindClick('set-ai-avatar-btn', () => { currentUploadType = 'ai'; coupleAvatarUploader?.click(); });
+        bindClick('set-bg-img-btn', () => { chatBgUploader?.click(); });
+
+        coupleAvatarUploader?.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const b64 = ev.target.result;
+                if (currentUploadType === 'user') {
+                    tempEditableUserAvatar = b64;
+                    const el = document.getElementById('preview-user-av');
+                    if (el) el.style.backgroundImage = `url(${b64})`;
+                } else {
+                    tempEditableAiAvatar = b64;
+                    const el = document.getElementById('preview-ai-av');
+                    if (el) el.style.backgroundImage = `url(${b64})`;
+                }
+            };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+        });
+
+        chatBgUploader?.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                tempEditableBgImg = ev.target.result;
+                const status = document.getElementById('bg-img-status');
+                if (status) status.textContent = '已选择新背景';
+            };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+        });
+
+        // 聊天设置保存
+        bindClick('settings-save-btn', () => {
+            if (!currentChatId) return;
+            let roles = JSON.parse(localStorage.getItem('wuyo_roles')) || [];
+            const rIdx = roles.findIndex(r => r.id === currentChatId);
+            const pinnedEl = document.getElementById('chat-pinned-toggle');
+            const muteEl = document.getElementById('chat-mute-toggle');
+            if (rIdx !== -1) {
+                if (pinnedEl) roles[rIdx].pinned = pinnedEl.checked;
+                if (muteEl) roles[rIdx].muted = muteEl.checked;
+                if (tempEditableAiAvatar) roles[rIdx].avatar = tempEditableAiAvatar;
+                localStorage.setItem('wuyo_roles', JSON.stringify(roles));
+            }
+
+            let coupleConf = JSON.parse(localStorage.getItem('wuyo_couple_config')) || {};
+            if (tempEditableUserAvatar) coupleConf.userAvatar = tempEditableUserAvatar;
+            const signInput = document.getElementById('couple-sign-input');
+            if (signInput) coupleConf.signature = signInput.value;
+            localStorage.setItem('wuyo_couple_config', JSON.stringify(coupleConf));
+
+            let chatConf = JSON.parse(localStorage.getItem('wuyo_chat_style_config')) || {};
+            const showUserAv = document.getElementById('show-user-avatar-toggle');
+            const showAiAv = document.getElementById('show-ai-avatar-toggle');
+            const bubbleColor = document.getElementById('bubble-color-picker');
+            const bubbleSize = document.getElementById('bubble-fontsize-select');
+            const bubbleRadius = document.getElementById('bubble-radius-select');
+            
+            if (showUserAv) chatConf.showUserAvatar = showUserAv.checked;
+            if (showAiAv) chatConf.showAiAvatar = showAiAv.checked;
+            if (bubbleColor) chatConf.bubbleBg = bubbleColor.value;
+            if (bubbleSize) chatConf.bubbleFontSize = bubbleSize.value;
+            if (bubbleRadius) chatConf.bubbleRadius = bubbleRadius.value;
+            if (tempEditableBgImg) chatConf.bgImg = tempEditableBgImg;
+
+            localStorage.setItem('wuyo_chat_style_config', JSON.stringify(chatConf));
+            applyChatStylesToDOM();
+            renderMessages();
+            renderChatList();
+            alert('聊天设置已保存');
+            document.getElementById('chat-page-settings')?.classList.remove('active');
+        });
+
         bindClick('chat-btn-settings', () => {
             const page = document.getElementById('chat-page-settings');
             if(page) page.classList.add('active');
